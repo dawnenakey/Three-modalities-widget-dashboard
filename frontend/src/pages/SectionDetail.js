@@ -339,7 +339,7 @@ export default function SectionDetail() {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 }
