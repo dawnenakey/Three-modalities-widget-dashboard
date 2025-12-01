@@ -13,10 +13,10 @@ export default function DashboardLayout({ children }) {
   };
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/websites', icon: Globe, label: 'Websites' },
-    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
-    { path: '/settings', icon: Settings, label: 'Settings' },
+    { path: '/', icon: Home, label: 'Home', exact: true },
+    { path: '/websites', icon: Globe, label: 'Websites', exact: false },
+    { path: '/analytics', icon: BarChart3, label: 'Analytics', exact: true },
+    { path: '/settings', icon: Settings, label: 'Settings', exact: true },
   ];
 
   return (
