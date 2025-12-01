@@ -35,7 +35,9 @@ export default function DashboardLayout({ children }) {
         <nav className="flex-1 p-4">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.path;
+            const isActive = item.exact 
+              ? location.pathname === item.path
+              : location.pathname.startsWith(item.path);
             return (
               <Link
                 key={item.path}
