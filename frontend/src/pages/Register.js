@@ -4,22 +4,37 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Accessibility, ArrowRight } from 'lucide-react';
 
 export default function Register() {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (!agreed) {
+      toast.error('Please agree to the Terms of Service');
+      return;
+    }
+    
     setLoading(true);
     try {
-      await register(name, email, password);
+      const fullName = `${firstName} ${lastName}`;
+      await register(fullName, email, password);
       toast.success('Account created successfully!');
       navigate('/');
     } catch (error) {
@@ -30,80 +45,165 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <div className="bg-white border border-slate-200 rounded-xl shadow-lg p-8">
-          <div className="flex items-center justify-center mb-8">
-            <div className="h-12 w-12 bg-primary rounded-full flex items-center justify-center">
-              <Accessibility className="h-6 w-6 text-white" />
+    <div className="min-h-screen flex">
+      {/* Left Side - Gradient with Logo */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460] items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#00CED1] rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
+        </div>
+        <div className="relative z-10 text-center">
+          <div className="mb-8">
+            <h1 className="text-6xl font-bold text-white mb-4">
+              PI<span className="text-[#00CED1]">V</span>OT
+            </h1>
+            <p className="text-lg text-gray-300">Powered by <span className="text-[#00CED1]">dozanu</span></p>
+          </div>
+          <div className="flex items-center justify-center gap-6 mt-12">
+            <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#00CED1" strokeWidth="2" width="32" height="32">
+                <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
+                <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
+                <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+                <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+              </svg>
+            </div>
+            <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#00CED1" strokeWidth="2" width="32" height="32">
+                <path d="M17 6.1H3"/>
+                <path d="M21 12.1H3"/>
+                <path d="M15.1 18H3"/>
+              </svg>
+            </div>
+            <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#00CED1" strokeWidth="2" width="32" height="32">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+              </svg>
             </div>
           </div>
-          
-          <h1 className="text-3xl font-bold text-center text-slate-900 mb-2" data-testid="register-title">
-            Create Account
-          </h1>
-          <p className="text-center text-slate-600 mb-8">
-            Start making your content accessible
-          </p>
+          <p className="text-gray-400 mt-6 text-sm">Language Access Technology</p>
+        </div>
+      </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-                data-testid="register-name-input"
-              />
+      {/* Right Side - Register Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white overflow-y-auto">
+        <div className="w-full max-w-md">
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Create An Account</h2>
+            <p className="text-gray-600">Get started with PIVOT today</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="firstName" className="text-gray-700">First Name*</Label>
+                <Input
+                  id="firstName"
+                  placeholder="First"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  className="h-11"
+                  data-testid="register-firstname-input"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="lastName" className="text-gray-700">Last Name*</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Last"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  className="h-11"
+                  data-testid="register-lastname-input"
+                />
+              </div>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-gray-700">Email address*</Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="h-11"
                 data-testid="register-email-input"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-gray-700">Password*</Label>
               <Input
                 id="password"
                 type="password"
-                placeholder="••••••••"
+                placeholder="Create password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
+                className="h-11"
                 data-testid="register-password-input"
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="confirmPassword" className="text-gray-700">Confirm New Password*</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                className="h-11"
+                data-testid="register-confirm-password-input"
+              />
+            </div>
+
+            <div className="flex items-start gap-3 pt-2">
+              <Checkbox
+                id="terms"
+                checked={agreed}
+                onCheckedChange={setAgreed}
+                className="mt-1"
+                data-testid="register-terms-checkbox"
+              />
+              <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+                I agreed to the{' '}
+                <Link to="/terms" className="text-[#00CED1] hover:underline">Terms of Service</Link>
+                {' '}and{' '}
+                <Link to="/privacy" className="text-[#00CED1] hover:underline">Privacy Policy</Link>
+              </label>
+            </div>
+
             <Button
               type="submit"
-              className="w-full h-11 bg-primary hover:bg-primary/90 text-white font-medium shadow-sm hover:shadow-md transition-all"
+              className="w-full h-12 bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold text-base"
               disabled={loading}
               data-testid="register-submit-button"
             >
               {loading ? 'Creating account...' : 'Create Account'}
-              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </form>
 
-          <p className="text-center text-sm text-slate-600 mt-6">
+          <p className="text-center text-sm text-gray-600 mt-6">
             Already have an account?{' '}
-            <Link to="/login" className="text-primary font-medium hover:underline">
+            <Link to="/login" className="text-[#00CED1] font-semibold hover:underline">
               Sign in
             </Link>
           </p>
+          
+          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
+            <Link to="/terms-of-service" className="text-sm text-[#00CED1] hover:underline">
+              Add - Terms of Service
+            </Link>
+          </div>
         </div>
       </div>
     </div>
