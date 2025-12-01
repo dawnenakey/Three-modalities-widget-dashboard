@@ -119,24 +119,23 @@ export default function SectionDetail() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-      <p className="text-slate-600">Loading...</p>
-    </div>;
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2" data-testid="section-detail-title">Section Content</h1>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-6 py-8">
+    <DashboardLayout>
+      <div className="p-8">
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
+        <h1 className="text-3xl font-bold text-gray-900 mb-8" data-testid="section-detail-title">Section Content</h1>
         {/* Section Text */}
         <div className="bg-white border border-slate-200 rounded-xl p-6 mb-8">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Text Content</h2>
