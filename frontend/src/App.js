@@ -32,6 +32,14 @@ function App() {
               }
             />
             <Route
+              path="/websites"
+              element={
+                <PrivateRoute>
+                  <Websites />
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/websites/:websiteId"
               element={
                 <PrivateRoute>
