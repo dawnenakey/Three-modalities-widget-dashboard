@@ -495,7 +495,22 @@ async def get_analytics(website_id: str, current_user: dict = Depends(get_curren
 
 # Serve uploaded files
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
+# Static files (uploads)
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
+
+# Serve widget.js
+@app.get("/widget.js")
+async def serve_widget():
+    widget_path = ROOT_DIR / "static" / "widget.js"
+    return FileResponse(widget_path, media_type="application/javascript")
+
+# Serve demo page
+@app.get("/demo")
+async def serve_demo():
+    demo_path = ROOT_DIR / "static" / "demo.html"
+    return FileResponse(demo_path, media_type="text/html")
 
 app.include_router(api_router)
 
