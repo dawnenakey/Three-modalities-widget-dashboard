@@ -1,0 +1,152 @@
+{
+  "identity": {
+    "persona": "E1: The Anti-AI Designer",
+    "philosophy": "Tactile Clarity. Accessibility is not just compliance; it is dignity. We reject the clinical, boring 'compliance software' look. We build tools that feel like high-end medical instruments—precise, clean, and reassuringly human.",
+    "principles": [
+      "Fusion: Swiss Medical Precision + Human Warmth",
+      "Contrast is King: If it's not legible, it doesn't exist",
+      "Tactile UI: Buttons should feel pressable; borders define reality",
+      "Data with Soul: Analytics shouldn't look like a spreadsheet; they should tell a story of inclusion"
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Manrope, sans-serif",
+      "body": "Public Sans, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-4xl md:text-5xl font-bold tracking-tight leading-tight",
+      "h2": "text-3xl md:text-4xl font-semibold tracking-tight",
+      "h3": "text-2xl font-semibold tracking-normal",
+      "body_lg": "text-lg leading-relaxed",
+      "body_base": "text-base leading-relaxed",
+      "caption": "text-sm font-medium tracking-wide uppercase text-muted-foreground"
+    },
+    "rules": [
+      "Never use Inter for headings.",
+      "Headings must be dark (Slate-900) or Primary Blue.",
+      "Body text must never be lighter than Slate-600 for accessibility."
+    ]
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "#1e3a8a",
+        "foreground": "#ffffff",
+        "description": "Deep Royal Blue - Authority, Trust, Clarity"
+      },
+      "secondary": {
+        "DEFAULT": "#f1f5f9",
+        "foreground": "#0f172a",
+        "description": "Cool Slate Grey - Structure, Backgrounds"
+      },
+      "accent": {
+        "DEFAULT": "#f97316",
+        "foreground": "#ffffff",
+        "description": "Signal Orange - Action, Urgency, High Visibility"
+      },
+      "background": {
+        "light": "#f8fafc",
+        "dark": "#020617"
+      },
+      "surface": {
+        "light": "#ffffff",
+        "dark": "#0f172a"
+      },
+      "status": {
+        "success": "#15803d",
+        "warning": "#b45309",
+        "error": "#b91c1c",
+        "info": "#0369a1"
+      }
+    },
+    "usage_rules": [
+      "No gradients on text.",
+      "Backgrounds should be 'Tinted White' (#f8fafc), not pure white, to reduce eye strain.",
+      "Borders are mandatory for cards to define edges clearly (1px solid Slate-200).",
+      "Focus rings must be 4px wide and high contrast (Orange or Blue)."
+    ]
+  },
+  "layout": {
+    "grid_system": {
+      "dashboard": "grid grid-cols-1 md:grid-cols-12 gap-6 p-6 md:p-8",
+      "widget_modal": "flex flex-col h-[600px] w-full md:w-[400px] fixed bottom-4 right-4 bg-white shadow-2xl rounded-xl overflow-hidden border border-slate-200 z-50"
+    },
+    "spacing": {
+      "container_padding": "p-6 md:p-12",
+      "section_gap": "gap-8 md:gap-12",
+      "internal_padding": "p-6"
+    },
+    "strategies": [
+      "The 'Control Room' Grid for Dashboard: Dense, data-rich, but with clear borders.",
+      "The 'Floating Widget': High z-index, distinct shadow, clear separation from host site."
+    ]
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 rounded-md font-medium transition-all shadow-sm hover:shadow-md active:scale-95",
+      "secondary": "bg-white border-2 border-slate-200 text-slate-900 hover:border-primary hover:text-primary h-11 px-8 rounded-md font-medium transition-all",
+      "ghost": "hover:bg-slate-100 text-slate-700 hover:text-slate-900 h-10 px-4 rounded-md font-medium"
+    },
+    "cards": {
+      "base": "bg-white border border-slate-200 rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow duration-200",
+      "interactive": "cursor-pointer hover:border-primary/50 hover:ring-1 hover:ring-primary/50"
+    },
+    "inputs": {
+      "base": "flex h-11 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "widget": {
+      "trigger": "fixed bottom-6 right-6 h-14 w-14 bg-primary text-white rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform cursor-pointer z-50 focus:ring-4 focus:ring-accent",
+      "modal": "fixed bottom-24 right-6 w-[350px] md:w-[400px] bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden z-50 flex flex-col animate-in slide-in-from-bottom-10 fade-in duration-300"
+    }
+  },
+  "visual_enhancers": {
+    "shadows": "shadow-[0_2px_8px_rgba(0,0,0,0.08)]",
+    "borders": "border border-slate-200",
+    "radius": "rounded-xl",
+    "textures": "Use subtle noise texture on dashboard backgrounds to reduce digital sterility."
+  },
+  "media": {
+    "image_urls": {
+      "hero_interpreter": "https://images.unsplash.com/photo-1749353709979-7f169131254e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwxfHxzaWduJTIwbGFuZ3VhZ2UlMjBpbnRlcnByZXRlciUyMHByb2Zlc3Npb25hbCUyMHN0dWRpb3xlbnwwfHx8fDE3NjQ1NjMzNDN8MA&ixlib=rb-4.1.0&q=85",
+      "widget_demo_user": "https://images.unsplash.com/photo-1648969688349-5caa68f3f358?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Nzd8MHwxfHNlYXJjaHwzfHxzaWduJTIwbGFuZ3VhZ2UlMjBpbnRlcnByZXRlciUyMHByb2Zlc3Npb25hbCUyMHN0dWRpb3xlbnwwfHx8fDE3NjQ1NjMzNDN8MA&ixlib=rb-4.1.0&q=85",
+      "team_meeting": "https://images.unsplash.com/photo-1758691736975-9f7f643d178e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwxfHxkaXZlcnNlJTIwYnVzaW5lc3MlMjB0ZWFtJTIwbWVldGluZyUyMG1vZGVybiUyMG9mZmljZXxlbnwwfHx8fDE3NjQ1NjMzNDV8MA&ixlib=rb-4.1.0&q=85",
+      "success_highfive": "https://images.unsplash.com/photo-1758873269317-51888e824b28?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2Mzl8MHwxfHNlYXJjaHwzfHxkaXZlcnNlJTIwYnVzaW5lc3MlMjB0ZWFtJTIwbWVldGluZyUyMG1vZGVybiUyMG9mZmljZXxlbnwwfHx8fDE3NjQ1NjMzNDV8MA&ixlib=rb-4.1.0&q=85"
+    },
+    "icons": "Use Lucide-React. Stroke width 2px for clarity. Size 20px or 24px."
+  },
+  "accessibility_checklist": {
+    "contrast": "All text must meet WCAG AAA (7:1) where possible, AA (4.5:1) mandatory.",
+    "focus": "Visible focus indicators are non-negotiable.",
+    "aria": "All interactive elements must have aria-labels if no text is present.",
+    "motion": "Respect prefers-reduced-motion."
+  },
+  "instructions_to_main_agent": [
+    "1. Install 'lucide-react' and 'recharts' immediately.",
+    "2. Create the 'Widget' as a standalone component that can be visually tested in the dashboard before export.",
+    "3. Use the 'Manrope' font for all headings. Import it from Google Fonts.",
+    "4. The Dashboard must look like a 'Cockpit' - high density, but organized with clear borders.",
+    "5. Do not use gradients for backgrounds. Use solid colors or subtle patterns.",
+    "6. Ensure the 'ASL Video Player' in the widget has large, clear play/pause controls."
+  ],
+  "UNIVERSAL_GUIDELINES_FOR_MAIN_AGENT": [
+    "You tend to converge toward generic, 'on distribution' outputs. Avoid this.",
+    "Dark colors look good when used independently without gradients. DO NOT use dark colors as gradients.",
+    "Don't make generic centered layouts, simplistic gradients, and uniform styling.",
+    "Create depth through layered design elements with z-index hierarchy.",
+    "Use glass-morphism effects with backdrop filters (12-24px blur) ONLY for the widget background.",
+    "You MUST NOT apply universal transition. Eg: transition: all.",
+    "You MUST NOT center align the app container.",
+    "Always use modern button styles like pill-shaped, or sharp button with interaction animations.",
+    "NEVER: use AI assistant Emoji characters like 🤖🧠 etc for icons.",
+    "Every interaction needs micro-animations - hover states, transitions.",
+    "Use 2-3x more spacing than feels comfortable.",
+    "Subtle grain textures, noise overlays, custom cursors: separates good from extraordinary.",
+    "Main agent relies on these image URLs. Missing categories = main agent will use placeholder text which is FORBIDDEN.",
+    "Prioritize using pre-existing components from src/components/ui when applicable.",
+    "Components MUST use named exports.",
+    "Pages MUST use default exports.",
+    "Use 'sonner' for toasts."
+  ]
+}
