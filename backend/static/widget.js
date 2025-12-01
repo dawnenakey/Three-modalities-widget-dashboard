@@ -1,7 +1,7 @@
 /**
- * PIVOT Accessibility Widget
- * Embeddable accessibility solution with ASL, Audio, and Text support
- * Version: 1.0.0
+ * PIVOT Accessibility Widget - Updated Design
+ * Dark theme with teal/cyan accents
+ * Version: 2.0.0
  */
 
 (function() {
@@ -14,8 +14,8 @@
       : 'https://your-production-domain.com/api',
     websiteId: document.currentScript?.getAttribute('data-website-id') || '',
     position: document.currentScript?.getAttribute('data-position') || 'bottom-right',
-    primaryColor: document.currentScript?.getAttribute('data-primary-color') || '#1e3a8a',
-    accentColor: document.currentScript?.getAttribute('data-accent-color') || '#f97316'
+    primaryColor: document.currentScript?.getAttribute('data-primary-color') || '#00CED1',
+    darkBg: document.currentScript?.getAttribute('data-dark-bg') || '#1a1a1a'
   };
 
   // State
@@ -25,83 +25,100 @@
   let currentSectionIndex = 0;
   let selectedLanguage = 'ASL (American Sign Language)';
 
-  // Styles
+  // Styles - Dark theme with teal accents
   const styles = `
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    
     .pivot-widget-button {
       position: fixed;
       ${CONFIG.position.includes('bottom') ? 'bottom: 24px;' : 'top: 24px;'}
       ${CONFIG.position.includes('right') ? 'right: 24px;' : 'left: 24px;'}
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: ${CONFIG.primaryColor};
-      color: white;
-      border: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      min-width: 120px;
+      height: 50px;
+      padding: 0 20px;
+      border-radius: 25px;
+      background: ${CONFIG.darkBg};
+      border: 2px solid ${CONFIG.primaryColor};
+      color: ${CONFIG.primaryColor};
       cursor: pointer;
       z-index: 999999;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-      font-size: 24px;
+      gap: 8px;
+      transition: all 0.3s;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 8px 24px rgba(0, 206, 209, 0.3);
     }
     .pivot-widget-button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.2);
+      background: ${CONFIG.primaryColor};
+      color: ${CONFIG.darkBg};
+      transform: scale(1.05);
+      box-shadow: 0 12px 32px rgba(0, 206, 209, 0.4);
     }
     .pivot-widget-button:active {
-      transform: scale(0.95);
+      transform: scale(0.98);
+    }
+    .pivot-logo-text {
+      font-weight: 700;
+      letter-spacing: 0.5px;
     }
     .pivot-widget-modal {
       position: fixed;
       ${CONFIG.position.includes('bottom') ? 'bottom: 90px;' : 'top: 90px;'}
       ${CONFIG.position.includes('right') ? 'right: 24px;' : 'left: 24px;'}
-      width: 400px;
+      width: 420px;
       max-width: calc(100vw - 48px);
-      max-height: 600px;
-      background: white;
-      border-radius: 16px;
-      box-shadow: 0 16px 48px rgba(0,0,0,0.2);
+      max-height: 650px;
+      background: ${CONFIG.darkBg};
+      border-radius: 20px;
+      border: 2px solid ${CONFIG.primaryColor};
+      box-shadow: 0 20px 60px rgba(0, 206, 209, 0.3);
       z-index: 999998;
       display: none;
       flex-direction: column;
       overflow: hidden;
-      animation: pivotSlideIn 0.3s ease-out;
+      animation: pivotSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'Inter', sans-serif;
     }
     @keyframes pivotSlideIn {
       from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(30px) scale(0.9);
       }
       to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
       }
     }
     .pivot-widget-modal.open {
       display: flex;
     }
     .pivot-modal-header {
-      padding: 20px;
-      background: ${CONFIG.primaryColor};
+      padding: 24px 20px;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
       color: white;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 2px solid ${CONFIG.primaryColor};
     }
     .pivot-modal-title {
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 700;
       margin: 0;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      color: ${CONFIG.primaryColor};
+      letter-spacing: 1px;
     }
     .pivot-close-btn {
-      background: rgba(255,255,255,0.2);
-      border: none;
-      color: white;
+      background: rgba(0, 206, 209, 0.1);
+      border: 1px solid ${CONFIG.primaryColor};
+      color: ${CONFIG.primaryColor};
       width: 32px;
       height: 32px;
       border-radius: 8px;
@@ -110,134 +127,201 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      font-weight: 600;
     }
     .pivot-close-btn:hover {
-      background: rgba(255,255,255,0.3);
+      background: ${CONFIG.primaryColor};
+      color: ${CONFIG.darkBg};
+      transform: rotate(90deg);
     }
     .pivot-tabs {
       display: flex;
-      border-bottom: 1px solid #e2e8f0;
-      background: #f8fafc;
+      background: #0f0f0f;
+      padding: 8px;
+      gap: 8px;
     }
     .pivot-tab {
       flex: 1;
       padding: 12px 16px;
-      background: none;
-      border: none;
+      background: transparent;
+      border: 1px solid #333;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      color: #888;
       transition: all 0.2s;
-      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
     .pivot-tab:hover {
       color: ${CONFIG.primaryColor};
-      background: white;
+      border-color: ${CONFIG.primaryColor};
+      background: rgba(0, 206, 209, 0.05);
     }
     .pivot-tab.active {
-      color: ${CONFIG.primaryColor};
-      border-bottom-color: ${CONFIG.primaryColor};
-      background: white;
+      color: ${CONFIG.darkBg};
+      background: ${CONFIG.primaryColor};
+      border-color: ${CONFIG.primaryColor};
+      box-shadow: 0 4px 12px rgba(0, 206, 209, 0.3);
     }
     .pivot-content {
       flex: 1;
       overflow-y: auto;
       padding: 20px;
+      background: #0f0f0f;
+    }
+    .pivot-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .pivot-content::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    .pivot-content::-webkit-scrollbar-thumb {
+      background: ${CONFIG.primaryColor};
+      border-radius: 4px;
     }
     .pivot-language-selector {
       margin-bottom: 16px;
     }
     .pivot-language-selector select {
       width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      padding: 12px 16px;
+      border: 2px solid #333;
+      border-radius: 10px;
       font-size: 14px;
-      background: white;
+      background: ${CONFIG.darkBg};
+      color: white;
       cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .pivot-language-selector select:hover,
+    .pivot-language-selector select:focus {
+      border-color: ${CONFIG.primaryColor};
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 206, 209, 0.1);
+    }
+    .pivot-language-selector option {
+      background: ${CONFIG.darkBg};
+      padding: 10px;
     }
     .pivot-section {
       margin-bottom: 24px;
       padding-bottom: 24px;
-      border-bottom: 1px solid #e2e8f0;
+      border-bottom: 1px solid #2d2d2d;
     }
     .pivot-section:last-child {
       border-bottom: none;
     }
     .pivot-section-text {
       font-size: 15px;
-      line-height: 1.6;
-      color: #334155;
+      line-height: 1.7;
+      color: #e0e0e0;
       margin-bottom: 16px;
-      padding: 12px;
-      background: #f8fafc;
-      border-radius: 8px;
+      padding: 16px;
+      background: #1a1a1a;
+      border-radius: 12px;
+      border-left: 3px solid ${CONFIG.primaryColor};
     }
     .pivot-video-player {
       width: 100%;
-      border-radius: 8px;
+      border-radius: 12px;
       background: #000;
       max-height: 300px;
+      border: 2px solid #2d2d2d;
     }
     .pivot-audio-player {
       width: 100%;
       margin-top: 8px;
+      border-radius: 8px;
     }
     .pivot-empty-state {
       text-align: center;
-      padding: 40px 20px;
-      color: #64748b;
+      padding: 50px 20px;
+      color: #666;
     }
     .pivot-empty-state svg {
-      width: 48px;
-      height: 48px;
-      margin: 0 auto 16px;
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 20px;
+      stroke: ${CONFIG.primaryColor};
       opacity: 0.5;
+    }
+    .pivot-empty-state p {
+      font-size: 14px;
+      color: #888;
     }
     .pivot-loading {
       text-align: center;
-      padding: 40px 20px;
-      color: #64748b;
+      padding: 50px 20px;
+      color: ${CONFIG.primaryColor};
+    }
+    .pivot-loading::after {
+      content: '...';
+      animation: pivotDots 1.5s infinite;
+    }
+    @keyframes pivotDots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
     }
     .pivot-error {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      color: #991b1b;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
       padding: 12px;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 10px;
+      font-size: 13px;
       margin-bottom: 16px;
     }
     .pivot-section-nav {
       display: flex;
-      gap: 8px;
-      margin-top: 16px;
+      gap: 10px;
+      margin-top: 20px;
     }
     .pivot-nav-btn {
       flex: 1;
-      padding: 8px 16px;
-      background: ${CONFIG.primaryColor};
-      color: white;
-      border: none;
-      border-radius: 8px;
+      padding: 12px 20px;
+      background: ${CONFIG.darkBg};
+      color: ${CONFIG.primaryColor};
+      border: 2px solid ${CONFIG.primaryColor};
+      border-radius: 10px;
       cursor: pointer;
       font-size: 14px;
-      transition: opacity 0.2s;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-family: 'Inter', sans-serif;
     }
     .pivot-nav-btn:hover {
-      opacity: 0.9;
+      background: ${CONFIG.primaryColor};
+      color: ${CONFIG.darkBg};
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 206, 209, 0.3);
+    }
+    .pivot-nav-btn:active {
+      transform: translateY(0);
     }
     .pivot-nav-btn:disabled {
-      opacity: 0.5;
+      opacity: 0.3;
       cursor: not-allowed;
+      transform: none;
+    }
+    .pivot-nav-btn:disabled:hover {
+      background: ${CONFIG.darkBg};
+      color: ${CONFIG.primaryColor};
+      box-shadow: none;
     }
     .pivot-section-counter {
       text-align: center;
       font-size: 12px;
-      color: #64748b;
-      margin-top: 8px;
+      color: #666;
+      margin-top: 12px;
+      font-weight: 500;
     }
     @media (max-width: 480px) {
       .pivot-widget-modal {
@@ -245,12 +329,17 @@
         right: 16px;
         left: 16px;
       }
+      .pivot-widget-button {
+        min-width: 100px;
+        height: 45px;
+        font-size: 12px;
+      }
       .pivot-modal-title {
         font-size: 16px;
       }
       .pivot-tab {
         padding: 10px 8px;
-        font-size: 12px;
+        font-size: 11px;
       }
     }
   `;
@@ -260,11 +349,11 @@
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 
-  // Create widget button
+  // Create widget button (pill shape)
   const button = document.createElement('button');
   button.className = 'pivot-widget-button';
-  button.setAttribute('aria-label', 'Open accessibility options');
-  button.innerHTML = '♿';
+  button.setAttribute('aria-label', 'Open PIVOT accessibility options');
+  button.innerHTML = '<span class="pivot-logo-text">PIVOT</span>';
   button.onclick = toggleWidget;
 
   // Create modal
@@ -272,18 +361,16 @@
   modal.className = 'pivot-widget-modal';
   modal.innerHTML = `
     <div class="pivot-modal-header">
-      <h3 class="pivot-modal-title">
-        ♿ PIVOT Accessibility
-      </h3>
+      <h3 class="pivot-modal-title">PIVOT*</h3>
       <button class="pivot-close-btn" aria-label="Close">&times;</button>
     </div>
     <div class="pivot-tabs">
-      <button class="pivot-tab active" data-tab="video">📹 Video</button>
+      <button class="pivot-tab active" data-tab="video">👋 ASL</button>
       <button class="pivot-tab" data-tab="audio">🔊 Audio</button>
       <button class="pivot-tab" data-tab="text">📝 Text</button>
     </div>
     <div class="pivot-content">
-      <div class="pivot-loading">Loading content...</div>
+      <div class="pivot-loading">Loading</div>
     </div>
   `;
 
@@ -320,7 +407,7 @@
     if (!CONFIG.websiteId) {
       contentEl.innerHTML = `
         <div class="pivot-error">
-          ⚠️ Widget configuration error: Missing website ID. Please check your embed code.
+          ⚠️ Widget configuration error: Missing website ID
         </div>
       `;
       return;
@@ -343,13 +430,13 @@
       console.error('PIVOT Widget Error:', error);
       contentEl.innerHTML = `
         <div class="pivot-error">
-          ⚠️ Unable to load accessibility content. Please try again later.
+          ⚠️ Unable to load content. Please try again.
         </div>
         <div class="pivot-empty-state">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
-          <p>Content not available for this page</p>
+          <p>Content not available</p>
         </div>
       `;
     }
@@ -364,7 +451,7 @@
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
-          <p>No accessibility content available for this page yet.</p>
+          <p>No content available for this page</p>
         </div>
       `;
       return;
@@ -375,7 +462,7 @@
 
     let content = '';
 
-    // Language selector (for video and audio)
+    // Language selector
     if (currentTab === 'video' || currentTab === 'audio') {
       const items = currentTab === 'video' ? section.videos : section.audios;
       if (items && items.length > 0) {
@@ -405,7 +492,7 @@
           content += `
             <video class="pivot-video-player" controls>
               <source src="${CONFIG.apiBaseUrl.replace('/api', '')}${video.video_url}" type="video/mp4">
-              Your browser does not support video playback.
+              Your browser does not support video.
             </video>
           `;
         });
@@ -426,11 +513,11 @@
           content += `
             <audio class="pivot-audio-player" controls>
               <source src="${CONFIG.apiBaseUrl.replace('/api', '')}${audio.audio_url}" type="audio/mpeg">
-              Your browser does not support audio playback.
+              Your browser does not support audio.
             </audio>
           `;
           if (audio.captions) {
-            content += `<p style="font-size: 12px; color: #64748b; margin-top: 8px;">${audio.captions}</p>`;
+            content += `<p style="font-size: 12px; color: #999; margin-top: 8px;">${audio.captions}</p>`;
           }
         });
       } else {
@@ -444,7 +531,7 @@
         `;
       }
     } else if (currentTab === 'text') {
-      content += '<p style="font-size: 14px; color: #64748b; margin-top: 8px;">Text translation coming soon. Currently showing original content.</p>';
+      content += '<p style="font-size: 13px; color: #888; margin-top: 12px; text-align: center;">Text translation coming soon</p>';
     }
 
     content += '</div>';
@@ -488,7 +575,7 @@
     renderContent();
   }
 
-  // Initialize on load
+  // Initialize
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -496,23 +583,15 @@
   }
 
   function init() {
-    console.log('PIVOT Widget initialized');
-    console.log('Website ID:', CONFIG.websiteId);
-    console.log('Position:', CONFIG.position);
+    console.log('%c🎯 PIVOT Widget Initialized', 'color: #00CED1; font-size: 14px; font-weight: bold');
+    console.log('Website ID:', CONFIG.websiteId || 'Not configured');
   }
 
-  // Expose public API
+  // Public API
   window.PIVOTWidget = {
-    open: () => {
-      if (!isOpen) toggleWidget();
-    },
-    close: () => {
-      if (isOpen) toggleWidget();
-    },
-    reload: () => {
-      contentData = null;
-      if (isOpen) loadContent();
-    }
+    open: () => { if (!isOpen) toggleWidget(); },
+    close: () => { if (isOpen) toggleWidget(); },
+    reload: () => { contentData = null; if (isOpen) loadContent(); }
   };
 
 })();
