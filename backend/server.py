@@ -15,7 +15,8 @@ import jwt
 import aiofiles
 from bs4 import BeautifulSoup
 import requests
-from emergentintegrations.llm.openai import OpenAITextToSpeech
+import httpx
+import asyncio
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -39,7 +40,9 @@ JWT_ALGORITHM = os.environ['JWT_ALGORITHM']
 JWT_EXPIRATION = int(os.environ['JWT_EXPIRATION_HOURS'])
 
 # Initialize OpenAI TTS
-tts = OpenAITextToSpeech(api_key=os.getenv("EMERGENT_LLM_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise RuntimeError("Missing OPENAI_API_KEY environment variable for TTS")
 
 # Create the main app
 app = FastAPI()
@@ -409,6 +412,26 @@ async def upload_audio(
     
     return audio_obj
 
+async def generate_tts_audio(text: str, voice: str = "alloy") -> bytes:
+    url = "https://api.openai.com/v1/audio/speech"
+    payload = {
+        "model": "gpt-4o-mini-tts",  # adjust if needed
+        "voice": voice,
+        "input": text,
+        "format": "mp3",
+    }
+
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=60) as client:
+        resp = await client.post(url, json=payload, headers=headers)
+        if resp.status_code != 200:
+            logging.error(f"OpenAI TTS error: {resp.status_code} - {resp.text}")
+            raise HTTPException(status_code=500, detail="Text-to-speech generation failed")
+        return resp.content
 @api_router.post("/sections/{section_id}/audio/generate", response_model=Audio)
 async def generate_audio(
     section_id: str,
@@ -421,11 +444,11 @@ async def generate_audio(
         raise HTTPException(status_code=404, detail="Section not found")
     
     try:
-        audio_bytes = await tts.generate_speech(
-            text=section['selected_text'],
-            model="tts-1",
-            voice=voice
-        )
+    audio_bytes = await generate_tts_audio(
+        text=section["selected_text"],
+        voice=voice,
+    )
+
         
         file_id = str(uuid.uuid4())
         file_path = AUDIO_DIR / f"{file_id}.mp3"
