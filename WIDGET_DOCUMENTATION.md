@@ -1,4 +1,4 @@
-# 🎯 PIVOT Widget Documentation
+#  PIVOT Widget Documentation
 
 ## Overview
 
