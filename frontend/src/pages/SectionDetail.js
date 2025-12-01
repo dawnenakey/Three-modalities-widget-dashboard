@@ -228,10 +228,11 @@ export default function SectionDetail() {
                       Generate
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="pointer-events-auto" aria-describedby="tts-generate-description">
                     <DialogHeader>
                       <DialogTitle>Generate Audio (AI)</DialogTitle>
                     </DialogHeader>
+                    <p id="tts-generate-description" className="sr-only">Generate audio using AI text-to-speech</p>
                     <form onSubmit={handleGenerateTTS} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="language">Language</Label>
