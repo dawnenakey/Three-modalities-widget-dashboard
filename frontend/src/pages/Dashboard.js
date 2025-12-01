@@ -96,10 +96,11 @@ export default function Dashboard() {
                 Add Website
               </Button>
             </DialogTrigger>
-            <DialogContent data-testid="add-website-dialog">
+            <DialogContent data-testid="add-website-dialog" className="pointer-events-auto" aria-describedby="add-website-description">
               <DialogHeader>
                 <DialogTitle>Add New Website</DialogTitle>
               </DialogHeader>
+              <p id="add-website-description" className="sr-only">Add a new website to manage accessibility</p>
               <form onSubmit={handleCreate} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Website Name</Label>
