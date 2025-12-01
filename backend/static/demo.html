@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIVOT Widget Demo - Test Page</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    .hero {
+      background: white;
+      border-radius: 20px;
+      padding: 60px 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    h1 {
+      font-size: 48px;
+      color: #1e3a8a;
+      margin-bottom: 20px;
+    }
+    .subtitle {
+      font-size: 20px;
+      color: #64748b;
+      margin-bottom: 30px;
+    }
+    .content-section {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h2 {
+      color: #1e3a8a;
+      margin-bottom: 20px;
+      font-size: 32px;
+    }
+    p {
+      margin-bottom: 15px;
+      font-size: 16px;
+      line-height: 1.8;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+    .feature-card {
+      background: #f8fafc;
+      padding: 30px;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+    }
+    .feature-card h3 {
+      color: #1e3a8a;
+      margin-bottom: 10px;
+    }
+    .badge {
+      display: inline-block;
+      background: #f97316;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .cta-button {
+      display: inline-block;
+      background: #1e3a8a;
+      color: white;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 20px;
+      transition: transform 0.2s;
+    }
+    .cta-button:hover {
+      transform: translateY(-2px);
+    }
+    .instructions {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 30px 0;
+    }
+    .instructions h3 {
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+    .instructions p {
+      color: #78350f;
+      margin-bottom: 5px;
+    }
+    code {
+      background: #1e293b;
+      color: #f1f5f9;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero">
+      <span class="badge">♿ PIVOT Widget Demo</span>
+      <h1>Welcome to PIVOT Accessibility Platform</h1>
+      <p class="subtitle">
+        This is a demonstration page showing how the PIVOT widget works on any website.
+        Look for the accessibility button in the bottom-right corner!
+      </p>
+      <div class="instructions">
+        <h3>🎯 How to Test:</h3>
+        <p>1. Look for the <strong>blue accessibility button (♿)</strong> in the bottom-right corner</p>
+        <p>2. Click it to open the PIVOT widget modal</p>
+        <p>3. Switch between the three tabs: <strong>Video</strong>, <strong>Audio</strong>, and <strong>Text</strong></p>
+        <p>4. Select different languages from the dropdown (if available)</p>
+        <p>5. Navigate through sections using Previous/Next buttons</p>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>About PIVOT</h2>
+      <p>
+        PIVOT is a revolutionary accessibility platform that makes content available in multiple formats:
+        American Sign Language (ASL) videos, audio narration in multiple languages, and text translations.
+        Our mission is to ensure that everyone, regardless of ability or language, can access information online.
+      </p>
+      <p>
+        With just one line of code, website owners can add comprehensive accessibility features to their sites.
+        The PIVOT widget automatically adapts to your content and provides seamless access to alternative formats.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>Key Features</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <h3>📹 ASL Videos</h3>
+          <p>Native sign language videos for deaf and hard-of-hearing users. Supports ASL and 7+ other sign languages.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🔊 Audio Narration</h3>
+          <p>AI-generated or uploaded audio files in multiple languages. Perfect for users who prefer listening.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📝 Text Translation</h3>
+          <p>Content available in text format with translation capabilities for 7000+ languages.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎨 Customizable</h3>
+          <p>Widget can be customized to match your brand colors and positioned anywhere on the page.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📱 Mobile Ready</h3>
+          <p>Fully responsive design that works perfectly on phones, tablets, and desktops.</p>
+        </div>
+        <div class="feature-card">
+          <h3>⚡ Fast & Lightweight</h3>
+          <p>No external dependencies. Loads quickly without impacting your site's performance.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-section">
+      <h2>How It Works</h2>
+      <p>
+        The PIVOT widget is embedded on your website using a simple script tag. It communicates with the PIVOT API
+        to fetch accessibility content for each page. Content is automatically matched to the current URL, so visitors
+        always see relevant accessibility options.
+      </p>
+      <p>
+        Website administrators use the PIVOT dashboard to:
+      </p>
+      <ul style="margin-left: 30px; margin-bottom: 15px;">
+        <li>Add websites and pages</li>
+        <li>Upload ASL videos and audio files</li>
+        <li>Generate AI-powered audio using text-to-speech</li>
+        <li>Configure widget appearance and behavior</li>
+        <li>Track usage analytics</li>
+      </ul>
+      <p>
+        The entire setup process takes less than 5 minutes, and content can be updated at any time through the dashboard.
+      </p>
+    </div>
+
+    <div class="content-section">
+      <h2>Get Started Today</h2>
+      <p>
+        Ready to make your website accessible to everyone? Sign up for PIVOT and start adding accessibility features
+        to your website in minutes. No technical expertise required!
+      </p>
+      <a href="http://localhost:3000/register" class="cta-button">Create Free Account →</a>
+    </div>
+
+    <div class="content-section">
+      <h2>Technical Details</h2>
+      <p><strong>Widget Installation:</strong></p>
+      <p>Add this code to your website (replace <code>YOUR_WEBSITE_ID</code> with your actual ID):</p>
+      <pre style="background: #1e293b; color: #f1f5f9; padding: 20px; border-radius: 8px; overflow-x: auto; margin: 15px 0;">&lt;script src="http://localhost:8001/widget.js" 
+        data-website-id="YOUR_WEBSITE_ID"&gt;&lt;/script&gt;</pre>
+      
+      <p><strong>Customization Options:</strong></p>
+      <ul style="margin-left: 30px;">
+        <li><code>data-website-id</code> - Your website ID (required)</li>
+        <li><code>data-position</code> - Widget position: bottom-right, bottom-left, top-right, top-left</li>
+        <li><code>data-primary-color</code> - Primary color (default: #1e3a8a)</li>
+        <li><code>data-accent-color</code> - Accent color (default: #f97316)</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- PIVOT Widget Embed Code - Replace with your actual website ID -->
+  <script src="http://localhost:8001/widget.js" 
+          data-website-id="DEMO_WEBSITE_ID"
+          data-position="bottom-right"
+          data-primary-color="#1e3a8a"
+          data-accent-color="#f97316"></script>
+</body>
+</html>
