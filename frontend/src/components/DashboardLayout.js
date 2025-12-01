@@ -1,0 +1,88 @@
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { Home, Globe, BarChart3, Settings, LogOut } from 'lucide-react';
+
+export default function DashboardLayout({ children }) {
+  const location = useLocation();
+  const { logout, user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
+  const navItems = [
+    { path: '/', icon: Home, label: 'Home' },
+    { path: '/websites', icon: Globe, label: 'Websites' },
+    { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+    { path: '/settings', icon: Settings, label: 'Settings' },
+  ];
+
+  return (
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-64 bg-[#1a1a1a] flex flex-col">
+        {/* Logo */}
+        <div className="p-6 border-b border-gray-800">
+          <h1 className="text-3xl font-bold text-white">
+            PI<span className="text-[#00CED1]">V</span>OT
+          </h1>
+          <p className="text-xs text-gray-500 mt-1">Language Translation</p>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
+                  isActive
+                    ? 'bg-[#00CED1] text-[#1a1a1a] font-semibold'
+                    : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                }`}
+                data-testid={`nav-${item.label.toLowerCase()}`}
+              >
+                <Icon className="h-5 w-5" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* User & Logout */}
+        <div className="p-4 border-t border-gray-800">
+          <div className="flex items-center gap-3 px-4 py-3 mb-2">
+            <div className="h-10 w-10 rounded-full bg-[#00CED1] flex items-center justify-center text-[#1a1a1a] font-bold">
+              {user?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-white">{user?.name}</p>
+              <p className="text-xs text-gray-500">{user?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 rounded-lg w-full text-gray-400 hover:bg-gray-800 hover:text-white transition-all"
+            data-testid="logout-button"
+          >
+            <LogOut className="h-5 w-5" />
+            Logout
+          </button>
+          <div className="mt-4 pt-4 border-t border-gray-800 text-center">
+            <p className="text-xs text-gray-600">Powered by <span className="text-[#00CED1]">dozanu.</span></p>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 overflow-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
