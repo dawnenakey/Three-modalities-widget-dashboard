@@ -222,12 +222,43 @@ class PIVOTAPITester:
 
     def test_generate_tts_audio(self, section_id):
         """Test OpenAI TTS audio generation"""
-        tts_data = {
+        # TTS endpoint expects form data, not JSON
+        data = {
             'language': 'English',
             'voice': 'alloy'
         }
         
-        return self.run_test("Generate TTS Audio", "POST", f"sections/{section_id}/audio/generate", 200, tts_data)
+        # Use form data instead of JSON
+        url = f"{self.base_url}/sections/{section_id}/audio/generate"
+        headers = {}
+        if self.token:
+            headers['Authorization'] = f'Bearer {self.token}'
+        
+        try:
+            response = requests.post(url, data=data, headers=headers, timeout=30)
+            success = response.status_code == 200
+            details = f"Status: {response.status_code}"
+            
+            if success and response.content:
+                try:
+                    response_data = response.json()
+                    details += f", Response: {json.dumps(response_data, indent=2)[:200]}..."
+                    self.log_test("Generate TTS Audio", True, details)
+                    return True, response_data
+                except:
+                    self.log_test("Generate TTS Audio", True, details)
+                    return True, {}
+            else:
+                try:
+                    error_data = response.json()
+                    details += f", Error: {error_data}"
+                except:
+                    details += f", Error: {response.text[:200]}"
+                self.log_test("Generate TTS Audio", False, details)
+                return False, {}
+        except Exception as e:
+            self.log_test("Generate TTS Audio", False, f"Exception: {str(e)}")
+            return False, {}
 
     def test_get_audios(self, section_id):
         """Test get audios for section"""
