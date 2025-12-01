@@ -455,22 +455,8 @@
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 
-  // Create widget button with logo and icons
-  const button = document.createElement('button');
-  button.className = 'pivot-widget-button';
-  button.setAttribute('aria-label', 'Open PIVOT accessibility options');
-  button.innerHTML = `
-    <div class="pivot-logo-container">
-      <div class="pivot-icons-row">
-        <div class="pivot-icon-circle">👋</div>
-        <div class="pivot-icon-circle">📄</div>
-        <div class="pivot-icon-circle">🔊</div>
-      </div>
-      <div class="pivot-logo-text">PI<span class="pivot-logo-v">V</span>OT</div>
-      <div class="pivot-logo-subtitle">Language Translation</div>
-    </div>
-  `;
-  button.onclick = toggleWidget;
+  // SVG Icons (matching your design)
+  const handIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>';\n  const textIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>';\n  const audioIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';\n\n  // Create widget button with logo and icons\n  const button = document.createElement('button');\n  button.className = 'pivot-widget-button';\n  button.setAttribute('aria-label', 'Open PIVOT accessibility options');\n  button.innerHTML = `\n    <div class="pivot-logo-container">\n      <div class="pivot-icons-row">\n        <div class="pivot-icon-circle">${handIcon}</div>\n        <div class="pivot-icon-circle">${textIcon}</div>\n        <div class="pivot-icon-circle">${audioIcon}</div>\n      </div>\n      <div class="pivot-logo-text">PI<span class="pivot-logo-v">V</span>OT</div>\n      <div class="pivot-logo-subtitle">Language Translation</div>\n    </div>\n  `;\n  button.onclick = toggleWidget;
 
   // Create modal
   const modal = document.createElement('div');
