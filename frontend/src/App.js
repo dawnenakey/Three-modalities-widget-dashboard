@@ -4,6 +4,7 @@ import "@/App.css";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Dashboard from "@/pages/Dashboard";
+import Websites from "@/pages/Websites";
 import WebsiteDetail from "@/pages/WebsiteDetail";
 import PageDetail from "@/pages/PageDetail";
 import SectionDetail from "@/pages/SectionDetail";
