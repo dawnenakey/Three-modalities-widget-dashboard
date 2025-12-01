@@ -154,10 +154,11 @@ export default function SectionDetail() {
                     Upload Video
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="pointer-events-auto" aria-describedby="video-upload-description">
                   <DialogHeader>
                     <DialogTitle>Upload ASL Video</DialogTitle>
                   </DialogHeader>
+                  <p id="video-upload-description" className="sr-only">Upload a sign language video for this section</p>
                   <form onSubmit={handleVideoUpload} className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="language">Sign Language</Label>
