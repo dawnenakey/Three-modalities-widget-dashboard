@@ -11,7 +11,7 @@
   const CONFIG = {
     apiBaseUrl: window.location.hostname === 'localhost' 
       ? 'http://localhost:8001/api' 
-      : 'https://your-production-domain.com/api',
+      : 'https://widget-api.gopivot.me/api',
     websiteId: document.currentScript?.getAttribute('data-website-id') || '',
     position: 'bottom-right'
   };
