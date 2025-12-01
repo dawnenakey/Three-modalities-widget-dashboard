@@ -90,10 +90,11 @@ export default function WebsiteDetail() {
                   Add Page
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="pointer-events-auto" aria-describedby="add-page-description">
                 <DialogHeader>
                   <DialogTitle>Add New Page</DialogTitle>
                 </DialogHeader>
+                <p id="add-page-description" className="sr-only">Add a new page to this website</p>
                 <form onSubmit={handleCreatePage} className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="url">Page URL</Label>
