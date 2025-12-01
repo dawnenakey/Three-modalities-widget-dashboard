@@ -45,6 +45,11 @@ tts = OpenAITextToSpeech(api_key=os.getenv("EMERGENT_LLM_KEY"))
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
 
+# Root route
+@api_router.get("/")
+async def root():
+    return {"message": "PIVOT API - Accessibility Platform"}
+
 # Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
