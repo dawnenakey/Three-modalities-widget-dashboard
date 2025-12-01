@@ -445,36 +445,48 @@ async def generate_audio(
     section = await db.sections.find_one({"id": section_id})
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
-    
-    try:
-    audio_bytes = await generate_tts_audio(
-        text=section["selected_text"],
-        voice=voice,
-    )
 
-        
+    try:
+        # Generate audio bytes
+        audio_bytes = await generate_tts_audio(
+            text=section["selected_text"],
+            voice=voice,
+        )
+
         file_id = str(uuid.uuid4())
         file_path = AUDIO_DIR / f"{file_id}.mp3"
-        
-        async with aiofiles.open(file_path, 'wb') as f:
+
+        # Save audio file
+        async with aiofiles.open(file_path, "wb") as f:
             await f.write(audio_bytes)
-        
+
+        # Build response object
         audio_obj = Audio(
             section_id=section_id,
             language=language,
             audio_url=f"/api/uploads/audio/{file_id}.mp3",
             file_path=str(file_path),
-            captions=section['selected_text']
+            captions=section["selected_text"],
         )
+
         audio_dict = audio_obj.model_dump()
-        audio_dict['created_at'] = audio_dict['created_at'].isoformat()
-        
+        audio_dict["created_at"] = audio_dict["created_at"].isoformat()
+
+        # Save DB record
         await db.audios.insert_one(audio_dict)
-        await db.sections.update_one({"id": section_id}, {"$inc": {"audios_count": 1}})
-        
+        await db.sections.update_one(
+            {"id": section_id},
+            {"$inc": {"audios_count": 1}}
+        )
+
         return audio_obj
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Audio generation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Audio generation failed: {str(e)}"
+        )
+
 
 @api_router.get("/sections/{section_id}/audio", response_model=List[Audio])
 async def get_audios(section_id: str, current_user: dict = Depends(get_current_user)):
