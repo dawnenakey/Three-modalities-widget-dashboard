@@ -273,10 +273,11 @@ export default function SectionDetail() {
                       Upload
                     </Button>
                   </DialogTrigger>
-                  <DialogContent>
+                  <DialogContent className="pointer-events-auto" aria-describedby="audio-upload-description">
                     <DialogHeader>
                       <DialogTitle>Upload Audio File</DialogTitle>
                     </DialogHeader>
+                    <p id="audio-upload-description" className="sr-only">Upload an audio file for this section</p>
                     <form onSubmit={handleAudioUpload} className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="language">Language</Label>
