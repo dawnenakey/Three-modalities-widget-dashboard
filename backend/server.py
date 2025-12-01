@@ -281,7 +281,10 @@ async def create_page(website_id: str, page_data: PageCreate, current_user: dict
 
 async def scrape_page_content(url: str) -> List[str]:
     try:
-        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        def _fetch():
+            return requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+
+        response = await asyncio.to_thread(_fetch)
         soup = BeautifulSoup(response.content, "html.parser")
         
         for element in soup(['script', 'style', 'nav', 'footer', 'header']):
@@ -492,10 +495,34 @@ async def get_widget_content(website_id: str, page_url: str):
     sections = await db.sections.find({"page_id": page['id'], "status": "Active"}, {"_id": 0}).sort("position_order", 1).to_list(1000)
     
     for section in sections:
-        videos = await db.videos.find({"section_id": section['id']}, {"_id": 0}).to_list(1000)
-        audios = await db.audios.find({"section_id": section['id']}, {"_id": 0}).to_list(1000)
-        section['videos'] = videos
-        section['audios'] = audios
+        videos = await db.videos.find(
+            {"section_id": section["id"]},
+            {
+                "_id": 0,
+                "id": 1,
+                "section_id": 1,
+                "language": 1,
+                "video_url": 1,
+                "created_at": 1,
+            },
+        ).sort("created_at", 1).to_list(1000)
+
+        audios = await db.audios.find(
+            {"section_id": section["id"]},
+            {
+                "_id": 0,
+                "id": 1,
+                "section_id": 1,
+                "language": 1,
+                "audio_url": 1,
+                "captions": 1,
+                "created_at": 1,
+            },
+        ).sort("created_at", 1).to_list(1000)
+
+        section["videos"] = videos
+        section["audios"] = audios
+
     
     # Track analytics
     await db.analytics.update_one(
