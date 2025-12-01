@@ -8,33 +8,38 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Globe, FileText, Users, ExternalLink } from 'lucide-react';
+import { Plus, Globe, FileText, Users, Code, Copy, CheckCircle } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 export default function Dashboard() {
   const { user } = useAuth();
   const [websites, setWebsites] = useState([]);
-  const [stats, setStats] = useState({ websites: 0, pages: 0, users: 1 });
-  const [loading, setLoading] = useState(true);
+  const [totalPages, setTotalPages] = useState(0);
   const [showDialog, setShowDialog] = useState(false);
   const [name, setName] = useState('');
   const [url, setUrl] = useState('');
   const [creating, setCreating] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    fetchWebsites();
+    fetchData();
   }, []);
 
-  const fetchWebsites = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}/websites`);
-      setWebsites(response.data);
-      setStats({ ...stats, websites: response.data.length });
+      const websitesRes = await axios.get(`${API}/websites`);
+      setWebsites(websitesRes.data);
+      
+      // Count total pages
+      let pageCount = 0;
+      for (const website of websitesRes.data) {
+        const pagesRes = await axios.get(`${API}/websites/${website.id}/pages`);
+        pageCount += pagesRes.data.length;
+      }
+      setTotalPages(pageCount);
     } catch (error) {
-      toast.error('Failed to load websites');
-    } finally {
-      setLoading(false);
+      toast.error('Failed to load data');
     }
   };
 
@@ -47,7 +52,7 @@ export default function Dashboard() {
       setShowDialog(false);
       setName('');
       setUrl('');
-      fetchWebsites();
+      fetchData();
     } catch (error) {
       toast.error('Failed to create website');
     } finally {
@@ -55,144 +60,157 @@ export default function Dashboard() {
     }
   };
 
+  const copyWidgetCode = () => {
+    const code = `<script src="${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'}/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
+    navigator.clipboard.writeText(code);
+    setCopied(true);
+    toast.success('Widget code copied!');
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <DashboardLayout>
       <div className="p-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="dashboard-title">
-            Welcome back, {user?.name}!
-          </h1>
-          <p className="text-gray-600">Manage your accessibility platform</p>
+        {/* Header with Plan Badge */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Welcome, {user?.name}
+            </h1>
+            <div className="flex items-center gap-3">
+              <span className="text-gray-600">My Plan:</span>
+              <span className="px-3 py-1 bg-[#00CED1] text-black font-semibold rounded text-sm">
+                PRO
+              </span>
+            </div>
+          </div>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards with Ratios */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm" data-testid="stats-websites">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-[#00CED1]/10 flex items-center justify-center">
-                <Globe className="h-6 w-6 text-[#00CED1]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.websites}</p>
-                <p className="text-sm text-gray-600">Websites</p>
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="h-12 w-12 rounded-lg bg-purple-100 flex items-center justify-center">
+                <Globe className="h-6 w-6 text-purple-600" />
               </div>
             </div>
+            <p className="text-sm text-gray-600 mb-1">Website</p>
+            <p className="text-3xl font-bold text-gray-900">{websites.length}/40</p>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm" data-testid="stats-pages">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-[#00CED1]/10 flex items-center justify-center">
-                <FileText className="h-6 w-6 text-[#00CED1]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.pages}</p>
-                <p className="text-sm text-gray-600">Pages</p>
+          
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="h-12 w-12 rounded-lg bg-red-100 flex items-center justify-center">
+                <FileText className="h-6 w-6 text-red-600" />
               </div>
             </div>
+            <p className="text-sm text-gray-600 mb-1">Pages</p>
+            <p className="text-3xl font-bold text-gray-900">{totalPages}/40</p>
           </div>
-          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm" data-testid="stats-users">
-            <div className="flex items-center gap-4">
-              <div className="h-12 w-12 rounded-lg bg-[#00CED1]/10 flex items-center justify-center">
-                <Users className="h-6 w-6 text-[#00CED1]" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{stats.users}</p>
-                <p className="text-sm text-gray-600">Active Users</p>
+          
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <div className="flex items-center justify-between mb-2">
+              <div className="h-12 w-12 rounded-lg bg-orange-100 flex items-center justify-center">
+                <Users className="h-6 w-6 text-orange-600" />
               </div>
             </div>
+            <p className="text-sm text-gray-600 mb-1">Users</p>
+            <p className="text-3xl font-bold text-gray-900">1/15</p>
           </div>
         </div>
 
-        {/* Websites Section */}
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Your Websites</h2>
+        {/* Action Buttons Row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
-              <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-11 px-6" data-testid="add-website-button">
-                <Plus className="h-4 w-4 mr-2" />
+              <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
                 Add Website
               </Button>
             </DialogTrigger>
-            <DialogContent data-testid="add-website-dialog" className="pointer-events-auto" aria-describedby="add-website-description">
+            <DialogContent className="pointer-events-auto" aria-describedby="add-website-description">
               <DialogHeader>
                 <DialogTitle>Add New Website</DialogTitle>
               </DialogHeader>
-              <p id="add-website-description" className="sr-only">Add a new website to manage accessibility</p>
+              <p id="add-website-description" className="sr-only">Add a new website</p>
               <form onSubmit={handleCreate} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Website Name</Label>
-                  <Input
-                    id="name"
-                    placeholder="My Website"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    data-testid="website-name-input"
-                  />
+                  <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="url">Website URL</Label>
-                  <Input
-                    id="url"
-                    type="url"
-                    placeholder="https://example.com"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    required
-                    data-testid="website-url-input"
-                  />
+                  <Input id="url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} required />
                 </div>
-                <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating} data-testid="create-website-button">
+                <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating}>
                   {creating ? 'Creating...' : 'Create Website'}
                 </Button>
               </form>
             </DialogContent>
           </Dialog>
+          
+          <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+            Add Page
+          </Button>
+          
+          <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+            Manage Users
+          </Button>
         </div>
 
-        {/* Websites Grid */}
-        {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-600">Loading websites...</p>
+        {/* Add-On Services */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Add-On Services (Coming Soon)</h2>
+          <div className="space-y-2 text-sm text-gray-600">
+            <p>• Widget Customization</p>
+            <p>• Translation</p>
+            <p>• Website Accessibility</p>
           </div>
-        ) : websites.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-            <Globe className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No websites yet</h3>
-            <p className="text-gray-600 mb-6">Get started by adding your first website</p>
-            <Button onClick={() => setShowDialog(true)} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Website
+        </div>
+
+        {/* My Account */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">My Account</h2>
+          <div className="space-y-2">
+            <Link to="/settings" className="block text-sm text-gray-600 hover:text-[#00CED1]">Account Settings</Link>
+            <Link to="/billing" className="block text-sm text-gray-600 hover:text-[#00CED1]">Billing + Payments</Link>
+            <Link to="/users" className="block text-sm text-gray-600 hover:text-[#00CED1]">Manage Users</Link>
+          </div>
+        </div>
+
+        {/* Install PIVOT Widget */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Install PIVOT Widget</h2>
+          <p className="text-sm text-gray-600 mb-4">
+            <strong>Quick Installation:</strong> For best results, paste the installation code just before the closing <code className="bg-gray-100 px-1 rounded">body</code> tag on your website. You only need to do this once. Any changes and automatically updates on each site you publish changes.
+          </p>
+          <div className="bg-[#0a0e27] rounded-lg p-4 mb-4 overflow-x-auto">
+            <pre className="text-[#00CED1] text-sm font-mono">
+              <code>{`<script
+  src="${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'}/widget.js"
+  data-website-id="YOUR_WEBSITE_ID"
+  id="pivot-widget"
+  async
+></script>`}</code>
+            </pre>
+          </div>
+          <div className="flex gap-4">
+            <Button onClick={copyWidgetCode} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+              {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+              {copied ? 'Copied!' : 'Copy Installation Code'}
+            </Button>
+            <Button variant="outline">
+              Show Instructions
             </Button>
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="websites-grid">
-            {websites.map((website) => (
-              <Link
-                key={website.id}
-                to={`/websites/${website.id}`}
-                className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-[#00CED1]/50 transition-all group"
-                data-testid={`website-card-${website.id}`}
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <div className="h-12 w-12 bg-[#00CED1]/10 rounded-lg flex items-center justify-center group-hover:bg-[#00CED1]/20 transition-colors">
-                    <Globe className="h-6 w-6 text-[#00CED1]" />
-                  </div>
-                  <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-[#00CED1] transition-colors" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2" data-testid={`website-name-${website.id}`}>
-                  {website.name}
-                </h3>
-                <p className="text-sm text-gray-600 truncate mb-4" data-testid={`website-url-${website.id}`}>
-                  {website.url}
-                </p>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>Created {new Date(website.created_at).toLocaleDateString()}</span>
-                </div>
-              </Link>
-            ))}
+          <p className="text-xs text-gray-500 mt-4">
+            <strong>Shoppers:</strong> Find step-by-step installation guides for different platforms here.
+          </p>
+          <div className="mt-4 pt-4 border-t border-gray-200">
+            <Link to="/installation-guides" className="text-sm text-[#00CED1] hover:underline">
+              Installation Guides →
+            </Link>
           </div>
-        )}
+        </div>
       </div>
     </DashboardLayout>
   );
