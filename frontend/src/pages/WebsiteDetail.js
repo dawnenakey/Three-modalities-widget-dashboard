@@ -204,30 +204,19 @@ export default function WebsiteDetail() {
               </Button>
             </div>
           ) : (
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Page URL</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Sections</th>
-                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {pages.map((page) => (
-                    <tr key={page.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <button
-                          onClick={() => navigate(`/pages/${page.id}`)}
-                          className="text-sm text-gray-900 hover:text-[#00CED1] font-medium"
-                        >
-                          {page.url}
-                        </button>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                          page.status === 'Active' ? 'bg-green-100 text-green-700' :
+            <div className="divide-y divide-[#ECEEEF]">
+              {pages.map((page) => (
+                <div 
+                  key={page.id}
+                  onClick={() => navigate(`/pages/${page.id}`)}
+                  className="p-4 flex flex-row justify-between items-center hover:bg-gray-50 cursor-pointer"
+                >
+                  <div className="w-9/12 break-words">
+                    <p className="font-bold text-gray-900">{page.url}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(page.status || 'Active')}`}>
+                      {page.status || 'Active'}
                           page.status === 'Inactive' ? 'bg-gray-100 text-gray-700' :
                           'bg-orange-100 text-orange-700'
                         }`}>
