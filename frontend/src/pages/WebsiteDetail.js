@@ -86,6 +86,15 @@ export default function WebsiteDetail() {
     );
   }
 
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      'Active': 'bg-[#045D04] text-white',
+      'Inactive': 'bg-[#A7A9AD] text-black',
+      'Not Setup': 'bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10'
+    };
+    return statusConfig[status] || statusConfig['Not Setup'];
+  };
+
   return (
     <DashboardLayout>
       <div className="p-8">
@@ -94,37 +103,65 @@ export default function WebsiteDetail() {
           Back
         </Button>
 
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{website.name}</h1>
-            <p className="text-gray-600">{website.url}</p>
-          </div>
-        </div>
-
-        {/* Widget Installation Code */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Code className="h-5 w-5 text-[#00CED1]" />
-            <h2 className="text-lg font-semibold text-gray-900">Widget Installation Code</h2>
-          </div>
-          <div className="bg-[#0a0e27] rounded-lg p-4 mb-4 overflow-x-auto">
-            <pre className="text-[#00CED1] text-sm font-mono">
-              <code>{website.embed_code}</code>
-            </pre>
-          </div>
-          <Button onClick={copyEmbedCode} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
-            {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-            {copied ? 'Copied!' : 'Copy Code'}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">{website.name}</h1>
+          <Button 
+            variant="destructive" 
+            onClick={handleDeleteWebsite}
+            className="bg-[#981B1E] hover:bg-[#981b1d90]"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Website
           </Button>
         </div>
 
-        {/* Pages Section */}
-        <div>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Pages</h2>
-              <p className="text-sm text-gray-600 mt-1">{pages.length}/15</p>
+        {/* Side-by-side Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-6">
+          {/* Left Side - Website Info Card */}
+          <div className="lg:col-span-1 bg-white rounded-lg shadow-md border p-4">
+            <div className="w-full h-48 overflow-hidden rounded-md flex justify-center items-center bg-gradient-to-r from-[#123a35] to-[#1f1f36] mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-24 w-24 text-white">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
             </div>
+            <p className="font-semibold text-gray-900 mb-1">{website.name}</p>
+            <p className="text-sm text-gray-600 mb-4 break-words">{website.url}</p>
+            <a 
+              href={website.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full mt-4 inline-block text-center rounded-md bg-black px-3.5 py-2.5 text-sm font-semibold text-white hover:bg-gray-700"
+            >
+              View Website
+            </a>
+
+            {/* Widget Installation Code */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <Code className="h-4 w-4 text-[#00CED1]" />
+                <h3 className="text-sm font-semibold text-gray-900">Embed Code</h3>
+              </div>
+              <div className="bg-[#1e042a] rounded-lg p-3 mb-3 overflow-x-auto">
+                <pre className="text-[#00CED1] text-xs font-mono whitespace-pre-wrap break-all">
+                  <code>{website.embed_code}</code>
+                </pre>
+              </div>
+              <Button onClick={copyEmbedCode} className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+                {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                {copied ? 'Copied!' : 'Copy Code'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Side - Pages List */}
+          <div className="lg:col-span-3 bg-white rounded-lg shadow-lg border">
+            <div className="bg-[#1e042a] rounded-t-lg flex justify-between items-center px-6 py-4">
+              <h2 className="text-white font-semibold text-xl">Pages</h2>
+              <p className="text-white font-semibold">({pages.length} / 15 pages)</p>
+            </div>
+            
+            <div className="p-4">
+              <div className="flex justify-end mb-4">
             <Dialog open={showDialog} onOpenChange={setShowDialog}>
               <DialogTrigger asChild>
                 <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
