@@ -36,11 +36,9 @@ export default function Login() {
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
         </div>
         <div className="relative z-10 text-center">
-          <div className="mb-8">
-            <h1 className="text-6xl font-bold text-white mb-4">
-              PI<span className="text-[#00CED1]">V</span>OT
-            </h1>
-            <p className="text-lg text-gray-300">Powered by <span className="text-[#00CED1]">dozanu</span></p>
+          <div className="mb-8 flex flex-col items-center">
+            <img src="/zigzag_logo.svg" alt="PIVOT Logo" className="h-48 w-auto mb-4" />
+            <p className="text-lg text-gray-300">Language Access Technology</p>
           </div>
           <div className="flex items-center justify-center gap-6 mt-12">
             <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
