@@ -550,9 +550,18 @@ from fastapi.responses import FileResponse
 # Static files (uploads)
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
-# Serve widget.js
+# Mount static directory for widget files
+STATIC_DIR = ROOT_DIR / "static"
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
+# Serve widget.js through both routes
 @app.get("/widget.js")
 async def serve_widget():
+    widget_path = ROOT_DIR / "static" / "widget.js"
+    return FileResponse(widget_path, media_type="application/javascript")
+
+@app.get("/api/widget.js")
+async def serve_widget_api():
     widget_path = ROOT_DIR / "static" / "widget.js"
     return FileResponse(widget_path, media_type="application/javascript")
 
