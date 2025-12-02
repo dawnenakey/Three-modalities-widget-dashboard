@@ -173,38 +173,38 @@ export default function WebsiteDetail() {
             
             <div className="p-4">
               <div className="flex justify-end mb-4">
-            <Dialog open={showDialog} onOpenChange={setShowDialog}>
-              <DialogTrigger asChild>
-                <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Page
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="pointer-events-auto" aria-describedby="add-page-description">
-                <DialogHeader>
-                  <DialogTitle>Add New Page</DialogTitle>
-                </DialogHeader>
-                <p id="add-page-description" className="sr-only">Add a new page</p>
-                <form onSubmit={handleCreatePage} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="url">Page URL</Label>
-                    <Input
-                      id="url"
-                      type="url"
-                      placeholder="https://example.com/page"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                      required
-                    />
-                    <p className="text-xs text-gray-500">Content will be automatically scraped</p>
-                  </div>
-                  <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating}>
-                    {creating ? 'Creating...' : 'Create Page'}
+              <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Page
                   </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
-          </div>
+                </DialogTrigger>
+                <DialogContent className="pointer-events-auto" aria-describedby="add-page-description">
+                  <DialogHeader>
+                    <DialogTitle>Add New Page</DialogTitle>
+                  </DialogHeader>
+                  <p id="add-page-description" className="sr-only">Add a new page</p>
+                  <form onSubmit={handleCreatePage} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="url">Page URL</Label>
+                      <Input
+                        id="url"
+                        type="url"
+                        placeholder="https://example.com/page"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        required
+                      />
+                      <p className="text-xs text-gray-500">Content will be automatically scraped</p>
+                    </div>
+                    <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating}>
+                      {creating ? 'Creating...' : 'Create Page'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
 
           {pages.length === 0 ? (
             <div className="p-12 text-center">
