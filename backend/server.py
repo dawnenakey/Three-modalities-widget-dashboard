@@ -205,6 +205,24 @@ async def get_websites(current_user: dict = Depends(get_current_user)):
     websites = await db.websites.find({"owner_id": current_user['id']}, {"_id": 0}).to_list(1000)
     return websites
 
+@api_router.get("/stats")
+async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
+    """Get aggregated statistics for dashboard in a single query"""
+    # Get total websites count
+    websites = await db.websites.find({"owner_id": current_user['id']}, {"_id": 0, "id": 1}).to_list(1000)
+    website_ids = [w['id'] for w in websites]
+    
+    # Get total pages count for all user's websites
+    total_pages = 0
+    if website_ids:
+        total_pages = await db.pages.count_documents({"website_id": {"$in": website_ids}})
+    
+    return {
+        "total_websites": len(websites),
+        "total_pages": total_pages,
+        "total_users": 1  # Current user
+    }
+
 @api_router.post("/websites", response_model=Website)
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
     backend_url = os.getenv("REACT_APP_BACKEND_URL")
