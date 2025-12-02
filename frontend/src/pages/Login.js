@@ -63,7 +63,6 @@ export default function Login() {
               </svg>
             </div>
           </div>
-          <p className="text-gray-400 mt-6 text-sm">Language Access Technology</p>
         </div>
       </div>
 
