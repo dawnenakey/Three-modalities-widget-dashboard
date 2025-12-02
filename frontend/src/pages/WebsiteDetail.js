@@ -217,41 +217,10 @@ export default function WebsiteDetail() {
                   <div className="flex items-center gap-3">
                     <span className={`inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(page.status || 'Active')}`}>
                       {page.status || 'Active'}
-                          page.status === 'Inactive' ? 'bg-gray-100 text-gray-700' :
-                          'bg-orange-100 text-orange-700'
-                        }`}>
-                          {page.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="text-sm text-gray-600">{page.sections_count || 0}</span>
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <div className="flex items-center justify-end gap-2">
-                          <Button
-                            onClick={() => navigate(`/pages/${page.id}`)}
-                            size="sm"
-                            variant="outline"
-                            className="text-[#00CED1] border-[#00CED1] hover:bg-[#00CED1] hover:text-black"
-                          >
-                            <Edit className="h-3 w-3 mr-1" />
-                            Edit Sections
-                          </Button>
-                          <Button
-                            onClick={() => handleDeletePage(page.id)}
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-600 hover:bg-red-600 hover:text-white"
-                          >
-                            <Trash2 className="h-3 w-3 mr-1" />
-                            Delete
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
