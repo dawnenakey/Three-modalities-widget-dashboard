@@ -65,6 +65,22 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/installation-guides"
+              element={
+                <PrivateRoute>
+                  <InstallationGuide />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
         <Toaster />
