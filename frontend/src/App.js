@@ -8,6 +8,8 @@ import Websites from "@/pages/Websites";
 import WebsiteDetail from "@/pages/WebsiteDetail";
 import PageDetail from "@/pages/PageDetail";
 import SectionDetail from "@/pages/SectionDetail";
+import Settings from "@/pages/Settings";
+import InstallationGuide from "@/pages/InstallationGuide";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 const PrivateRoute = ({ children }) => {
