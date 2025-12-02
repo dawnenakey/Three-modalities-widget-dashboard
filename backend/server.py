@@ -568,6 +568,13 @@ async def serve_test_widget():
     test_path = ROOT_DIR / "static" / "test-widget.html"
     return FileResponse(test_path, media_type="text/html")
 
+# Serve widget preview page
+@app.get("/widget-preview")
+async def serve_widget_preview():
+    preview_path = ROOT_DIR / "static" / "widget-preview.html"
+    return FileResponse(preview_path, media_type="text/html")
+
+
 
 app.include_router(api_router)
 
