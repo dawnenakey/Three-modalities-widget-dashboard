@@ -481,11 +481,30 @@ async def get_widget_content(website_id: str, page_url: str):
     
     sections = await db.sections.find({"page_id": page['id'], "status": "Active"}, {"_id": 0}).sort("position_order", 1).to_list(1000)
     
-    for section in sections:
-        videos = await db.videos.find({"section_id": section['id']}, {"_id": 0}).to_list(1000)
-        audios = await db.audios.find({"section_id": section['id']}, {"_id": 0}).to_list(1000)
-        section['videos'] = videos
-        section['audios'] = audios
+    # Optimize: Batch fetch all videos and audios to avoid N+1 queries
+    section_ids = [section['id'] for section in sections]
+    
+    if section_ids:
+        all_videos = await db.videos.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
+        all_audios = await db.audios.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
+        
+        # Create lookup dictionaries for O(1) access
+        videos_by_section = {}
+        for video in all_videos:
+            if video['section_id'] not in videos_by_section:
+                videos_by_section[video['section_id']] = []
+            videos_by_section[video['section_id']].append(video)
+        
+        audios_by_section = {}
+        for audio in all_audios:
+            if audio['section_id'] not in audios_by_section:
+                audios_by_section[audio['section_id']] = []
+            audios_by_section[audio['section_id']].append(audio)
+        
+        # Attach videos and audios to each section
+        for section in sections:
+            section['videos'] = videos_by_section.get(section['id'], [])
+            section['audios'] = audios_by_section.get(section['id'], [])
     
     # Track analytics
     await db.analytics.update_one(
