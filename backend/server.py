@@ -302,6 +302,15 @@ async def get_page(page_id: str, current_user: dict = Depends(get_current_user))
         raise HTTPException(status_code=404, detail="Page not found")
     return page
 
+@api_router.delete("/pages/{page_id}")
+async def delete_page(page_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.pages.delete_one({"id": page_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Page not found")
+    # Also delete associated sections
+    await db.sections.delete_many({"page_id": page_id})
+    return {"message": "Page deleted"}
+
 # Section routes
 @api_router.get("/pages/{page_id}/sections", response_model=List[Section])
 async def get_sections(page_id: str, current_user: dict = Depends(get_current_user)):
