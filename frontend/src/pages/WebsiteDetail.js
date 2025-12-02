@@ -234,6 +234,8 @@ export default function WebsiteDetail() {
               ))}
             </div>
           )}
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>
