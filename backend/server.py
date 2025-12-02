@@ -199,6 +199,12 @@ async def login(credentials: UserLogin):
 async def get_me(current_user: dict = Depends(get_current_user)):
     return User(**current_user)
 
+# Widget route - publicly accessible
+@api_router.get("/widget.js")
+async def get_widget_js():
+    widget_path = ROOT_DIR / "static" / "widget.js"
+    return FileResponse(widget_path, media_type="application/javascript")
+
 # Website routes
 @api_router.get("/websites", response_model=List[Website])
 async def get_websites(current_user: dict = Depends(get_current_user)):
