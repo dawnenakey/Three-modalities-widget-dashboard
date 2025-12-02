@@ -208,13 +208,35 @@ async def get_websites(current_user: dict = Depends(get_current_user)):
     websites = await db.websites.find({"owner_id": current_user['id']}, {"_id": 0}).to_list(1000)
     return websites
 
+@api_router.get("/stats")
+async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
+    """Get aggregated statistics for dashboard in a single query"""
+    # Get total websites count
+    websites = await db.websites.find({"owner_id": current_user['id']}, {"_id": 0, "id": 1}).to_list(1000)
+    website_ids = [w['id'] for w in websites]
+    
+    # Get total pages count for all user's websites
+    total_pages = 0
+    if website_ids:
+        total_pages = await db.pages.count_documents({"website_id": {"$in": website_ids}})
+    
+    return {
+        "total_websites": len(websites),
+        "total_pages": total_pages,
+        "total_users": 1  # Current user
+    }
+
 @api_router.post("/websites", response_model=Website)
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
+    backend_url = os.getenv("REACT_APP_BACKEND_URL")
+    if not backend_url:
+        raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
+    
     website = Website(
         owner_id=current_user['id'],
         name=website_data.name,
         url=website_data.url,
-        embed_code=f'<script src="{os.getenv("REACT_APP_BACKEND_URL", "http://localhost:8001")}/widget.js" data-website-id="{{website_id}}"></script>'
+        embed_code=f'<script src="{backend_url}/widget.js" data-website-id="{{website_id}}"></script>'
     )
     website_dict = website.model_dump()
     website_dict['created_at'] = website_dict['created_at'].isoformat()
@@ -307,6 +329,15 @@ async def get_page(page_id: str, current_user: dict = Depends(get_current_user))
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     return page
+
+@api_router.delete("/pages/{page_id}")
+async def delete_page(page_id: str, current_user: dict = Depends(get_current_user)):
+    result = await db.pages.delete_one({"id": page_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Page not found")
+    # Also delete associated sections
+    await db.sections.delete_many({"page_id": page_id})
+    return {"message": "Page deleted"}
 
 # Section routes
 @api_router.get("/pages/{page_id}/sections", response_model=List[Section])
@@ -505,36 +536,31 @@ async def get_widget_content(website_id: str, page_url: str):
         return {"sections": []}
     
     sections = await db.sections.find({"page_id": page['id'], "status": "Active"}, {"_id": 0}).sort("position_order", 1).to_list(1000)
-    
-    for section in sections:
-        videos = await db.videos.find(
-            {"section_id": section["id"]},
-            {
-                "_id": 0,
-                "id": 1,
-                "section_id": 1,
-                "language": 1,
-                "video_url": 1,
-                "created_at": 1,
-            },
-        ).sort("created_at", 1).to_list(1000)
 
-        audios = await db.audios.find(
-            {"section_id": section["id"]},
-            {
-                "_id": 0,
-                "id": 1,
-                "section_id": 1,
-                "language": 1,
-                "audio_url": 1,
-                "captions": 1,
-                "created_at": 1,
-            },
-        ).sort("created_at", 1).to_list(1000)
+    # Optimize: Batch fetch all videos and audios to avoid N+1 queries
+    section_ids = [section['id'] for section in sections]
 
-        section["videos"] = videos
-        section["audios"] = audios
+    if section_ids:
+        all_videos = await db.videos.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
+        all_audios = await db.audios.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
 
+        # Create lookup dictionaries for O(1) access
+        videos_by_section = {}
+        for video in all_videos:
+            if video['section_id'] not in videos_by_section:
+                videos_by_section[video['section_id']] = []
+            videos_by_section[video['section_id']].append(video)
+
+        audios_by_section = {}
+        for audio in all_audios:
+            if audio['section_id'] not in audios_by_section:
+                audios_by_section[audio['section_id']] = []
+            audios_by_section[audio['section_id']].append(audio)
+
+        # Attach videos and audios to each section
+        for section in sections:
+            section['videos'] = videos_by_section.get(section['id'], [])
+            section['audios'] = audios_by_section.get(section['id'], [])
     
     # Track analytics
     await db.analytics.update_one(

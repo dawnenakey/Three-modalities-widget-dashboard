@@ -8,6 +8,8 @@ import Websites from "@/pages/Websites";
 import WebsiteDetail from "@/pages/WebsiteDetail";
 import PageDetail from "@/pages/PageDetail";
 import SectionDetail from "@/pages/SectionDetail";
+import Settings from "@/pages/Settings";
+import InstallationGuide from "@/pages/InstallationGuide";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 const PrivateRoute = ({ children }) => {
@@ -60,6 +62,22 @@ function App() {
               element={
                 <PrivateRoute>
                   <SectionDetail />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/installation-guides"
+              element={
+                <PrivateRoute>
+                  <InstallationGuide />
                 </PrivateRoute>
               }
             />

@@ -28,16 +28,14 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const websitesRes = await axios.get(`${API}/websites`);
-      setWebsites(websitesRes.data);
+      // Fetch websites and stats in parallel
+      const [websitesRes, statsRes] = await Promise.all([
+        axios.get(`${API}/websites`),
+        axios.get(`${API}/stats`)
+      ]);
       
-      // Count total pages
-      let pageCount = 0;
-      for (const website of websitesRes.data) {
-        const pagesRes = await axios.get(`${API}/websites/${website.id}/pages`);
-        pageCount += pagesRes.data.length;
-      }
-      setTotalPages(pageCount);
+      setWebsites(websitesRes.data);
+      setTotalPages(statsRes.data.total_pages);
     } catch (error) {
       toast.error('Failed to load data');
     }
