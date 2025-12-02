@@ -207,11 +207,15 @@ async def get_websites(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/websites", response_model=Website)
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
+    backend_url = os.getenv("REACT_APP_BACKEND_URL")
+    if not backend_url:
+        raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
+    
     website = Website(
         owner_id=current_user['id'],
         name=website_data.name,
         url=website_data.url,
-        embed_code=f'<script src="{os.getenv("REACT_APP_BACKEND_URL", "http://localhost:8001")}/widget.js" data-website-id="{{website_id}}"></script>'
+        embed_code=f'<script src="{backend_url}/widget.js" data-website-id="{{website_id}}"></script>'
     )
     website_dict = website.model_dump()
     website_dict['created_at'] = website_dict['created_at'].isoformat()
