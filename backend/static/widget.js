@@ -11,7 +11,7 @@
   const CONFIG = {
     apiBaseUrl: window.location.hostname === 'localhost' 
       ? 'http://localhost:8001/api' 
-      : 'https://your-production-domain.com/api',
+      : `${window.location.protocol}//${window.location.hostname}/api`,
     websiteId: document.currentScript?.getAttribute('data-website-id') || '',
     position: 'bottom-right'
   };
