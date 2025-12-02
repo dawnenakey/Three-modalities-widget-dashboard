@@ -24,11 +24,9 @@ export default function DashboardLayout({ children }) {
       {/* Sidebar */}
       <div className="w-64 bg-[#1a1a1a] flex flex-col">
         {/* Logo */}
-        <div className="p-6 border-b border-gray-800">
-          <h1 className="text-3xl font-bold text-white">
-            PI<span className="text-[#00CED1]">V</span>OT
-          </h1>
-          <p className="text-xs text-gray-500 mt-1">Language Translation</p>
+        <div className="p-6 border-b border-gray-800 flex flex-col items-center">
+          <img src="/zigzag_logo.svg" alt="PIVOT Logo" className="h-24 w-auto mb-2" />
+          <p className="text-xs text-gray-400 text-center">Language Translation</p>
         </div>
 
         {/* Navigation */}
