@@ -196,8 +196,8 @@ export default function WebsiteDetail() {
           </div>
 
           {pages.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-              <p className="text-gray-600 mb-4">No pages added yet</p>
+            <div className="p-12 text-center">
+              <p className="text-gray-600 mb-4">You don't have any pages added for this website yet.</p>
               <Button onClick={() => setShowDialog(true)} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Page
