@@ -76,6 +76,17 @@ export default function WebsiteDetail() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleDeleteWebsite = async () => {
+    if (!window.confirm('Are you sure you want to delete this website? This will also delete all associated pages.')) return;
+    try {
+      await axios.delete(`${API}/websites/${websiteId}`);
+      toast.success('Website deleted');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to delete website');
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
