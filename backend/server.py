@@ -562,6 +562,13 @@ async def serve_demo():
     demo_path = ROOT_DIR / "static" / "demo.html"
     return FileResponse(demo_path, media_type="text/html")
 
+# Serve widget test page
+@app.get("/test-widget")
+async def serve_test_widget():
+    test_path = ROOT_DIR / "static" / "test-widget.html"
+    return FileResponse(test_path, media_type="text/html")
+
+
 app.include_router(api_router)
 
 app.add_middleware(
