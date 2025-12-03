@@ -283,16 +283,17 @@
     .pivot-text-content {
       flex: 1;
       overflow-y: auto;
-      padding: 24px;
+      padding: 16px;
       background: white;
       color: #1a1a1a;
-      margin: 24px 24px 0;
-      border-radius: 12px 12px 0 0;
+      margin: 16px 16px 0;
+      border-radius: 8px 8px 0 0;
+      max-height: 200px;
     }
     .pivot-text-content p {
-      font-size: 16px;
-      line-height: 1.8;
-      margin-bottom: 16px;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 12px;
     }
 
     /* Bottom Navigation */
