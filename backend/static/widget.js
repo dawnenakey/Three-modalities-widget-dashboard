@@ -815,25 +815,115 @@
     `;
   }
 
+  function showGettingStarted() {
+    const mainContent = document.getElementById('pivot-main-content');
+    mainContent.innerHTML = `
+      <div class="pivot-help-view">
+        <h2 class="pivot-help-title">Getting Started:</h2>
+        
+        <div class="pivot-getting-started-steps">
+          <div class="pivot-step">
+            <div class="pivot-step-number">1</div>
+            <div class="pivot-step-text">
+              <strong>Select which modality below you want to display:</strong><br>
+              Video, Audio, Text
+            </div>
+          </div>
+          
+          <div class="pivot-step">
+            <div class="pivot-step-number">2</div>
+            <div class="pivot-step-text">
+              <strong>Click on 'Language Selections' button below</strong><br>
+              to pick your language combinations.
+            </div>
+          </div>
+          
+          <div class="pivot-step">
+            <div class="pivot-step-number">3</div>
+            <div class="pivot-step-text">
+              <strong>Click on any text on the webpage</strong><br>
+              to your left and get started.
+            </div>
+          </div>
+        </div>
+
+        <div class="pivot-bottom-nav" style="margin-top: 24px;">
+          <div class="pivot-nav-row-top">
+            <button class="pivot-nav-arrow" disabled>←</button>
+            <div class="pivot-modality-icons">
+              <button class="pivot-modality-btn active">${handIcon}</button>
+              <button class="pivot-modality-btn active">${textIcon}</button>
+              <button class="pivot-modality-btn active">${audioIcon}</button>
+            </div>
+            <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.backToContent()">→</button>
+          </div>
+          <button class="pivot-language-btn" onclick="window.PIVOTWidget.showLanguages()">Language Selections</button>
+        </div>
+
+        <div class="pivot-help-footer" style="margin-top: 24px;">
+          <p>Email <strong>support@gopivot.me</strong> for feedback and/or support.</p>
+          <p style="margin-top: 12px;">Powered by <strong>dozanu innovations</strong></p>
+        </div>
+      </div>
+    `;
+  }
+
   function showLanguages() {
     const mainContent = document.getElementById('pivot-main-content');
-    const languages = currentModality === 'video' ? SIGN_LANGUAGES : SPOKEN_LANGUAGES;
     
-    let html = '<div style="padding: 24px;"><h3 style="color: #00CED1; margin-bottom: 24px; font-size: 20px;">Select Language</h3>';
-    html += '<div class="pivot-language-grid">';
-    
-    languages.forEach(lang => {
-      html += `
-        <div class="pivot-lang-item" onclick="window.PIVOTWidget.selectLanguage('${lang.name}')">
-          <div class="pivot-lang-flag">${lang.flag}</div>
-          <div class="pivot-lang-code">${lang.code}</div>
+    let html = `
+      <div style="padding: 20px; overflow-y: auto; max-height: 70vh;">
+        <h3 style="color: white; margin-bottom: 20px; font-size: 18px;">Available Language Selections</h3>
+        
+        <div class="pivot-lang-section">
+          <h4 style="color: white; font-size: 16px; margin-bottom: 12px;">Video:</h4>
+          <div class="pivot-lang-selector">
+            <span class="pivot-lang-flag">🇺🇸</span>
+            <select class="pivot-lang-dropdown">
+              <option>American Sign Language (ASL)</option>
+              <option>British Sign Language (BSL)</option>
+              <option>French Sign Language (LSF)</option>
+              <option>Australian Sign Language (Auslan)</option>
+            </select>
+          </div>
         </div>
-      `;
-    });
-    
-    html += '</div>';
-    html += '<button class="pivot-language-btn" style="width: 100%; margin-top: 24px;" onclick="window.PIVOTWidget.backToContent()">Back to Content</button>';
-    html += '</div>';
+
+        <div class="pivot-lang-section">
+          <h4 style="color: white; font-size: 16px; margin-bottom: 12px;">Text:</h4>
+          <div class="pivot-lang-selector">
+            <span class="pivot-lang-flag">🇪🇸</span>
+            <select class="pivot-lang-dropdown">
+              <option>English</option>
+              <option selected>Español (Spanish)</option>
+              <option>Français (French)</option>
+              <option>Deutsch (German)</option>
+              <option>中文 (Chinese)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="pivot-lang-section">
+          <h4 style="color: white; font-size: 16px; margin-bottom: 12px;">Audio:</h4>
+          <div class="pivot-lang-selector">
+            <span class="pivot-lang-flag">🇺🇸</span>
+            <select class="pivot-lang-dropdown">
+              <option selected>AI English (English)</option>
+              <option>AI Spanish (Spanish)</option>
+              <option>AI French (French)</option>
+              <option>AI German (German)</option>
+              <option>AI Chinese (Chinese)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+          <p style="color: #999; font-size: 14px;">Email <strong style="color: #00CED1;">support@gopivot.me</strong> for feedback and/or support.</p>
+          <p style="color: #999; font-size: 12px; margin-top: 8px;">Powered by <strong>dozanu innovations</strong></p>
+        </div>
+
+        <button class="pivot-language-btn" style="width: 100%; margin-top: 20px;" onclick="window.PIVOTWidget.backToContent()">Back to Content</button>
+      </div>
+    `;
     
     mainContent.innerHTML = html;
   }
