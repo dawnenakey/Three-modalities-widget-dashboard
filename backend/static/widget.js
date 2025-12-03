@@ -694,7 +694,7 @@
 
   function showHelp() {
     currentView = 'help';
-    renderHelp();
+    showGettingStarted();
   }
 
   function renderContent() {
