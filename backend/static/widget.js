@@ -381,7 +381,7 @@
 
     /* Settings View */
     .pivot-settings-view {
-      padding: 32px;
+      padding: 20px;
       overflow-y: auto;
     }
     .pivot-settings-section {
