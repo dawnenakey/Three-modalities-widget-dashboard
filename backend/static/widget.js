@@ -298,17 +298,22 @@
 
     /* Bottom Navigation */
     .pivot-bottom-nav {
-      padding: 20px 24px;
+      padding: 12px 16px;
       background: #1a1a1a;
       border-top: 2px solid #00CED1;
       display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .pivot-nav-row-top {
+      display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 16px;
+      gap: 8px;
     }
     .pivot-nav-arrow {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       background: rgba(0, 206, 209, 0.1);
       border: 2px solid #00CED1;
       color: #00CED1;
@@ -317,8 +322,9 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 18px;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
     .pivot-nav-arrow:hover {
       background: #00CED1;
@@ -330,42 +336,43 @@
     }
     .pivot-modality-icons {
       display: flex;
-      gap: 16px;
+      gap: 8px;
       flex: 1;
       justify-content: center;
     }
     .pivot-modality-btn {
-      width: 56px;
-      height: 56px;
+      width: 44px;
+      height: 44px;
       background: rgba(0, 206, 209, 0.1);
       border: 2px solid transparent;
-      border-radius: 12px;
+      border-radius: 8px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s;
+      flex-shrink: 0;
     }
     .pivot-modality-btn.active {
       border-color: #00CED1;
       background: rgba(0, 206, 209, 0.2);
     }
     .pivot-modality-btn svg {
-      width: 28px;
-      height: 28px;
+      width: 22px;
+      height: 22px;
       color: #00CED1;
     }
     .pivot-language-btn {
-      padding: 12px 24px;
+      width: 100%;
+      padding: 10px 16px;
       background: linear-gradient(135deg, #6B46C1 0%, #805AD5 100%);
       border: none;
       color: white;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
-      white-space: nowrap;
     }
     .pivot-language-btn:hover {
       transform: translateY(-2px);
