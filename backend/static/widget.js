@@ -490,35 +490,100 @@
       color: #999;
     }
 
-    /* Language Grid */
-    .pivot-language-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 16px;
-      padding: 24px;
-    }
-    .pivot-lang-item {
+    /* Language Sections */
+    .pivot-lang-section {
+      margin-bottom: 20px;
       padding: 16px;
       background: #1a1a1a;
-      border: 2px solid transparent;
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      transition: all 0.2s;
+      border-radius: 8px;
     }
-    .pivot-lang-item:hover,
-    .pivot-lang-item.active {
-      border-color: #00CED1;
-      background: rgba(0, 206, 209, 0.1);
+    .pivot-lang-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
     .pivot-lang-flag {
-      font-size: 32px;
-      margin-bottom: 8px;
+      font-size: 28px;
+      flex-shrink: 0;
     }
-    .pivot-lang-code {
-      font-size: 14px;
-      font-weight: 600;
+    .pivot-lang-dropdown {
+      flex: 1;
+      padding: 10px 12px;
+      background: #2a2a2a;
+      border: 1px solid rgba(0, 206, 209, 0.3);
+      border-radius: 6px;
       color: white;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .pivot-lang-dropdown:focus {
+      outline: none;
+      border-color: #00CED1;
+    }
+
+    /* Getting Started Steps */
+    .pivot-getting-started-steps {
+      padding: 20px 0;
+    }
+    .pivot-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      align-items: flex-start;
+    }
+    .pivot-step-number {
+      width: 36px;
+      height: 36px;
+      background: #00CED1;
+      color: #000;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .pivot-step-text {
+      flex: 1;
+      color: #e0e0e0;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .pivot-step-text strong {
+      color: white;
+    }
+
+    /* Video Speed Dropdown */
+    .pivot-video-speed-selector {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 10;
+    }
+    .pivot-speed-dropdown {
+      padding: 6px 12px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 6px;
+      color: white;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .pivot-speed-dropdown:focus {
+      outline: none;
+      border-color: #00CED1;
+    }
+
+    /* Audio Player */
+    .pivot-audio-player {
+      padding: 12px 16px;
+      background: #1a1a1a;
+      margin: 0 16px;
+    }
+    .pivot-audio-player audio {
+      width: 100%;
+      height: 40px;
     }
 
     /* Loading State */
