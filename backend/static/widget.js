@@ -677,20 +677,22 @@
 
     const navHTML = `
       <div class="pivot-bottom-nav">
-        <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.prevSection()" ${currentSectionIndex === 0 ? 'disabled' : ''}>←</button>
-        <div class="pivot-modality-icons">
-          <button class="pivot-modality-btn ${currentModality === 'video' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('video')">
-            ${handIcon}
-          </button>
-          <button class="pivot-modality-btn ${currentModality === 'audio' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('audio')">
-            ${audioIcon}
-          </button>
-          <button class="pivot-modality-btn ${currentModality === 'text' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('text')">
-            ${textIcon}
-          </button>
+        <div class="pivot-nav-row-top">
+          <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.prevSection()" ${currentSectionIndex === 0 ? 'disabled' : ''}>←</button>
+          <div class="pivot-modality-icons">
+            <button class="pivot-modality-btn ${currentModality === 'video' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('video')">
+              ${handIcon}
+            </button>
+            <button class="pivot-modality-btn ${currentModality === 'audio' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('audio')">
+              ${audioIcon}
+            </button>
+            <button class="pivot-modality-btn ${currentModality === 'text' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('text')">
+              ${textIcon}
+            </button>
+          </div>
+          <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.nextSection()" ${currentSectionIndex >= contentData.sections.length - 1 ? 'disabled' : ''}>→</button>
         </div>
         <button class="pivot-language-btn" onclick="window.PIVOTWidget.showLanguages()">Language Selections</button>
-        <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.nextSection()" ${currentSectionIndex >= contentData.sections.length - 1 ? 'disabled' : ''}>→</button>
       </div>
     `;
 
