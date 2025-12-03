@@ -455,7 +455,7 @@
 
     /* Help View */
     .pivot-help-view {
-      padding: 32px;
+      padding: 20px;
       overflow-y: auto;
       color: white;
     }
