@@ -1018,11 +1018,8 @@
         renderContent();
       }
     },
-    setModality: (modality) => {
-      currentModality = modality;
-      renderContent();
-    },
     showLanguages,
+    showGettingStarted,
     selectLanguage: (lang) => {
       selectedLanguage = lang;
       renderContent();
