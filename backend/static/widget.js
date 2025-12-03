@@ -669,11 +669,20 @@
   modal.querySelector('.pivot-help-btn').onclick = showHelp;
 
   // Functions
+  let firstOpen = true;
+  
   function openWidget() {
     isOpen = true;
     button.classList.add('hidden');
     modal.classList.add('open');
-    if (!contentData) {
+    
+    if (firstOpen) {
+      showGettingStarted();
+      firstOpen = false;
+      if (!contentData) {
+        loadContent();
+      }
+    } else if (!contentData) {
       loadContent();
     } else {
       renderContent();
