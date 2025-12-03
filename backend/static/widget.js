@@ -202,11 +202,11 @@
     /* Video Container */
     .pivot-video-container {
       width: 100%;
-      max-width: 500px;
-      margin: 24px auto 0;
+      max-width: 100%;
+      margin: 16px auto 0;
       aspect-ratio: 5 / 7;
       background: #000;
-      border-radius: 12px;
+      border-radius: 8px;
       overflow: hidden;
       position: relative;
     }
