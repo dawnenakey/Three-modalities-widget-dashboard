@@ -642,32 +642,23 @@
 
     const section = contentData.sections[currentSectionIndex];
     
-    let videoHTML = '';
-    if (currentModality === 'video' && section.videos && section.videos.length > 0) {
-      videoHTML = `
-        <div class="pivot-video-container">
-          <video class="pivot-video-player" id="pivot-video">
-            <source src="${section.videos[0].url}" type="video/mp4">
-          </video>
-          <div class="pivot-video-controls">
-            <div class="pivot-progress-bar">
-              <div class="pivot-progress-fill"></div>
-            </div>
-            <div class="pivot-playback-controls">
-              <button class="pivot-play-btn">▶</button>
-              <span class="pivot-time">0:00 / 0:00</span>
-              <div class="pivot-speed-controls">
-                <button class="pivot-speed-btn" data-speed="0.5">0.5x</button>
-                <button class="pivot-speed-btn" data-speed="0.75">0.75x</button>
-                <button class="pivot-speed-btn active" data-speed="1">Normal</button>
-                <button class="pivot-speed-btn" data-speed="1.25">1.25x</button>
-                <button class="pivot-speed-btn" data-speed="1.5">1.5x</button>
-              </div>
-            </div>
-          </div>
+    // Show ALL three modalities together
+    const videoHTML = section.videos && section.videos.length > 0 ? `
+      <div class="pivot-video-container">
+        <video class="pivot-video-player" id="pivot-video">
+          <source src="${section.videos[0].url}" type="video/mp4">
+        </video>
+        <div class="pivot-video-speed-selector">
+          <select id="speed-select" class="pivot-speed-dropdown">
+            <option value="0.5">0.5x</option>
+            <option value="0.75">0.75x</option>
+            <option value="1" selected>Normal</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.5">1.5x</option>
+          </select>
         </div>
-      `;
-    }
+      </div>
+    ` : '<div class="pivot-no-video">No video available</div>';
 
     const textHTML = `
       <div class="pivot-text-content">
@@ -675,19 +666,27 @@
       </div>
     `;
 
+    const audioHTML = section.audios && section.audios.length > 0 ? `
+      <div class="pivot-audio-player">
+        <audio id="pivot-audio" controls>
+          <source src="${section.audios[0].url}" type="audio/mpeg">
+        </audio>
+      </div>
+    ` : '';
+
     const navHTML = `
       <div class="pivot-bottom-nav">
         <div class="pivot-nav-row-top">
           <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.prevSection()" ${currentSectionIndex === 0 ? 'disabled' : ''}>←</button>
           <div class="pivot-modality-icons">
-            <button class="pivot-modality-btn ${currentModality === 'video' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('video')">
+            <button class="pivot-modality-btn active">
               ${handIcon}
             </button>
-            <button class="pivot-modality-btn ${currentModality === 'audio' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('audio')">
-              ${audioIcon}
-            </button>
-            <button class="pivot-modality-btn ${currentModality === 'text' ? 'active' : ''}" onclick="window.PIVOTWidget.setModality('text')">
+            <button class="pivot-modality-btn active">
               ${textIcon}
+            </button>
+            <button class="pivot-modality-btn active">
+              ${audioIcon}
             </button>
           </div>
           <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.nextSection()" ${currentSectionIndex >= contentData.sections.length - 1 ? 'disabled' : ''}>→</button>
@@ -696,7 +695,18 @@
       </div>
     `;
 
-    mainContent.innerHTML = videoHTML + textHTML + navHTML;
+    mainContent.innerHTML = videoHTML + textHTML + audioHTML + navHTML;
+    
+    // Setup video speed control
+    setTimeout(() => {
+      const speedSelect = document.getElementById('speed-select');
+      const video = document.getElementById('pivot-video');
+      if (speedSelect && video) {
+        speedSelect.onchange = () => {
+          video.playbackRate = parseFloat(speedSelect.value);
+        };
+      }
+    }, 0);
   }
 
   function renderSettings() {
