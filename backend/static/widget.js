@@ -119,18 +119,31 @@
     /* Modal Styles */
     .pivot-widget-modal {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.95);
+      top: 50%;
+      right: 24px;
+      transform: translateY(-50%);
+      width: 420px;
+      max-height: 85vh;
+      background: #0f0f0f;
       z-index: 999999;
       display: none;
       flex-direction: column;
       font-family: 'Inter', sans-serif;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      border: 2px solid #00CED1;
+      overflow: hidden;
     }
     .pivot-widget-modal.open {
       display: flex;
+    }
+    
+    @media (max-width: 768px) {
+      .pivot-widget-modal {
+        width: 90vw;
+        max-width: 420px;
+        right: 5vw;
+      }
     }
 
     /* Header */
