@@ -9,6 +9,7 @@ import WebsiteDetail from "@/pages/WebsiteDetail";
 import PageDetail from "@/pages/PageDetail";
 import SectionDetail from "@/pages/SectionDetail";
 import Settings from "@/pages/Settings";
+import Analytics from "@/pages/Analytics";
 import InstallationGuide from "@/pages/InstallationGuide";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
