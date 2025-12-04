@@ -1,70 +1,76 @@
 {
   "summary": {
-    "total_tests": 10,
+    "total_tests": 11,
     "passed_tests": 10,
-    "failed_tests": 0,
-    "success_rate": 100.0
+    "failed_tests": 1,
+    "success_rate": 90.9090909090909
   },
   "detailed_results": [
     {
       "test": "Demo User Login",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MzE2YjZiYi1mZDkyLTQ0OGEtYWNjMS0wNjg0OGU0ZTY2NTUiLCJleHAiOjE3NjQ5NzQzNzF9.t_jjHhh8CQ3WqwzJxKP2LUXvH92p2IibtL1o2Zk1vmg\",\n  \"token_ty...",
-      "timestamp": "2025-12-04T22:39:31.818465"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MzE2YjZiYi1mZDkyLTQ0OGEtYWNjMS0wNjg0OGU0ZTY2NTUiLCJleHAiOjE3NjQ5NzQ0MDl9.gXmUKCwDXlD6yz7F5I-3dvKQSaygguWF3aC3_by8t2w\",\n  \"token_ty...",
+      "timestamp": "2025-12-04T22:40:09.667546"
     },
     {
       "test": "Get Existing Websites",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"5ee6f079-fa83-4c7b-848d-ca07c92f6559\",\n    \"owner_id\": \"4316b6bb-fd92-448a-acc1-06848e4e6655\",\n    \"name\": \"Test Site\",\n    \"url\": \"https://test.com\",\n    \"embed_code\": \"<script src=\\...",
-      "timestamp": "2025-12-04T22:39:31.884178"
+      "timestamp": "2025-12-04T22:40:09.829148"
     },
     {
       "test": "Get Existing Pages",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"2c1b84cf-9485-4a18-a98f-00269cdb02e0\",\n    \"website_id\": \"5ee6f079-fa83-4c7b-848d-ca07c92f6559\",\n    \"url\": \"https://example.com\",\n    \"status\": \"Not Setup\",\n    \"sections_count\": 1,\n...",
-      "timestamp": "2025-12-04T22:39:31.980055"
+      "timestamp": "2025-12-04T22:40:10.006072"
     },
     {
       "test": "Get Existing Sections",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"e5c80550-28b4-4074-aeaa-1004b9430f4c\",\n    \"page_id\": \"2c1b84cf-9485-4a18-a98f-00269cdb02e0\",\n    \"selected_text\": \"This domain is for use in documentation examples without needing pe...",
-      "timestamp": "2025-12-04T22:39:32.046054"
+      "timestamp": "2025-12-04T22:40:10.197843"
     },
     {
       "test": "Upload Video",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"6fa4b666-158c-471f-9e10-2e8f8aaf1a23\",\n  \"section_id\": \"e5c80550-28b4-4074-aeaa-1004b9430f4c\",\n  \"language\": \"English\",\n  \"video_url\": \"/api/uploads/videos/53495955-7d91-43ef-a5e9-3529bb442...",
-      "timestamp": "2025-12-04T22:39:32.203319"
+      "details": "Status: 200, Response: {\n  \"id\": \"cb27b0a6-2254-4774-a887-418f87f348a0\",\n  \"section_id\": \"e5c80550-28b4-4074-aeaa-1004b9430f4c\",\n  \"language\": \"English\",\n  \"video_url\": \"/api/uploads/videos/581aad48-7cd7-4d81-a356-aa2e69e74...",
+      "timestamp": "2025-12-04T22:40:10.413119"
     },
     {
       "test": "Get Videos",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"6fa4b666-158c-471f-9e10-2e8f8aaf1a23\",\n    \"section_id\": \"e5c80550-28b4-4074-aeaa-1004b9430f4c\",\n    \"language\": \"English\",\n    \"video_url\": \"/api/uploads/videos/53495955-7d91-43ef-a5...",
-      "timestamp": "2025-12-04T22:39:32.265950"
+      "timestamp": "2025-12-04T22:40:10.538356"
     },
     {
-      "test": "Video File Access",
+      "test": "Video File Access (Internal)",
       "success": true,
       "details": "Status: 200, Content-Length: 30",
-      "timestamp": "2025-12-04T22:39:32.276483"
+      "timestamp": "2025-12-04T22:40:10.540382"
+    },
+    {
+      "test": "Video File Access (External)",
+      "success": false,
+      "details": "Status: 404, Error: This is the reported issue - video files not accessible via external URL",
+      "timestamp": "2025-12-04T22:40:10.891799"
     },
     {
       "test": "Upload Video to Non-existent Section",
       "success": true,
       "details": "Status: 404, Response: {\n  \"detail\": \"Section not found\"\n}...",
-      "timestamp": "2025-12-04T22:39:32.339342"
+      "timestamp": "2025-12-04T22:40:11.039122"
     },
     {
       "test": "Access Non-existent Video",
       "success": true,
       "details": "Status: 404",
-      "timestamp": "2025-12-04T22:39:32.341085"
+      "timestamp": "2025-12-04T22:40:11.040816"
     },
     {
       "test": "Video File Exists on Disk",
       "success": true,
-      "details": "File found at: /app/backend/uploads/videos/53495955-7d91-43ef-a5e9-3529bb442a9b.mp4",
-      "timestamp": "2025-12-04T22:39:32.341197"
+      "details": "File found at: /app/backend/uploads/videos/581aad48-7cd7-4d81-a356-aa2e69e740ef.mp4",
+      "timestamp": "2025-12-04T22:40:11.040917"
     }
   ]
 }
