@@ -804,32 +804,36 @@
       // Text highlighting during video playback
       if (video && textParagraph) {
         video.onplay = () => {
-          textParagraph.style.background = 'linear-gradient(90deg, rgba(0, 206, 209, 0.2) 0%, transparent 100%)';
+          textParagraph.style.background = 'rgba(224, 247, 250, 0.8)';
           textParagraph.style.borderLeft = '4px solid #00CED1';
           textParagraph.style.paddingLeft = '12px';
           textParagraph.style.transition = 'all 0.3s ease';
+          textParagraph.style.color = '#1a1a1a';
         };
         
         video.onpause = () => {
           textParagraph.style.background = 'transparent';
           textParagraph.style.borderLeft = 'none';
           textParagraph.style.paddingLeft = '0';
+          textParagraph.style.color = '#1a1a1a';
         };
       }
       
       // Text highlighting during audio playback
       if (audio && textParagraph) {
         audio.onplay = () => {
-          textParagraph.style.background = 'linear-gradient(90deg, rgba(0, 206, 209, 0.2) 0%, transparent 100%)';
+          textParagraph.style.background = 'rgba(224, 247, 250, 0.8)';
           textParagraph.style.borderLeft = '4px solid #00CED1';
           textParagraph.style.paddingLeft = '12px';
           textParagraph.style.transition = 'all 0.3s ease';
+          textParagraph.style.color = '#1a1a1a';
         };
         
         audio.onpause = () => {
           textParagraph.style.background = 'transparent';
           textParagraph.style.borderLeft = 'none';
           textParagraph.style.paddingLeft = '0';
+          textParagraph.style.color = '#1a1a1a';
         };
       }
     }, 0);
