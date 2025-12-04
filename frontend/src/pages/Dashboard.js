@@ -77,7 +77,7 @@ export default function Dashboard() {
             </h1>
             <div className="flex items-center gap-3">
               <span className="text-gray-600">My Plan:</span>
-              <span className="px-3 py-1 bg-[#00CED1] text-black font-semibold rounded text-sm">
+              <span className="px-3 py-1 bg-[#A460FF] text-white font-semibold rounded text-sm">
                 PRO
               </span>
             </div>
