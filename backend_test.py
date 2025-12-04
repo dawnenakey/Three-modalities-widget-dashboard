@@ -426,6 +426,7 @@ class PIVOTAPITester:
         # Step 6: Test video file access
         if video_url:
             self.test_video_file_access(video_url)
+            self.test_video_file_access_external(video_url)
 
         # Step 7: Test error scenarios
         self.test_video_upload_to_nonexistent_section()
