@@ -236,11 +236,15 @@ async def create_website(website_data: WebsiteCreate, current_user: dict = Depen
     if not backend_url:
         raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
     
+    # Extract OpenGraph/featured image from website
+    image_url = await extract_og_image(website_data.url)
+    
     website = Website(
         owner_id=current_user['id'],
         name=website_data.name,
         url=website_data.url,
-        embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>'
+        embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
+        image_url=image_url
     )
     website_dict = website.model_dump()
     website_dict['created_at'] = website_dict['created_at'].isoformat()
