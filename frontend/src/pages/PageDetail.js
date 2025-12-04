@@ -84,19 +84,43 @@ export default function PageDetail() {
           <p className="text-gray-600" data-testid="page-detail-url">{page.url}</p>
         </div>
 
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Sections ({sections.length})</h2>
-            <p className="text-gray-600">
-              Click on a section to add ASL videos and audio files
-            </p>
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Sections ({sections.length})</h2>
+              <p className="text-gray-600">
+                Click on a section to add ASL videos and audio files
+              </p>
+            </div>
+            <Button
+              onClick={() => setShowAddSection(!showAddSection)}
+              className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
+            >
+              {showAddSection ? 'Cancel' : '+ Add Section'}
+            </Button>
           </div>
-          <Button
-            onClick={() => setShowAddSection(!showAddSection)}
-            className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
-          >
-            {showAddSection ? 'Cancel' : '+ Add Section'}
-          </Button>
+          
+          {/* Page Count & Purchase Link */}
+          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600 mb-1">Pages Used</p>
+                <p className="text-2xl font-bold text-gray-900">{sections.length}/40</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600 mb-2">Need more pages?</p>
+                <a 
+                  href="/billing" 
+                  className="text-sm font-medium text-[#2F419D] hover:text-[#2F419D] hover:underline transition-all"
+                >
+                  To purchase more pages, please click here
+                </a>
+                <p className="text-xs text-gray-500 mt-2">
+                  <span className="font-semibold">Basic:</span> $75/page | <span className="font-semibold">Pro:</span> $65/page
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {showAddSection && (
