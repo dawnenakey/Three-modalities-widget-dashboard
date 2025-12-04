@@ -28,6 +28,8 @@ export default function SectionDetail() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [editingText, setEditingText] = useState(false);
+  const [editedText, setEditedText] = useState('');
 
   useEffect(() => {
     fetchData();
