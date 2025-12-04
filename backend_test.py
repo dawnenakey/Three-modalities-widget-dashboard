@@ -340,6 +340,87 @@ class PIVOTAPITester:
             except:
                 pass
 
+    def run_video_upload_tests(self):
+        """Run specific video upload and playback tests as requested"""
+        print("🎥 Starting Video Upload and Playback Test Suite")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 60)
+
+        # Step 1: Login as demo user
+        if not self.test_demo_user_login():
+            print("❌ Demo user login failed, stopping video tests")
+            return False
+
+        # Step 2: Get existing sections (find a section ID from existing data)
+        # First get websites to find existing data
+        websites_success, websites_data = self.run_test("Get Existing Websites", "GET", "websites", 200)
+        if not websites_success or not websites_data:
+            print("❌ No existing websites found, creating test data...")
+            # Create test website and page
+            website_success, website_id = self.test_create_website()
+            if not website_success:
+                print("❌ Website creation failed, stopping tests")
+                return False
+            page_success, page_id = self.test_create_page(website_id)
+            if not page_success:
+                print("❌ Page creation failed, stopping tests")
+                return False
+        else:
+            # Use first existing website
+            website_id = websites_data[0]['id']
+            pages_success, pages_data = self.run_test("Get Existing Pages", "GET", f"websites/{website_id}/pages", 200)
+            if not pages_success or not pages_data:
+                # Create a page if none exist
+                page_success, page_id = self.test_create_page(website_id)
+                if not page_success:
+                    print("❌ Page creation failed, stopping tests")
+                    return False
+            else:
+                page_id = pages_data[0]['id']
+
+        # Step 3: Get or create sections
+        sections_success, sections_data = self.run_test("Get Existing Sections", "GET", f"pages/{page_id}/sections", 200)
+        if not sections_success or not sections_data:
+            # Create a section if none exist
+            sections_success, section_id = self.test_create_section(page_id)
+            if not sections_success:
+                print("❌ Section creation failed, stopping tests")
+                return False
+        else:
+            section_id = sections_data[0]['id']
+
+        print(f"✅ Using section ID: {section_id}")
+
+        # Step 4: Test video upload
+        video_upload_success, video_data = self.test_upload_video(section_id)
+        if not video_upload_success:
+            print("❌ Video upload failed")
+            return False
+
+        video_url = video_data.get('video_url')
+        print(f"✅ Video uploaded successfully. URL: {video_url}")
+
+        # Step 5: Test video retrieval
+        self.test_get_videos(section_id)
+
+        # Step 6: Test video file access
+        if video_url:
+            self.test_video_file_access(video_url)
+
+        # Step 7: Test error scenarios
+        self.test_video_upload_to_nonexistent_section()
+        self.test_access_nonexistent_video()
+
+        # Step 8: Verify file exists in uploads directory
+        if video_data and 'file_path' in video_data:
+            file_path = Path(video_data['file_path'])
+            if file_path.exists():
+                self.log_test("Video File Exists on Disk", True, f"File found at: {file_path}")
+            else:
+                self.log_test("Video File Exists on Disk", False, f"File not found at: {file_path}")
+
+        return True
+
     def run_all_tests(self):
         """Run complete test suite"""
         print("🚀 Starting PIVOT API Test Suite")
