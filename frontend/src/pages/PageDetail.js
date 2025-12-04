@@ -84,12 +84,49 @@ export default function PageDetail() {
           <p className="text-gray-600" data-testid="page-detail-url">{page.url}</p>
         </div>
 
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Sections ({sections.length})</h2>
-          <p className="text-gray-600 mb-6">
-            Click on a section to add ASL videos and audio files
-          </p>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Sections ({sections.length})</h2>
+            <p className="text-gray-600">
+              Click on a section to add ASL videos and audio files
+            </p>
+          </div>
+          <Button
+            onClick={() => setShowAddSection(!showAddSection)}
+            className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+          >
+            {showAddSection ? 'Cancel' : '+ Add Section'}
+          </Button>
         </div>
+
+        {showAddSection && (
+          <div className="bg-white border border-gray-200 rounded-xl p-6 mb-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Add New Section</h3>
+            <textarea
+              value={newSectionText}
+              onChange={(e) => setNewSectionText(e.target.value)}
+              placeholder="Enter the text content for this section..."
+              className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+            />
+            <div className="flex gap-3 mt-4">
+              <Button
+                onClick={handleAddSection}
+                className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+              >
+                Create Section
+              </Button>
+              <Button
+                onClick={() => {
+                  setShowAddSection(false);
+                  setNewSectionText('');
+                }}
+                variant="outline"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
 
         {sections.length === 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
