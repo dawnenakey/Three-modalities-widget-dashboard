@@ -246,6 +246,13 @@ export default function SectionDetail() {
                       src={`${process.env.REACT_APP_BACKEND_URL}${video.video_url}`}
                       controls
                       className="w-full rounded"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'bg-red-50 border border-red-200 rounded p-4 text-center';
+                        errorDiv.innerHTML = `<p class="text-sm text-red-600">⚠️ Video file not found</p><p class="text-xs text-red-500 mt-1">This video may have been deleted or moved</p>`;
+                        e.target.parentNode.appendChild(errorDiv);
+                      }}
                     />
                   </div>
                 ))
