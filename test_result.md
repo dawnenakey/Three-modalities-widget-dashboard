@@ -101,3 +101,133 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+user_problem_statement: "Test Video Upload and Playback Functionality - Complete video upload and retrieval flow for PIVOT accessibility platform"
+
+backend:
+  - task: "Video Upload API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "POST /api/sections/{section_id}/videos endpoint working correctly. Successfully uploads video files and returns proper response with video_url and file_path. Tested with demo user credentials."
+
+  - task: "Video Retrieval API"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "GET /api/sections/{section_id}/videos endpoint working correctly. Returns list of videos for a section with proper metadata."
+
+  - task: "Video File Serving (Internal)"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Video files accessible via internal URL (localhost:8001/api/uploads/videos/). FastAPI StaticFiles mounting working correctly."
+
+  - task: "Video File Serving (External)"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: false
+          agent: "testing"
+          comment: "CRITICAL ISSUE: Video files return 404 when accessed via external URL (https://testing.gopivot.me/api/uploads/videos/). This is the reported user issue. Internal access works but external proxy/ingress routing is not properly configured for /api/uploads/ paths."
+
+  - task: "Error Handling - Non-existent Section"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Properly returns 404 with 'Section not found' message when attempting to upload video to non-existent section."
+
+  - task: "Error Handling - Non-existent Video File"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Properly returns 404 when attempting to access non-existent video files."
+
+  - task: "File Storage"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "Video files are properly stored in /app/backend/uploads/videos/ directory with UUID-based filenames."
+
+  - task: "Authentication for Video APIs"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "All video endpoints properly require authentication. Demo user login (demo@pivot.com) working correctly."
+
+frontend:
+  - task: "Frontend Video Integration"
+    implemented: false
+    working: "NA"
+    file: "N/A"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Frontend testing not performed as per testing agent limitations."
+
+metadata:
+  created_by: "testing_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+test_plan:
+  current_focus:
+    - "Video File Serving (External)"
+  stuck_tasks:
+    - "Video File Serving (External)"
+  test_all: false
+  test_priority: "high_first"
+
+agent_communication:
+    - agent: "testing"
+      message: "Completed comprehensive video upload and playback testing. CRITICAL ISSUE FOUND: Video files are not accessible via external URL due to proxy/ingress routing configuration. All backend APIs work correctly internally. The issue is in the infrastructure layer, not the application code."
