@@ -87,7 +87,7 @@ export default function Login() {
 
             <Button
               type="submit"
-              className="w-full h-12 bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold text-base"
+              className="w-full h-12 bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold text-base"
               disabled={loading}
               data-testid="login-submit-button"
             >

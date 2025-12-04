@@ -93,7 +93,7 @@ export default function PageDetail() {
           </div>
           <Button
             onClick={() => setShowAddSection(!showAddSection)}
-            className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+            className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
           >
             {showAddSection ? 'Cancel' : '+ Add Section'}
           </Button>
@@ -111,7 +111,7 @@ export default function PageDetail() {
             <div className="flex gap-3 mt-4">
               <Button
                 onClick={handleAddSection}
-                className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
               >
                 Create Section
               </Button>

@@ -45,7 +45,7 @@ export default function Websites() {
           <h1 className="text-3xl font-bold text-gray-900">Websites</h1>
           <Button
             onClick={() => navigate('/')}
-            className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+            className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Website
@@ -55,7 +55,7 @@ export default function Websites() {
         {websites.length === 0 ? (
           <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
             <p className="text-gray-600 mb-4">No websites yet</p>
-            <Button onClick={() => navigate('/')} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+            <Button onClick={() => navigate('/')} className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
               Add Your First Website
             </Button>
           </div>

@@ -46,7 +46,7 @@ export default function InstallationGuide() {
                   <code>{widgetCode}</code>
                 </pre>
               </div>
-              <Button onClick={copyCode} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+              <Button onClick={copyCode} className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
                 {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                 {copied ? 'Copied!' : 'Copy Code'}
               </Button>

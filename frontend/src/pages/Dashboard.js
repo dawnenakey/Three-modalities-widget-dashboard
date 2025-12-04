@@ -121,7 +121,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
-              <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+              <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold h-12">
                 Add Website
               </Button>
             </DialogTrigger>
@@ -139,18 +139,18 @@ export default function Dashboard() {
                   <Label htmlFor="url">Website URL</Label>
                   <Input id="url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} required />
                 </div>
-                <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating}>
+                <Button type="submit" className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold" disabled={creating}>
                   {creating ? 'Creating...' : 'Create Website'}
                 </Button>
               </form>
             </DialogContent>
           </Dialog>
           
-          <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+          <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold h-12">
             Add Page
           </Button>
           
-          <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+          <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold h-12">
             Manage Users
           </Button>
         </div>

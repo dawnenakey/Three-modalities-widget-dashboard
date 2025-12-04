@@ -157,7 +157,7 @@ export default function WebsiteDetail() {
                   <code>{website.embed_code}</code>
                 </pre>
               </div>
-              <Button onClick={copyEmbedCode} className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+              <Button onClick={copyEmbedCode} className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
                 {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
                 {copied ? 'Copied!' : 'Copy Code'}
               </Button>
@@ -175,7 +175,7 @@ export default function WebsiteDetail() {
               <div className="flex justify-end mb-4">
               <Dialog open={showDialog} onOpenChange={setShowDialog}>
                 <DialogTrigger asChild>
-                  <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+                  <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Page
                   </Button>
@@ -198,7 +198,7 @@ export default function WebsiteDetail() {
                       />
                       <p className="text-xs text-gray-500">Content will be automatically scraped</p>
                     </div>
-                    <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating}>
+                    <Button type="submit" className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold" disabled={creating}>
                       {creating ? 'Creating...' : 'Create Page'}
                     </Button>
                   </form>
@@ -209,7 +209,7 @@ export default function WebsiteDetail() {
           {pages.length === 0 ? (
             <div className="p-12 text-center">
               <p className="text-gray-600 mb-4">You don&apos;t have any pages added for this website yet.</p>
-              <Button onClick={() => setShowDialog(true)} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+              <Button onClick={() => setShowDialog(true)} className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Page
               </Button>

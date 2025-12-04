@@ -168,7 +168,7 @@ export default function SectionDetail() {
                       toast.error('Failed to update text');
                     }
                   }}
-                  className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                  className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
                 >
                   Save Changes
                 </Button>
@@ -224,7 +224,7 @@ export default function SectionDetail() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                  className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
                   disabled={uploading}
                 >
                   <Upload className="h-4 w-4 mr-2" />
@@ -293,7 +293,7 @@ export default function SectionDetail() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                  className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
                   disabled={generating}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />

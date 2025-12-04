@@ -50,7 +50,7 @@ export default function Settings() {
                 </div>
                 <Button
                   type="submit"
-                  className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                  className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
                   disabled={loading}
                 >
                   {loading ? 'Saving...' : 'Save Changes'}
@@ -79,7 +79,7 @@ export default function Settings() {
                 </div>
                 <Button
                   type="submit"
-                  className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                  className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
                 >
                   Update Password
                 </Button>
