@@ -143,7 +143,7 @@ backend:
 
   - task: "Video File Serving (External)"
     implemented: true
-    working: false
+    working: true
     file: "server.py"
     stuck_count: 1
     priority: "high"
@@ -152,6 +152,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "CRITICAL ISSUE: Video files return 404 when accessed via external URL (https://testing.gopivot.me/api/uploads/videos/). This is the reported user issue. Internal access works but external proxy/ingress routing is not properly configured for /api/uploads/ paths."
+        - working: true
+          agent: "testing"
+          comment: "RESOLVED: Video files are now accessible via external URL. Tested with persistence flow - video uploaded with language 'Test-Upload' is accessible immediately and after 10 seconds via https://testing.gopivot.me/api/uploads/videos/. Returns HTTP 200 with correct content-length. External proxy/ingress routing is now working correctly."
 
   - task: "Error Handling - Non-existent Section"
     implemented: true
