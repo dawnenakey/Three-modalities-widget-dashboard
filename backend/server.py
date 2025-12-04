@@ -647,6 +647,81 @@ async def get_analytics(website_id: str, current_user: dict = Depends(get_curren
     analytics = await db.analytics.find({"website_id": website_id}, {"_id": 0}).to_list(1000)
     return analytics
 
+@api_router.get("/analytics/overview")
+async def get_analytics_overview(current_user: dict = Depends(get_current_user)):
+    """Get aggregated analytics across all user's websites"""
+    
+    # Get all user's websites
+    websites = await db.websites.find({"owner_id": current_user['id']}, {"_id": 0}).to_list(1000)
+    website_ids = [w['id'] for w in websites]
+    
+    # Get all analytics data
+    all_analytics = await db.analytics.find(
+        {"website_id": {"$in": website_ids}}, 
+        {"_id": 0}
+    ).to_list(10000)
+    
+    # Calculate total activations (views)
+    total_activations = sum(a.get('views', 0) for a in all_analytics)
+    
+    # Get modality usage
+    modality_usage = {
+        "asl": sum(a.get('asl_views', 0) for a in all_analytics),
+        "audio": sum(a.get('audio_plays', 0) for a in all_analytics),
+        "text": sum(a.get('text_views', 0) for a in all_analytics)
+    }
+    
+    # Get top pages (sorted by views)
+    top_pages = sorted(all_analytics, key=lambda x: x.get('views', 0), reverse=True)[:5]
+    top_pages_data = [{"url": p.get('page_url', 'Unknown'), "views": p.get('views', 0)} for p in top_pages]
+    
+    # Get top content (for now, return placeholder)
+    top_content = []
+    
+    # Get top languages (placeholder for now)
+    top_languages = [
+        {"code": "EN", "name": "English", "count": total_activations},
+    ]
+    
+    return {
+        "totalActivations": total_activations,
+        "topPages": top_pages_data,
+        "topContent": top_content,
+        "modalityUsage": modality_usage,
+        "topLanguages": top_languages
+    }
+
+# User invitations
+class UserInvite(BaseModel):
+    email: EmailStr
+    role: str
+
+@api_router.post("/users/invite")
+async def invite_user(invite: UserInvite, current_user: dict = Depends(get_current_user)):
+    """Send invitation to add a new user"""
+    
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": invite.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+    
+    # Create invitation record
+    invitation = {
+        "id": str(uuid.uuid4()),
+        "email": invite.email,
+        "role": invite.role,
+        "invited_by": current_user['id'],
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "status": "pending"
+    }
+    
+    await db.invitations.insert_one(invitation)
+    
+    # In a real app, you would send an email here
+    # For now, we'll just return success
+    
+    return {"message": f"Invitation sent to {invite.email}", "invitation_id": invitation['id']}
+
 # Serve uploaded files
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
