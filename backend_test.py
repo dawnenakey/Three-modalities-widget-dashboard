@@ -504,7 +504,8 @@ def main():
     tester = PIVOTAPITester()
     
     try:
-        success = tester.run_all_tests()
+        # Run specific video upload and playback tests as requested
+        success = tester.run_video_upload_tests()
         tester.print_summary()
         
         # Save detailed results
