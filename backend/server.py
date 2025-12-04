@@ -373,6 +373,32 @@ async def get_section(section_id: str, current_user: dict = Depends(get_current_
         raise HTTPException(status_code=404, detail="Section not found")
     return section
 
+@api_router.patch("/sections/{section_id}")
+async def update_section(
+    section_id: str,
+    text_content: str = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update section text content"""
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    update_data = {}
+    if text_content is not None:
+        update_data["text_content"] = text_content
+        update_data["selected_text"] = text_content
+    
+    if update_data:
+        await db.sections.update_one(
+            {"id": section_id},
+            {"$set": update_data}
+        )
+    
+    updated_section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    return updated_section
+
+
 # Video routes
 @api_router.post("/sections/{section_id}/videos", response_model=Video)
 async def upload_video(
