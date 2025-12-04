@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Plus, Globe, FileText, Users, Code, Copy, CheckCircle } from 'lucide-react';
+import UserManagementDialog from '@/components/UserManagementDialog';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
