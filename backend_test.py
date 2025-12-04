@@ -217,9 +217,51 @@ class PIVOTAPITester:
         # Create a small test video file
         test_video_content = b"fake video content for testing"
         files = {'video': ('test_video.mp4', test_video_content, 'video/mp4')}
-        data = {'language': 'ASL (American Sign Language)'}
+        data = {'language': 'English'}
         
-        return self.run_test("Upload Video", "POST", f"sections/{section_id}/videos", 200, data, files)
+        success, response = self.run_test("Upload Video", "POST", f"sections/{section_id}/videos", 200, data, files)
+        if success and 'video_url' in response:
+            return True, response
+        return False, None
+
+    def test_video_file_access(self, video_url):
+        """Test accessing uploaded video file"""
+        if not video_url.startswith('http'):
+            # Convert relative URL to absolute
+            video_url = f"{self.base_url.replace('/api', '')}{video_url}"
+        
+        try:
+            response = requests.get(video_url, timeout=30)
+            success = response.status_code == 200
+            details = f"Status: {response.status_code}, Content-Length: {len(response.content)}"
+            self.log_test("Video File Access", success, details)
+            return success
+        except Exception as e:
+            self.log_test("Video File Access", False, f"Exception: {str(e)}")
+            return False
+
+    def test_video_upload_to_nonexistent_section(self):
+        """Test video upload to non-existent section (should return 404)"""
+        fake_section_id = "nonexistent-section-id"
+        test_video_content = b"fake video content for testing"
+        files = {'video': ('test_video.mp4', test_video_content, 'video/mp4')}
+        data = {'language': 'English'}
+        
+        return self.run_test("Upload Video to Non-existent Section", "POST", f"sections/{fake_section_id}/videos", 404, data, files)
+
+    def test_access_nonexistent_video(self):
+        """Test accessing non-existent video file (should return 404)"""
+        fake_video_url = f"{self.base_url.replace('/api', '')}/api/uploads/videos/nonexistent-video.mp4"
+        
+        try:
+            response = requests.get(fake_video_url, timeout=30)
+            success = response.status_code == 404
+            details = f"Status: {response.status_code}"
+            self.log_test("Access Non-existent Video", success, details)
+            return success
+        except Exception as e:
+            self.log_test("Access Non-existent Video", False, f"Exception: {str(e)}")
+            return False
 
     def test_get_videos(self, section_id):
         """Test get videos for section"""
