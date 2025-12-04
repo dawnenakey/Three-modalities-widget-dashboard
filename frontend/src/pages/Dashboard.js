@@ -192,21 +192,16 @@ export default function Dashboard() {
             </pre>
           </div>
           <div className="flex gap-4">
-            <Button onClick={copyWidgetCode} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+            <Button onClick={copyWidgetCode} className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
               {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
               {copied ? 'Copied!' : 'Copy Installation Code'}
             </Button>
-            <Button variant="outline">
+            <Button 
+              onClick={() => window.open('https://testing.gopivot.me/installation-guides', '_blank')}
+              className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
+            >
               Show Instructions
             </Button>
-          </div>
-          <p className="text-xs text-gray-500 mt-4">
-            <strong>Shoppers:</strong> Find step-by-step installation guides for different platforms here.
-          </p>
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <Link to="/installation-guides" className="text-sm text-[#00CED1] hover:underline">
-              Installation Guides →
-            </Link>
           </div>
         </div>
       </div>
