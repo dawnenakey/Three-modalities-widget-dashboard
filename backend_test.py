@@ -127,6 +127,20 @@ class PIVOTAPITester:
             return True
         return False
 
+    def test_demo_user_login(self):
+        """Test login with demo user credentials"""
+        login_data = {
+            "email": "demo@pivot.com",
+            "password": "demo123456"
+        }
+        
+        success, response = self.run_test("Demo User Login", "POST", "auth/login", 200, login_data)
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            return True
+        return False
+
     def test_get_current_user(self):
         """Test get current user endpoint"""
         return self.run_test("Get Current User", "GET", "auth/me", 200)
