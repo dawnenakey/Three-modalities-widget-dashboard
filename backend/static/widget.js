@@ -771,13 +771,49 @@
 
     mainContent.innerHTML = videoHTML + textHTML + audioHTML + navHTML;
     
-    // Setup video speed control
+    // Setup video speed control and text highlighting
     setTimeout(() => {
       const speedSelect = document.getElementById('speed-select');
       const video = document.getElementById('pivot-video');
+      const audio = document.getElementById('pivot-audio');
+      const textParagraph = document.getElementById('pivot-text-paragraph');
+      
+      // Video speed control
       if (speedSelect && video) {
         speedSelect.onchange = () => {
           video.playbackRate = parseFloat(speedSelect.value);
+        };
+      }
+      
+      // Text highlighting during video playback
+      if (video && textParagraph) {
+        video.onplay = () => {
+          textParagraph.style.background = 'linear-gradient(90deg, rgba(0, 206, 209, 0.2) 0%, transparent 100%)';
+          textParagraph.style.borderLeft = '4px solid #00CED1';
+          textParagraph.style.paddingLeft = '12px';
+          textParagraph.style.transition = 'all 0.3s ease';
+        };
+        
+        video.onpause = () => {
+          textParagraph.style.background = 'transparent';
+          textParagraph.style.borderLeft = 'none';
+          textParagraph.style.paddingLeft = '0';
+        };
+      }
+      
+      // Text highlighting during audio playback
+      if (audio && textParagraph) {
+        audio.onplay = () => {
+          textParagraph.style.background = 'linear-gradient(90deg, rgba(0, 206, 209, 0.2) 0%, transparent 100%)';
+          textParagraph.style.borderLeft = '4px solid #00CED1';
+          textParagraph.style.paddingLeft = '12px';
+          textParagraph.style.transition = 'all 0.3s ease';
+        };
+        
+        audio.onpause = () => {
+          textParagraph.style.background = 'transparent';
+          textParagraph.style.borderLeft = 'none';
+          textParagraph.style.paddingLeft = '0';
         };
       }
     }, 0);
