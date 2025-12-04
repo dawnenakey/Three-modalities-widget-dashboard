@@ -305,23 +305,90 @@ async def create_page(website_id: str, page_data: PageCreate, current_user: dict
     return page
 
 async def scrape_page_content(url: str) -> List[str]:
+    """Enhanced scraping that captures ALL text including nav, buttons, etc."""
     try:
         response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
         soup = BeautifulSoup(response.content, "html.parser")
         
-        for element in soup(['script', 'style', 'nav', 'footer', 'header']):
+        # Only remove script and style tags
+        for element in soup(['script', 'style', 'noscript', 'iframe']):
             element.decompose()
         
         texts = []
-        for tag in soup.find_all(['h1', 'h2', 'h3', 'p']):
-            text = tag.get_text(strip=True)
-            if len(text) > 20:
-                texts.append(text[:500])
         
-        return texts[:50]
+        # Extract text from all relevant elements INCLUDING nav, buttons, links
+        for tag in soup.find_all([
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',  # Headers
+            'p', 'span', 'div',  # Paragraphs and containers
+            'a', 'button',  # Links and buttons
+            'li', 'td', 'th',  # Lists and tables
+            'label', 'input', 'textarea',  # Forms
+            'nav', 'header', 'footer', 'aside', 'section', 'article'  # Semantic HTML
+        ]):
+            # Get text with proper spacing for inline elements
+            # This fixes the italic text spacing issue
+            text = tag.get_text(separator=' ', strip=True)
+            
+            # Clean up multiple spaces
+            text = ' '.join(text.split())
+            
+            # Skip very short text and duplicates
+            if len(text) > 5 and text not in texts:
+                # Limit each section to reasonable length
+                texts.append(text[:800])
+        
+        # Remove duplicate texts (in case of nested elements)
+        unique_texts = []
+        for text in texts:
+            # Check if this text is not a substring of another text
+            is_unique = True
+            for existing_text in unique_texts:
+                if text in existing_text or existing_text in text:
+                    # Keep the longer one
+                    if len(text) > len(existing_text):
+                        unique_texts.remove(existing_text)
+                    else:
+                        is_unique = False
+                        break
+            if is_unique:
+                unique_texts.append(text)
+        
+        return unique_texts[:100]  # Increased limit to capture more content
     except Exception as e:
         logging.error(f"Scraping error: {e}")
         return []
+
+async def extract_og_image(url: str) -> str:
+    """Extract OpenGraph image or featured image from webpage"""
+    try:
+        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        soup = BeautifulSoup(response.content, "html.parser")
+        
+        # Try OpenGraph image
+        og_image = soup.find('meta', property='og:image')
+        if og_image and og_image.get('content'):
+            return og_image['content']
+        
+        # Try Twitter card image
+        twitter_image = soup.find('meta', attrs={'name': 'twitter:image'})
+        if twitter_image and twitter_image.get('content'):
+            return twitter_image['content']
+        
+        # Try first large image on page
+        for img in soup.find_all('img'):
+            src = img.get('src')
+            if src and ('logo' not in src.lower() and 'icon' not in src.lower()):
+                # Make sure it's an absolute URL
+                if src.startswith('http'):
+                    return src
+                elif src.startswith('/'):
+                    from urllib.parse import urljoin
+                    return urljoin(url, src)
+        
+        return None
+    except Exception as e:
+        logging.error(f"Image extraction error: {e}")
+        return None
 
 @api_router.get("/pages/{page_id}", response_model=Page)
 async def get_page(page_id: str, current_user: dict = Depends(get_current_user)):
