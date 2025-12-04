@@ -722,6 +722,46 @@ async def invite_user(invite: UserInvite, current_user: dict = Depends(get_curre
     
     return {"message": f"Invitation sent to {invite.email}", "invitation_id": invitation['id']}
 
+# Clean up orphaned media files
+@api_router.post("/admin/cleanup-orphaned-media")
+async def cleanup_orphaned_media(current_user: dict = Depends(get_current_user)):
+    """Remove database records for videos/audio files that no longer exist on disk"""
+    
+    videos_removed = 0
+    audios_removed = 0
+    
+    # Check all videos
+    videos = await db.videos.find({}, {"_id": 0}).to_list(10000)
+    for video in videos:
+        file_path = Path(video.get('file_path', ''))
+        if not file_path.exists():
+            await db.videos.delete_one({"id": video['id']})
+            # Update section video count
+            await db.sections.update_one(
+                {"id": video['section_id']},
+                {"$inc": {"videos_count": -1}}
+            )
+            videos_removed += 1
+    
+    # Check all audios
+    audios = await db.audios.find({}, {"_id": 0}).to_list(10000)
+    for audio in audios:
+        file_path = Path(audio.get('file_path', ''))
+        if not file_path.exists():
+            await db.audios.delete_one({"id": audio['id']})
+            # Update section audio count
+            await db.sections.update_one(
+                {"id": audio['section_id']},
+                {"$inc": {"audios_count": -1}}
+            )
+            audios_removed += 1
+    
+    return {
+        "message": "Cleanup complete",
+        "videos_removed": videos_removed,
+        "audios_removed": audios_removed
+    }
+
 # Serve uploaded files
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
