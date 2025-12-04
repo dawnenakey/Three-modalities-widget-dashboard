@@ -204,6 +204,18 @@ backend:
           agent: "testing"
           comment: "All video endpoints properly require authentication. Demo user login (demo@pivot.com) working correctly."
 
+  - task: "Video Upload Persistence Testing"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: true
+          agent: "testing"
+          comment: "COMPLETE persistence test passed: 1) Login with demo user successful, 2) Found valid section ID, 3) Uploaded video with language 'Test-Upload' successful, 4) Video appears immediately in database list, 5) Video file accessible immediately via external URL, 6) After 10 seconds wait - video STILL in database, 7) Video file STILL accessible via external URL. All persistence checks PASSED - no cleanup process removing records."
+
 frontend:
   - task: "Frontend Video Integration"
     implemented: false
