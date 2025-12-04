@@ -113,6 +113,159 @@ export default function InstallationGuide() {
                 </div>
               </div>
             </div>
+
+            {/* Platform-Specific Guides */}
+            <div className="space-y-6 mt-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Platform-Specific Guides</h2>
+              
+              {/* WordPress */}
+              <div id="wordpress" className="bg-white rounded-xl border border-gray-200 p-6 scroll-mt-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">WordPress</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Installation:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li>Go to Appearance → Theme Editor (or Theme File Editor)</li>
+                      <li>Find your theme's <code className="bg-gray-100 px-2 py-1 rounded">footer.php</code> file</li>
+                      <li>Paste the PIVOT widget code before <code className="bg-gray-100 px-2 py-1 rounded">&lt;/body&gt;</code></li>
+                      <li>Click "Update File"</li>
+                    </ol>
+                  </div>
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <p className="text-sm text-yellow-800">
+                      <strong>Alternative:</strong> Use a plugin like "Insert Headers and Footers" to add the code without editing theme files.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Finding OpenGraph/Featured Image:</h4>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li><strong>Featured Image:</strong> Set in Post/Page editor → Featured Image (right sidebar)</li>
+                      <li><strong>With Yoast SEO:</strong> SEO → Social → Facebook → Image</li>
+                      <li><strong>With Rank Math:</strong> Edit post → Social → Image</li>
+                      <li><strong>With All in One SEO:</strong> Social Networks → Facebook → Image</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shopify */}
+              <div id="shopify" className="bg-white rounded-xl border border-gray-200 p-6 scroll-mt-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Shopify</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Installation:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li>Go to Online Store → Themes</li>
+                      <li>Click Actions → Edit Code</li>
+                      <li>Find <code className="bg-gray-100 px-2 py-1 rounded">theme.liquid</code> in the Layout folder</li>
+                      <li>Paste the PIVOT widget code before <code className="bg-gray-100 px-2 py-1 rounded">&lt;/body&gt;</code></li>
+                      <li>Click "Save"</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Finding OpenGraph Image:</h4>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li><strong>Homepage:</strong> Online Store → Preferences → Social Sharing Image</li>
+                      <li><strong>Product Pages:</strong> Products → [Product] → Media → Upload image</li>
+                      <li><strong>Collections:</strong> Collections → [Collection] → Image</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Wix */}
+              <div id="wix" className="bg-white rounded-xl border border-gray-200 p-6 scroll-mt-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Wix</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Installation:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li>Open your Wix Editor</li>
+                      <li>Click Settings (gear icon) on the left sidebar</li>
+                      <li>Go to Custom Code → + Add Custom Code</li>
+                      <li>Paste the PIVOT widget code</li>
+                      <li>Choose "Body - end" as the placement</li>
+                      <li>Select "All Pages" or specific pages</li>
+                      <li>Click "Apply"</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Finding OpenGraph Image:</h4>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li>Go to Settings → SEO (Google)</li>
+                      <li>Click on "Social Share"</li>
+                      <li>Upload "Social Share Image"</li>
+                      <li>This becomes your OpenGraph image</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Squarespace */}
+              <div id="squarespace" className="bg-white rounded-xl border border-gray-200 p-6 scroll-mt-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Squarespace</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Installation:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li>Go to Settings → Advanced → Code Injection</li>
+                      <li>Paste the PIVOT widget code in the "Footer" section</li>
+                      <li>Click "Save"</li>
+                    </ol>
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p className="text-sm text-blue-800">
+                      <strong>Note:</strong> Code Injection is available on Business plans and higher.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Finding OpenGraph Image:</h4>
+                    <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li><strong>Homepage:</strong> Settings → Browser Icon & Social Sharing → Social Sharing Logo</li>
+                      <li><strong>Blog Posts:</strong> Edit post → Options → Social Image</li>
+                      <li><strong>Pages:</strong> Edit page → Settings → Social Image</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* Custom HTML */}
+              <div id="custom" className="bg-white rounded-xl border border-gray-200 p-6 scroll-mt-8">
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">Custom HTML Website</h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Installation:</h4>
+                    <ol className="list-decimal list-inside space-y-2 text-sm text-gray-700 ml-4">
+                      <li>Open your HTML file in a text editor</li>
+                      <li>Find the closing <code className="bg-gray-100 px-2 py-1 rounded">&lt;/body&gt;</code> tag</li>
+                      <li>Paste the PIVOT widget code right before it</li>
+                      <li>Save the file</li>
+                      <li>Upload to your server</li>
+                    </ol>
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Adding OpenGraph Image:</h4>
+                    <p className="text-sm text-gray-700 mb-3">Add these meta tags in your <code className="bg-gray-100 px-2 py-1 rounded">&lt;head&gt;</code> section:</p>
+                    <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                      <pre className="text-xs text-gray-700 overflow-x-auto">
+{`<meta property="og:image" content="https://yoursite.com/preview-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:title" content="Your Page Title">
+<meta property="og:description" content="Your page description">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://yoursite.com/preview-image.jpg">`}
+                      </pre>
+                    </div>
+                  </div>
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <p className="text-sm text-green-800">
+                      <strong>Tip:</strong> Use absolute URLs (full https://...) for image paths, not relative paths (/images/...).
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar */}
