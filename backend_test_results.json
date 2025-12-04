@@ -1,124 +1,40 @@
 {
   "summary": {
-    "total_tests": 19,
-    "passed_tests": 18,
+    "total_tests": 5,
+    "passed_tests": 4,
     "failed_tests": 1,
-    "success_rate": 94.73684210526315
+    "success_rate": 80.0
   },
   "detailed_results": [
     {
-      "test": "Root API Endpoint",
+      "test": "Demo User Login",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"message\": \"PIVOT API - Accessibility Platform\"\n}...",
-      "timestamp": "2025-12-01T04:37:26.361321"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjQ5NzQzNDB9.xlMMGdFR-0gMgt2R4McTOX683hFfB2RGRjpz0Y0swfQ\",\n  \"token_ty...",
+      "timestamp": "2025-12-04T22:39:00.410491"
     },
     {
-      "test": "User Registration",
+      "test": "Get Existing Websites",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Yzg5M2FhMS1iZjg3LTQyOTYtYTlkYi1hMjdiZDFmM2RmMzUiLCJleHAiOjE3NjQ2NTAyNDZ9.plZ6oO7ChPLo8v9zqGOdLSCP8koXiMykUTXeHKT2O2M\",\n  \"token_ty...",
-      "timestamp": "2025-12-01T04:37:26.657797"
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
+      "timestamp": "2025-12-04T22:39:00.853217"
     },
     {
-      "test": "Get Current User",
+      "test": "Get Existing Pages",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"5c893aa1-bf87-4296-a9db-a27bd1f3df35\",\n  \"email\": \"test043726@example.com\",\n  \"name\": \"Test User 043726\",\n  \"created_at\": \"2025-12-01T04:37:26.405000\"\n}...",
-      "timestamp": "2025-12-01T04:37:26.700460"
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"3c47572d-74fe-4d0a-a69f-7175600a97cd\",\n    \"website_id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"url\": \"https://example.com\",\n    \"status\": \"Not Setup\",\n    \"sections_count\": 1,\n...",
+      "timestamp": "2025-12-04T22:39:01.398220"
     },
     {
-      "test": "Create Website",
+      "test": "Get Existing Sections",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"1fe5a80c-58a0-497b-965c-77560e379c17\",\n  \"owner_id\": \"5c893aa1-bf87-4296-a9db-a27bd1f3df35\",\n  \"name\": \"Test Website\",\n  \"url\": \"https://example.com\",\n  \"embed_code\": \"<script src=\\\"http://...",
-      "timestamp": "2025-12-01T04:37:26.763138"
-    },
-    {
-      "test": "Get Websites",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"1fe5a80c-58a0-497b-965c-77560e379c17\",\n    \"owner_id\": \"5c893aa1-bf87-4296-a9db-a27bd1f3df35\",\n    \"name\": \"Test Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
-      "timestamp": "2025-12-01T04:37:26.806619"
-    },
-    {
-      "test": "Get Website Detail",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"1fe5a80c-58a0-497b-965c-77560e379c17\",\n  \"owner_id\": \"5c893aa1-bf87-4296-a9db-a27bd1f3df35\",\n  \"name\": \"Test Website\",\n  \"url\": \"https://example.com\",\n  \"embed_code\": \"<script src=\\\"http://...",
-      "timestamp": "2025-12-01T04:37:26.848307"
-    },
-    {
-      "test": "Create Page with Auto-scraping",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"76b09ef9-5b97-4eaf-9a81-1f49925665b7\",\n  \"website_id\": \"1fe5a80c-58a0-497b-965c-77560e379c17\",\n  \"url\": \"https://example.com\",\n  \"status\": \"Not Setup\",\n  \"sections_count\": 0,\n  \"created_at\"...",
-      "timestamp": "2025-12-01T04:37:27.162292"
-    },
-    {
-      "test": "Get Pages",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"76b09ef9-5b97-4eaf-9a81-1f49925665b7\",\n    \"website_id\": \"1fe5a80c-58a0-497b-965c-77560e379c17\",\n    \"url\": \"https://example.com\",\n    \"status\": \"Not Setup\",\n    \"sections_count\": 1,\n...",
-      "timestamp": "2025-12-01T04:37:27.216408"
-    },
-    {
-      "test": "Get Page Detail",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"76b09ef9-5b97-4eaf-9a81-1f49925665b7\",\n  \"website_id\": \"1fe5a80c-58a0-497b-965c-77560e379c17\",\n  \"url\": \"https://example.com\",\n  \"status\": \"Not Setup\",\n  \"sections_count\": 1,\n  \"created_at\"...",
-      "timestamp": "2025-12-01T04:37:27.259042"
-    },
-    {
-      "test": "Get Sections",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"fa876912-1a7c-4101-8db0-09739dd24942\",\n    \"page_id\": \"76b09ef9-5b97-4eaf-9a81-1f49925665b7\",\n    \"selected_text\": \"This domain is for use in documentation examples without needing pe...",
-      "timestamp": "2025-12-01T04:37:27.298803"
-    },
-    {
-      "test": "Get Section Detail",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"fa876912-1a7c-4101-8db0-09739dd24942\",\n  \"page_id\": \"76b09ef9-5b97-4eaf-9a81-1f49925665b7\",\n  \"selected_text\": \"This domain is for use in documentation examples without needing permission. ...",
-      "timestamp": "2025-12-01T04:37:27.335135"
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"6a94f2a8-abdc-4776-8e1e-e6dcb9d1669d\",\n    \"page_id\": \"3c47572d-74fe-4d0a-a69f-7175600a97cd\",\n    \"selected_text\": \"This domain is for use in documentation examples without needing pe...",
+      "timestamp": "2025-12-04T22:39:01.692936"
     },
     {
       "test": "Upload Video",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"2c02819f-1ffd-42d0-8eb8-a2c0f3d47da2\",\n  \"section_id\": \"fa876912-1a7c-4101-8db0-09739dd24942\",\n  \"language\": \"ASL (American Sign Language)\",\n  \"video_url\": \"/api/uploads/videos/c91c7cd9-7b9...",
-      "timestamp": "2025-12-01T04:37:27.395991"
-    },
-    {
-      "test": "Get Videos",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"2c02819f-1ffd-42d0-8eb8-a2c0f3d47da2\",\n    \"section_id\": \"fa876912-1a7c-4101-8db0-09739dd24942\",\n    \"language\": \"ASL (American Sign Language)\",\n    \"video_url\": \"/api/uploads/videos/...",
-      "timestamp": "2025-12-01T04:37:27.432883"
-    },
-    {
-      "test": "Upload Audio",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"d747ddc5-f25a-45ce-8123-0da0ec8b5446\",\n  \"section_id\": \"fa876912-1a7c-4101-8db0-09739dd24942\",\n  \"language\": \"English\",\n  \"audio_url\": \"/api/uploads/audio/62971a2f-e366-46e3-9f29-81cc2365db...",
-      "timestamp": "2025-12-01T04:37:27.500370"
-    },
-    {
-      "test": "Get Audios",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"d747ddc5-f25a-45ce-8123-0da0ec8b5446\",\n    \"section_id\": \"fa876912-1a7c-4101-8db0-09739dd24942\",\n    \"language\": \"English\",\n    \"audio_url\": \"/api/uploads/audio/62971a2f-e366-46e3-9f2...",
-      "timestamp": "2025-12-01T04:37:27.538309"
-    },
-    {
-      "test": "Generate TTS Audio",
       "success": false,
-      "details": "Status: 422, Error: {'detail': [{'type': 'missing', 'loc': ['body', 'language'], 'msg': 'Field required', 'input': None, 'url': 'https://errors.pydantic.dev/2.12/v/missing'}]}",
-      "timestamp": "2025-12-01T04:37:27.580958"
-    },
-    {
-      "test": "Widget API",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"sections\": []\n}...",
-      "timestamp": "2025-12-01T04:37:27.659030"
-    },
-    {
-      "test": "Analytics",
-      "success": true,
-      "details": "Status: 200, Response: []...",
-      "timestamp": "2025-12-01T04:37:27.693789"
-    },
-    {
-      "test": "Cleanup Website",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"message\": \"Website deleted\"\n}...",
-      "timestamp": "2025-12-01T04:37:27.730928"
+      "details": "Status: 503, Error: upstream connect error or disconnect/reset before headers. reset reason: remote connection failure, transport failure reason: delayed connect error: Connection refused",
+      "timestamp": "2025-12-04T22:39:01.818418"
     }
   ]
 }
