@@ -225,9 +225,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Video File Serving (External)"
-  stuck_tasks:
-    - "Video File Serving (External)"
+    - "Video Upload Persistence Testing"
+  stuck_tasks: []
   test_all: false
   test_priority: "high_first"
 
