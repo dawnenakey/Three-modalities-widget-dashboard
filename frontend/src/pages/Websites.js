@@ -67,8 +67,19 @@ export default function Websites() {
                 className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all"
               >
                 {/* Website Preview Image */}
-                <div className="relative h-48 bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center">
-                  <div className="text-center">
+                <div className="relative h-48 bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center overflow-hidden">
+                  {website.image_url ? (
+                    <img 
+                      src={website.image_url} 
+                      alt={website.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                  ) : null}
+                  <div className={`text-center ${website.image_url ? 'hidden' : 'flex'} flex-col items-center justify-center w-full h-full`}>
                     <h2 className="text-4xl font-bold text-white mb-2">
                       PI<span className="text-[#00CED1]">V</span>OT
                     </h2>
