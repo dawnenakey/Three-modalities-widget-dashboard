@@ -100,6 +100,14 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/test"
+              element={
+                <PrivateRoute>
+                  <TestPage />
+                </PrivateRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
         <Toaster />
