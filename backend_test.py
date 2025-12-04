@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 
 class PIVOTAPITester:
-    def __init__(self, base_url="https://testing.gopivot.me/api"):
+    def __init__(self, base_url="http://localhost:8001/api"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
