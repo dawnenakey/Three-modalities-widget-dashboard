@@ -11,6 +11,7 @@ import SectionDetail from "@/pages/SectionDetail";
 import Settings from "@/pages/Settings";
 import Analytics from "@/pages/Analytics";
 import InstallationGuide from "@/pages/InstallationGuide";
+import AddOnServices from "@/pages/AddOnServices";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 const PrivateRoute = ({ children }) => {
@@ -71,6 +72,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Analytics />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/add-on-services"
+              element={
+                <PrivateRoute>
+                  <AddOnServices />
                 </PrivateRoute>
               }
             />

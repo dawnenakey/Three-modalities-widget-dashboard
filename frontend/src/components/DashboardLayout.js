@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { Home, Globe, BarChart3, Settings, LogOut } from 'lucide-react';
+import { Home, Globe, BarChart3, Settings, LogOut, Briefcase } from 'lucide-react';
 
 export default function DashboardLayout({ children }) {
   const location = useLocation();
@@ -16,6 +16,7 @@ export default function DashboardLayout({ children }) {
     { path: '/', icon: Home, label: 'Home', exact: true },
     { path: '/websites', icon: Globe, label: 'Websites', exact: false },
     { path: '/analytics', icon: BarChart3, label: 'Analytics', exact: true },
+    { path: '/add-on-services', icon: Briefcase, label: 'Add-On Services', exact: true },
     { path: '/settings', icon: Settings, label: 'Settings', exact: true },
   ];
 
@@ -25,8 +26,7 @@ export default function DashboardLayout({ children }) {
       <div className="w-64 bg-[#1a1a1a] flex flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-gray-800 flex flex-col items-center">
-          <img src="/zigzag_logo.svg" alt="PIVOT Logo" className="h-24 w-auto mb-2" />
-          <p className="text-xs text-gray-400 text-center">Language Translation</p>
+          <img src="/pivot_white_logo.png" alt="PIVOT powered by dozanu" className="h-20 w-auto" />
         </div>
 
         {/* Navigation */}
@@ -42,7 +42,7 @@ export default function DashboardLayout({ children }) {
                 to={item.path}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg mb-2 transition-all ${
                   isActive
-                    ? 'bg-[#00CED1] text-[#1a1a1a] font-semibold'
+                    ? 'bg-[#21D4B4] text-black font-semibold'
                     : 'text-gray-400 hover:bg-gray-800 hover:text-white'
                 }`}
                 data-testid={`nav-${item.label.toLowerCase()}`}
@@ -57,7 +57,7 @@ export default function DashboardLayout({ children }) {
         {/* User & Logout */}
         <div className="p-4 border-t border-gray-800">
           <div className="flex items-center gap-3 px-4 py-3 mb-2">
-            <div className="h-10 w-10 rounded-full bg-[#00CED1] flex items-center justify-center text-[#1a1a1a] font-bold">
+            <div className="h-10 w-10 rounded-full bg-[#21D4B4] flex items-center justify-center text-black font-bold">
               {user?.name?.charAt(0).toUpperCase()}
             </div>
             <div className="flex-1">
@@ -73,9 +73,6 @@ export default function DashboardLayout({ children }) {
             <LogOut className="h-5 w-5" />
             Logout
           </button>
-          <div className="mt-4 pt-4 border-t border-gray-800 text-center">
-            <p className="text-xs text-gray-600">Powered by <span className="text-[#00CED1]">dozanu.</span></p>
-          </div>
         </div>
       </div>
 
