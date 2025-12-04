@@ -360,6 +360,173 @@ class PIVOTAPITester:
             except:
                 pass
 
+    def test_video_persistence_flow(self):
+        """Test COMPLETE video upload flow with persistence check as requested"""
+        import time
+        
+        print("🎥 Starting COMPLETE Video Upload Flow with Persistence Check")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 60)
+
+        # Step 1: Login with demo user (email: demo@pivot.com, password: demo123456)
+        print("Step 1: Login with demo user...")
+        login_data = {
+            "email": "demo@pivot.com",
+            "password": "demo123456"
+        }
+        
+        success, response = self.run_test("Demo User Login", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Demo user login failed, stopping test")
+            return False
+        
+        self.token = response['access_token']
+        self.user_id = response['user']['id']
+        print("✅ Demo user login successful")
+
+        # Step 2: Get a section ID - GET existing sections to find a valid section_id
+        print("Step 2: Getting existing sections...")
+        
+        # First get websites
+        websites_success, websites_data = self.run_test("Get Existing Websites", "GET", "websites", 200)
+        if not websites_success or not websites_data:
+            print("❌ No existing websites found, creating test data...")
+            # Create test website and page
+            website_success, website_id = self.test_create_website()
+            if not website_success:
+                print("❌ Website creation failed, stopping tests")
+                return False
+            page_success, page_id = self.test_create_page(website_id)
+            if not page_success:
+                print("❌ Page creation failed, stopping tests")
+                return False
+        else:
+            # Use first existing website
+            website_id = websites_data[0]['id']
+            pages_success, pages_data = self.run_test("Get Existing Pages", "GET", f"websites/{website_id}/pages", 200)
+            if not pages_success or not pages_data:
+                # Create a page if none exist
+                page_success, page_id = self.test_create_page(website_id)
+                if not page_success:
+                    print("❌ Page creation failed, stopping tests")
+                    return False
+            else:
+                page_id = pages_data[0]['id']
+
+        # Get sections for the page
+        sections_success, sections_data = self.run_test("Get Existing Sections", "GET", f"pages/{page_id}/sections", 200)
+        if not sections_success or not sections_data:
+            # Create a section if none exist
+            sections_success, section_id = self.test_create_section(page_id)
+            if not sections_success:
+                print("❌ Section creation failed, stopping tests")
+                return False
+        else:
+            section_id = sections_data[0]['id']
+
+        print(f"✅ Using section ID: {section_id}")
+
+        # Step 3: Upload a NEW video with Language: "Test-Upload"
+        print("Step 3: Uploading NEW video with language 'Test-Upload'...")
+        
+        # Create a small test video file
+        test_video_content = b"fake video content for persistence testing - " + str(datetime.now()).encode()
+        files = {'video': ('persistence_test_video.mp4', test_video_content, 'video/mp4')}
+        data = {'language': 'Test-Upload'}
+        
+        success, video_data = self.run_test("Upload NEW Video (Test-Upload)", "POST", f"sections/{section_id}/videos", 200, data, files)
+        if not success or 'video_url' not in video_data:
+            print("❌ Video upload failed")
+            return False
+        
+        video_id = video_data.get('id')
+        video_url = video_data.get('video_url')
+        print(f"✅ Video uploaded successfully. ID: {video_id}, URL: {video_url}")
+
+        # Step 4: Immediately verify the upload
+        print("Step 4: Immediately verifying the upload...")
+        
+        # GET /api/sections/{section_id}/videos - Confirm the new video appears in the list
+        success, videos_list = self.run_test("Get Videos List (Immediate)", "GET", f"sections/{section_id}/videos", 200)
+        video_found_immediate = False
+        if success and videos_list:
+            for video in videos_list:
+                if video.get('id') == video_id and video.get('language') == 'Test-Upload':
+                    video_found_immediate = True
+                    break
+        
+        if video_found_immediate:
+            self.log_test("Video Found in List (Immediate)", True, f"Video ID {video_id} found with language 'Test-Upload'")
+        else:
+            self.log_test("Video Found in List (Immediate)", False, f"Video ID {video_id} NOT found in list")
+        
+        # GET the video file directly - Confirm it returns 200 OK
+        external_video_url = f"https://testing.gopivot.me{video_url}"
+        try:
+            response = requests.get(external_video_url, timeout=30)
+            file_access_immediate = response.status_code == 200
+            details = f"Status: {response.status_code}"
+            if file_access_immediate:
+                details += f", Content-Length: {len(response.content)}"
+            self.log_test("Video File Access (Immediate)", file_access_immediate, details)
+        except Exception as e:
+            self.log_test("Video File Access (Immediate)", False, f"Exception: {str(e)}")
+            file_access_immediate = False
+
+        # Step 5: Wait 10 seconds
+        print("Step 5: Waiting 10 seconds...")
+        time.sleep(10)
+        print("✅ 10 seconds elapsed")
+
+        # Step 6: Check persistence - CRITICAL TEST
+        print("Step 6: Checking persistence (CRITICAL TEST)...")
+        
+        # GET /api/sections/{section_id}/videos again - Confirm the video STILL appears in the list
+        success, videos_list_after = self.run_test("Get Videos List (After 10s)", "GET", f"sections/{section_id}/videos", 200)
+        video_found_after = False
+        if success and videos_list_after:
+            for video in videos_list_after:
+                if video.get('id') == video_id and video.get('language') == 'Test-Upload':
+                    video_found_after = True
+                    break
+        
+        if video_found_after:
+            self.log_test("Video Persistence in Database", True, f"Video ID {video_id} STILL found after 10 seconds")
+        else:
+            self.log_test("Video Persistence in Database", False, f"Video ID {video_id} DISAPPEARED from database after 10 seconds")
+
+        # Step 7: Try to access the video file again - Should still return 200 OK
+        print("Step 7: Checking file accessibility after 10 seconds...")
+        try:
+            response = requests.get(external_video_url, timeout=30)
+            file_access_after = response.status_code == 200
+            details = f"Status: {response.status_code}"
+            if file_access_after:
+                details += f", Content-Length: {len(response.content)}"
+            self.log_test("Video File Access (After 10s)", file_access_after, details)
+        except Exception as e:
+            self.log_test("Video File Access (After 10s)", False, f"Exception: {str(e)}")
+            file_access_after = False
+
+        # Summary of critical questions
+        print("\n" + "=" * 60)
+        print("📋 PERSISTENCE TEST RESULTS:")
+        print("=" * 60)
+        print(f"Does the video appear immediately after upload? {'YES' if video_found_immediate else 'NO'}")
+        print(f"Does the database record persist after 10 seconds? {'YES' if video_found_after else 'NO'}")
+        print(f"Does the file remain accessible after 10 seconds? {'YES' if file_access_after else 'NO'}")
+        
+        if not video_found_after:
+            print("🚨 CRITICAL ISSUE: Records disappear after some time (cleanup process)")
+        elif not file_access_after:
+            print("🚨 CRITICAL ISSUE: Files become inaccessible after some time")
+        elif video_found_immediate and video_found_after and file_access_after:
+            print("✅ SUCCESS: Records persist fine (user-specific issue)")
+        else:
+            print("🚨 ISSUE: Immediate problems with upload or access")
+
+        return video_found_immediate and video_found_after and file_access_after
+
     def run_video_upload_tests(self):
         """Run specific video upload and playback tests as requested"""
         print("🎥 Starting Video Upload and Playback Test Suite")
