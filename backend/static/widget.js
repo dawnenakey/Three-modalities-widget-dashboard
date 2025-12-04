@@ -215,6 +215,16 @@
       height: 100%;
       object-fit: cover;
     }
+    .pivot-no-video {
+      width: 100%;
+      margin: 16px auto 0;
+      padding: 40px 20px;
+      background: #1a1a1a;
+      border-radius: 8px;
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+    }
     .pivot-video-controls {
       position: absolute;
       bottom: 0;
