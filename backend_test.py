@@ -689,11 +689,13 @@ class PIVOTAPITester:
         return self.tests_passed == self.tests_run
 
 def main():
-    tester = PIVOTAPITester()
+    # Use external URL for testing as specified in the environment
+    backend_url = "https://testing.gopivot.me/api"
+    tester = PIVOTAPITester(base_url=backend_url)
     
     try:
-        # Run specific video upload and playback tests as requested
-        success = tester.run_video_upload_tests()
+        # Run the specific COMPLETE video upload flow with persistence check as requested
+        success = tester.test_video_persistence_flow()
         tester.print_summary()
         
         # Save detailed results
