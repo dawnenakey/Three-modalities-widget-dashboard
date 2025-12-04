@@ -719,8 +719,8 @@
     // Show ALL three modalities together
     const videoHTML = section.videos && section.videos.length > 0 ? `
       <div class="pivot-video-container">
-        <video class="pivot-video-player" id="pivot-video">
-          <source src="${section.videos[0].url}" type="video/mp4">
+        <video class="pivot-video-player" id="pivot-video" controls>
+          <source src="${section.videos[0].video_url}" type="video/mp4">
         </video>
         <div class="pivot-video-speed-selector">
           <select id="speed-select" class="pivot-speed-dropdown">
@@ -735,15 +735,15 @@
     ` : '<div class="pivot-no-video">No video available</div>';
 
     const textHTML = `
-      <div class="pivot-text-content">
-        <p>${section.text_content || 'No text content available'}</p>
+      <div class="pivot-text-content" id="pivot-text-content">
+        <p id="pivot-text-paragraph">${section.text_content || 'No text content available'}</p>
       </div>
     `;
 
     const audioHTML = section.audios && section.audios.length > 0 ? `
       <div class="pivot-audio-player">
         <audio id="pivot-audio" controls>
-          <source src="${section.audios[0].url}" type="audio/mpeg">
+          <source src="${section.audios[0].audio_url}" type="audio/mpeg">
         </audio>
       </div>
     ` : '';
