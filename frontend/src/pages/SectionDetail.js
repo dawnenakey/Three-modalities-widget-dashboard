@@ -355,6 +355,13 @@ export default function SectionDetail() {
                       src={`${process.env.REACT_APP_BACKEND_URL}${audio.audio_url}`}
                       controls
                       className="w-full"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'bg-red-50 border border-red-200 rounded p-4 text-center';
+                        errorDiv.innerHTML = `<p class="text-sm text-red-600">⚠️ Audio file not found</p><p class="text-xs text-red-500 mt-1">This audio file may have been deleted or moved</p>`;
+                        e.target.parentNode.appendChild(errorDiv);
+                      }}
                     />
                   </div>
                 ))
