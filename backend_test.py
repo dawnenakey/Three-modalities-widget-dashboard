@@ -234,10 +234,30 @@ class PIVOTAPITester:
             response = requests.get(video_url, timeout=30)
             success = response.status_code == 200
             details = f"Status: {response.status_code}, Content-Length: {len(response.content)}"
-            self.log_test("Video File Access", success, details)
+            self.log_test("Video File Access (Internal)", success, details)
             return success
         except Exception as e:
-            self.log_test("Video File Access", False, f"Exception: {str(e)}")
+            self.log_test("Video File Access (Internal)", False, f"Exception: {str(e)}")
+            return False
+
+    def test_video_file_access_external(self, video_url):
+        """Test accessing uploaded video file via external URL"""
+        if not video_url.startswith('http'):
+            # Convert to external URL
+            external_video_url = f"https://testing.gopivot.me{video_url}"
+        
+        try:
+            response = requests.get(external_video_url, timeout=30)
+            success = response.status_code == 200
+            details = f"Status: {response.status_code}"
+            if success:
+                details += f", Content-Length: {len(response.content)}"
+            else:
+                details += f", Error: This is the reported issue - video files not accessible via external URL"
+            self.log_test("Video File Access (External)", success, details)
+            return success
+        except Exception as e:
+            self.log_test("Video File Access (External)", False, f"Exception: {str(e)}")
             return False
 
     def test_video_upload_to_nonexistent_section(self):
