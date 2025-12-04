@@ -151,9 +151,7 @@ export default function Dashboard() {
             Add Page
           </Button>
           
-          <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold h-12">
-            Manage Users
-          </Button>
+          <UserManagementDialog />
         </div>
 
         {/* Add-On Services */}
