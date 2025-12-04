@@ -14,6 +14,8 @@ export default function PageDetail() {
   const [page, setPage] = useState(null);
   const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddSection, setShowAddSection] = useState(false);
+  const [newSectionText, setNewSectionText] = useState('');
 
   useEffect(() => {
     fetchData();
