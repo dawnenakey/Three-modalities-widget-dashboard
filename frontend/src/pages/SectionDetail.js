@@ -127,11 +127,65 @@ export default function SectionDetail() {
 
         {/* Text Content */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <FileText className="h-5 w-5 text-[#00CED1]" />
-            <h2 className="text-lg font-semibold text-gray-900">Text Content</h2>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-[#00CED1]" />
+              <h2 className="text-lg font-semibold text-gray-900">Text Content</h2>
+            </div>
+            {!editingText && (
+              <Button
+                onClick={() => {
+                  setEditingText(true);
+                  setEditedText(section.selected_text || section.text_content || '');
+                }}
+                variant="outline"
+                size="sm"
+                className="text-[#00CED1] border-[#00CED1] hover:bg-[#00CED1] hover:text-black"
+              >
+                Edit Text
+              </Button>
+            )}
           </div>
-          <p className="text-gray-700 leading-relaxed">{section.selected_text}</p>
+          
+          {editingText ? (
+            <div className="space-y-4">
+              <textarea
+                value={editedText}
+                onChange={(e) => setEditedText(e.target.value)}
+                className="w-full min-h-[120px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+              />
+              <div className="flex gap-3">
+                <Button
+                  onClick={async () => {
+                    try {
+                      await axios.patch(`${API}/sections/${sectionId}`, {
+                        text_content: editedText
+                      });
+                      setSection({...section, selected_text: editedText, text_content: editedText});
+                      setEditingText(false);
+                      toast.success('Text updated successfully!');
+                    } catch (error) {
+                      toast.error('Failed to update text');
+                    }
+                  }}
+                  className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold"
+                >
+                  Save Changes
+                </Button>
+                <Button
+                  onClick={() => {
+                    setEditingText(false);
+                    setEditedText('');
+                  }}
+                  variant="outline"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-700 leading-relaxed">{section.selected_text || section.text_content || 'No text content'}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
