@@ -12,6 +12,7 @@ import Settings from "@/pages/Settings";
 import Analytics from "@/pages/Analytics";
 import InstallationGuide from "@/pages/InstallationGuide";
 import AddOnServices from "@/pages/AddOnServices";
+import TestPage from "@/pages/TestPage";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 const PrivateRoute = ({ children }) => {
