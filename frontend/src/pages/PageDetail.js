@@ -37,6 +37,26 @@ export default function PageDetail() {
     }
   };
 
+  const handleAddSection = async () => {
+    if (!newSectionText.trim()) {
+      toast.error('Please enter section text');
+      return;
+    }
+
+    try {
+      await axios.post(`${API}/pages/${pageId}/sections`, {
+        text_content: newSectionText,
+        position_order: sections.length + 1
+      });
+      toast.success('Section added successfully!');
+      setNewSectionText('');
+      setShowAddSection(false);
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to add section');
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
