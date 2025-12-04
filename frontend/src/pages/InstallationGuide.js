@@ -274,26 +274,36 @@ export default function InstallationGuide() {
             <div className="bg-white rounded-xl border border-gray-200 p-6">
               <h3 className="font-semibold text-gray-900 mb-4">Platform Guides</h3>
               <div className="space-y-3">
-                <button onClick={() => document.getElementById('wordpress').scrollIntoView({behavior: 'smooth'})} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="text-sm font-medium text-gray-900">WordPress</span>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button onClick={() => document.getElementById('wordpress').scrollIntoView({behavior: 'smooth'})} className="text-sm font-medium text-gray-900 hover:text-[#2F419D] hover:underline transition-all">
+                    WordPress
+                  </button>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
-                </button>
-                <button onClick={() => document.getElementById('shopify').scrollIntoView({behavior: 'smooth'})} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="text-sm font-medium text-gray-900">Shopify</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button onClick={() => document.getElementById('shopify').scrollIntoView({behavior: 'smooth'})} className="text-sm font-medium text-gray-900 hover:text-[#2F419D] hover:underline transition-all">
+                    Shopify
+                  </button>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
-                </button>
-                <button onClick={() => document.getElementById('wix').scrollIntoView({behavior: 'smooth'})} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="text-sm font-medium text-gray-900">Wix</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button onClick={() => document.getElementById('wix').scrollIntoView({behavior: 'smooth'})} className="text-sm font-medium text-gray-900 hover:text-[#2F419D] hover:underline transition-all">
+                    Wix
+                  </button>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
-                </button>
-                <button onClick={() => document.getElementById('squarespace').scrollIntoView({behavior: 'smooth'})} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="text-sm font-medium text-gray-900">Squarespace</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button onClick={() => document.getElementById('squarespace').scrollIntoView({behavior: 'smooth'})} className="text-sm font-medium text-gray-900 hover:text-[#2F419D] hover:underline transition-all">
+                    Squarespace
+                  </button>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
-                </button>
-                <button onClick={() => document.getElementById('custom').scrollIntoView({behavior: 'smooth'})} className="w-full flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <span className="text-sm font-medium text-gray-900">Custom HTML</span>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <button onClick={() => document.getElementById('custom').scrollIntoView({behavior: 'smooth'})} className="text-sm font-medium text-gray-900 hover:text-[#2F419D] hover:underline transition-all">
+                    Custom HTML
+                  </button>
                   <ExternalLink className="h-4 w-4 text-gray-400" />
-                </button>
+                </div>
               </div>
             </div>
 
