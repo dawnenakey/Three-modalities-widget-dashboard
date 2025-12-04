@@ -294,6 +294,12 @@
       font-size: 14px;
       line-height: 1.7;
       margin-bottom: 12px;
+      transition: all 0.3s ease;
+    }
+    .pivot-text-content p.highlighted {
+      background: linear-gradient(90deg, rgba(0, 206, 209, 0.2) 0%, transparent 100%);
+      border-left: 4px solid #00CED1;
+      padding-left: 12px;
     }
 
     /* Bottom Navigation */
