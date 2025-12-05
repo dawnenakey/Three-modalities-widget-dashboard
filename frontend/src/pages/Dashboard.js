@@ -60,7 +60,7 @@ export default function Dashboard() {
   };
 
   const copyWidgetCode = () => {
-    const code = `<script src="https://testing.gopivot.me/api/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
+    const code = `<script src="${process.env.REACT_APP_BACKEND_URL}/api/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
     navigator.clipboard.writeText(code);
     setCopied(true);
     toast.success('Widget code copied!');
