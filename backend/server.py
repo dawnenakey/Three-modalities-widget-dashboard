@@ -1019,6 +1019,86 @@ async def serve_test_widget_page():
 </html>"""
     return HTMLResponse(content=html_content)
 
+# Test page for DDS
+@api_router.get("/test-dds-page")
+async def serve_test_dds_page():
+    from fastapi.responses import HTMLResponse
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DDS - Developmental Disabilities Services</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #333; }
+        .info-box { background: #e8f5e9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50; }
+        .content-section { margin: 30px 0; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>DDS - Developmental Disabilities Services</h1>
+    <div class="info-box">
+        <strong>Page:</strong> testing.gopivot.me/dds<br>
+        <strong>Widget:</strong> Active (bottom-right corner)
+    </div>
+    <div class="content-section">
+        <h2>DDS Introduction</h2>
+        <p>Welcome to the DDS (Developmental Disabilities Services) section. This page provides accessible information about developmental disability services.</p>
+    </div>
+    <div class="content-section">
+        <h2>Services Overview</h2>
+        <p>Our DDS program offers comprehensive support services including case management, therapy services, and community integration programs.</p>
+    </div>
+    <div class="content-section">
+        <h2>How to Apply</h2>
+        <p>To apply for DDS services, please contact your regional center or visit our application portal for more information.</p>
+    </div>
+    <script src="/api/widget.js" data-website-id="fe05622a-8043-41c7-958c-5c657a701fc1"></script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
+
+# Test page for PDF
+@api_router.get("/test-pdf-page")
+async def serve_test_pdf_page():
+    from fastapi.responses import HTMLResponse
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Resources</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; line-height: 1.6; }
+        h1 { color: #333; }
+        .info-box { background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #2196f3; }
+        .content-section { margin: 30px 0; padding: 20px; background: #fff; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>PDF Resources</h1>
+    <div class="info-box">
+        <strong>Page:</strong> testing.gopivot.me/pdf<br>
+        <strong>Widget:</strong> Active (bottom-right corner)
+    </div>
+    <div class="content-section">
+        <h2>PDF Resources Introduction</h2>
+        <p>Access our library of PDF resources and documents. All materials are available in multiple accessible formats.</p>
+    </div>
+    <div class="content-section">
+        <h2>Document Categories</h2>
+        <p>Browse through our categorized collection of forms, guides, and informational materials organized by topic.</p>
+    </div>
+    <div class="content-section">
+        <h2>Accessibility Features</h2>
+        <p>All PDF documents include screen reader compatibility, alternative text descriptions, and can be accessed through our multi-modal interface.</p>
+    </div>
+    <script src="/api/widget.js" data-website-id="fe05622a-8043-41c7-958c-5c657a701fc1"></script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
+
 
 
 app.include_router(api_router)
