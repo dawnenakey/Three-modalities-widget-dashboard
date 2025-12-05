@@ -8,7 +8,7 @@ export default function InstallationGuide() {
   const [copied, setCopied] = useState(false);
 
   const widgetCode = `<script
-  src="${process.env.REACT_APP_BACKEND_URL || 'https://your-domain.com'}/widget.js"
+  src="${process.env.REACT_APP_BACKEND_URL || 'https://your-domain.com'}/api/widget.js"
   data-website-id="YOUR_WEBSITE_ID"
   id="pivot-widget"
   async
