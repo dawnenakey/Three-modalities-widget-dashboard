@@ -102,148 +102,134 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test Video Upload and Playback Functionality - Complete video upload and retrieval flow for PIVOT accessibility platform"
+user_problem_statement: "Create Demo Websites for Dawnena+admin Account - Test complete website creation, page addition, and content scraping workflow"
 
 backend:
-  - task: "Video Upload API"
+  - task: "User Authentication API"
     implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "POST /api/sections/{section_id}/videos endpoint working correctly. Successfully uploads video files and returns proper response with video_url and file_path. Tested with demo user credentials."
-
-  - task: "Video Retrieval API"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "GET /api/sections/{section_id}/videos endpoint working correctly. Returns list of videos for a section with proper metadata."
-
-  - task: "Video File Serving (Internal)"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "Video files accessible via internal URL (localhost:8001/api/uploads/videos/). FastAPI StaticFiles mounting working correctly."
-
-  - task: "Video File Serving (External)"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 1
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: false
-          agent: "testing"
-          comment: "CRITICAL ISSUE: Video files return 404 when accessed via external URL (https://testing.gopivot.me/api/uploads/videos/). This is the reported user issue. Internal access works but external proxy/ingress routing is not properly configured for /api/uploads/ paths."
-        - working: true
-          agent: "testing"
-          comment: "RESOLVED: Video files are now accessible via external URL. Tested with persistence flow - video uploaded with language 'Test-Upload' is accessible immediately and after 10 seconds via https://testing.gopivot.me/api/uploads/videos/. Returns HTTP 200 with correct content-length. External proxy/ingress routing is now working correctly."
-
-  - task: "Error Handling - Non-existent Section"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "Properly returns 404 with 'Section not found' message when attempting to upload video to non-existent section."
-
-  - task: "Error Handling - Non-existent Video File"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "Properly returns 404 when attempting to access non-existent video files."
-
-  - task: "File Storage"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "Video files are properly stored in /app/backend/uploads/videos/ directory with UUID-based filenames."
-
-  - task: "Authentication for Video APIs"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "All video endpoints properly require authentication. Demo user login (demo@pivot.com) working correctly."
-
-  - task: "Video Upload Persistence Testing"
-    implemented: true
-    working: true
-    file: "server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-          agent: "testing"
-          comment: "COMPLETE persistence test passed: 1) Login with demo user successful, 2) Found valid section ID, 3) Uploaded video with language 'Test-Upload' successful, 4) Video appears immediately in database list, 5) Video file accessible immediately via external URL, 6) After 10 seconds wait - video STILL in database, 7) Video file STILL accessible via external URL. All persistence checks PASSED - no cleanup process removing records."
-
-frontend:
-  - task: "Frontend Video Integration"
-    implemented: false
     working: "NA"
-    file: "N/A"
+    file: "server.py"
     stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
         - working: "NA"
           agent: "testing"
-          comment: "Frontend testing not performed as per testing agent limitations."
+          comment: "Need to test login with dawnena+admin@dozanu.com credentials"
+
+  - task: "Website Creation API"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test POST /api/websites endpoint for creating demo websites"
+
+  - task: "Page Creation and Scraping API"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test POST /api/websites/{id}/pages endpoint and content scraping functionality"
+
+  - task: "Content Section Generation"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to verify sections are created after page scraping"
+
+frontend:
+  - task: "Login Flow"
+    implemented: true
+    working: "NA"
+    file: "Login.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test login with dawnena+admin@dozanu.com / pivot2025"
+
+  - task: "Website Creation UI"
+    implemented: true
+    working: "NA"
+    file: "Dashboard.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test Add Website dialog and form submission"
+
+  - task: "Website Management UI"
+    implemented: true
+    working: "NA"
+    file: "Websites.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test website listing and navigation"
+
+  - task: "Page Creation UI"
+    implemented: true
+    working: "NA"
+    file: "WebsiteDetail.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test Add Page dialog and URL submission"
+
+  - task: "Content Sections Display"
+    implemented: true
+    working: "NA"
+    file: "PageDetail.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to verify scraped sections are displayed correctly"
 
 metadata:
   created_by: "testing_agent"
-  version: "1.0"
-  test_sequence: 2
-  run_ui: false
+  version: "1.1"
+  test_sequence: 3
+  run_ui: true
 
 test_plan:
   current_focus:
-    - "Video Upload Persistence Testing"
+    - "Login Flow"
+    - "Website Creation UI"
+    - "Page Creation UI"
+    - "Content Sections Display"
   stuck_tasks: []
-  test_all: false
-  test_priority: "high_first"
+  test_all: true
+  test_priority: "sequential"
 
 agent_communication:
     - agent: "testing"
-      message: "Completed comprehensive video upload and playback testing. CRITICAL ISSUE FOUND: Video files are not accessible via external URL due to proxy/ingress routing configuration. All backend APIs work correctly internally. The issue is in the infrastructure layer, not the application code."
-    - agent: "testing"
-      message: "PERSISTENCE TEST COMPLETED: Ran complete video upload flow with persistence check as requested. Results: ✅ Video appears immediately after upload, ✅ Database record persists after 10 seconds, ✅ File remains accessible after 10 seconds. External URL issue has been RESOLVED - videos are now accessible via https://testing.gopivot.me/api/uploads/videos/. All video upload and playback functionality is working correctly."
+      message: "Starting comprehensive testing of demo website creation workflow for Dawnena+admin account. Will test: 1) Login with provided credentials, 2) Create 2 demo websites (PIVOT PDF Demo, California DDS Demo), 3) Add pages with specific URLs, 4) Verify content scraping and section generation."
