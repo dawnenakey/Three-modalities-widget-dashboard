@@ -302,6 +302,26 @@ async def get_pages(website_id: str, current_user: dict = Depends(get_current_us
         raise HTTPException(status_code=404, detail="Website not found")
     
     pages = await db.pages.find({"website_id": website_id}, {"_id": 0}).to_list(1000)
+    
+    # Calculate status for each page based on content
+    for page in pages:
+        # Get sections for this page
+        sections = await db.sections.find({"page_id": page['id']}, {"_id": 0}).to_list(1000)
+        
+        # Calculate if page has any content
+        has_content = False
+        for section in sections:
+            # Check if section has videos or audio
+            videos_count = await db.videos.count_documents({"section_id": section['id']})
+            audios_count = await db.audios.count_documents({"section_id": section['id']})
+            
+            if videos_count > 0 or audios_count > 0:
+                has_content = True
+                break
+        
+        # Set status
+        page['status'] = 'Active' if has_content else 'Not Setup'
+    
     return pages
 
 @api_router.post("/websites/{website_id}/pages", response_model=Page)
