@@ -219,16 +219,25 @@ export default function WebsiteDetail() {
               {pages.map((page) => (
                 <div 
                   key={page.id}
-                  onClick={() => navigate(`/pages/${page.id}`)}
-                  className="p-4 flex flex-row justify-between items-center hover:bg-gray-50 cursor-pointer"
+                  className="p-4 flex flex-row justify-between items-center hover:bg-gray-50"
                 >
-                  <div className="w-9/12 break-words">
+                  <div 
+                    className="w-7/12 break-words cursor-pointer"
+                    onClick={() => navigate(`/pages/${page.id}`)}
+                  >
                     <p className="font-bold text-gray-900">{page.url}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`inline-flex items-center justify-center px-3 py-1 text-sm font-medium rounded-full ${getStatusBadge(page.status || 'Active')}`}>
-                      {page.status || 'Active'}
-                    </span>
+                    <select
+                      value={page.status || 'Active'}
+                      onChange={(e) => handleStatusChange(page.id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className={`px-3 py-1 text-sm font-medium rounded-full border-0 cursor-pointer ${getStatusBadge(page.status || 'Active')}`}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                      <option value="Not Setup">Not Setup</option>
+                    </select>
                   </div>
                 </div>
               ))}
