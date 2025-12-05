@@ -11,7 +11,7 @@ The PIVOT widget is a fully-functional, production-ready embeddable accessibilit
 
 ### 1. Get Your Website ID
 
-1. Log into the PIVOT dashboard at `http://localhost:3000`
+1. Log into the PIVOT dashboard at `https://testing.gopivot.me`
 2. Create or select a website
 3. Copy your website ID from the URL or embed code section
 
@@ -20,7 +20,7 @@ The PIVOT widget is a fully-functional, production-ready embeddable accessibilit
 Add this code before the closing `</body>` tag on your website:
 
 ```html
-<script src="http://localhost:8001/widget.js" 
+<script src="https://testing.gopivot.me/api/widget.js"
         data-website-id="YOUR_WEBSITE_ID"></script>
 ```
 
@@ -225,7 +225,7 @@ The widget expects this JSON structure:
 
 ### Step 1: View the Demo Page
 
-Visit: `http://localhost:8001/demo`
+Visit: `https://testing.gopivot.me/api/demo`
 
 This shows a fully-functional example of the widget in action.
 
@@ -270,7 +270,7 @@ This shows a fully-functional example of the widget in action.
 **Error: "Unable to load accessibility content"**
 - Check that website ID exists in dashboard
 - Verify the page URL has been added in dashboard
-- Check backend API is running (`http://localhost:8001/api/`)
+- Check backend API is running (`https://testing.gopivot.me/api/`)
 
 ### Videos/Audio Not Playing
 
@@ -357,9 +357,9 @@ If you need more control, add custom CSS:
 If your site uses CSP, add these directives:
 
 ```
-script-src 'self' http://localhost:8001;
-connect-src 'self' http://localhost:8001;
-media-src 'self' http://localhost:8001;
+script-src 'self' https://testing.gopivot.me;
+connect-src 'self' https://testing.gopivot.me;
+media-src 'self' https://testing.gopivot.me;
 ```
 
 ---
@@ -452,9 +452,9 @@ You now have a fully-functional accessibility widget that rivals (and exceeds!) 
 - ✅ AI-powered features (OpenAI TTS)
 
 **Demo URLs:**
-- Widget Demo: `http://localhost:8001/demo`
-- Dashboard: `http://localhost:3000`
-- API Docs: `http://localhost:8001/docs` (FastAPI auto-docs)
+- Widget Demo: `https://testing.gopivot.me/api/demo`
+- Dashboard: `https://testing.gopivot.me`
+- API Docs: `https://testing.gopivot.me/api/docs` (FastAPI auto-docs)
 
 ---
 
