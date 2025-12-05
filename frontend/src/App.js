@@ -110,6 +110,9 @@ function App() {
                 </PrivateRoute>
               }
             />
+            {/* Public pages with widget */}
+            <Route path="/dds" element={<DDSPage />} />
+            <Route path="/pdf" element={<PDFPage />} />
           </Routes>
         </BrowserRouter>
         <Toaster />
