@@ -8,7 +8,7 @@ export default function InstallationGuide() {
   const [copied, setCopied] = useState(false);
 
   const widgetCode = `<script
-  src="https://testing.gopivot.me/api/widget.js"
+  src="${process.env.REACT_APP_BACKEND_URL}/api/widget.js"
   data-website-id="YOUR_WEBSITE_ID"
   id="pivot-widget"
   async
