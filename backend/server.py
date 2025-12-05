@@ -939,6 +939,13 @@ async def serve_simple_test():
     test_path = ROOT_DIR / "static" / "simple-test.html"
     return FileResponse(test_path, media_type="text/html")
 
+# Serve testing.gopivot.me test page
+@app.get("/test_widget")
+async def serve_test_widget_new():
+    from fastapi.responses import FileResponse
+    test_path = ROOT_DIR / "static" / "test_widget.html"
+    return FileResponse(test_path, media_type="text/html")
+
 
 
 app.include_router(api_router)
