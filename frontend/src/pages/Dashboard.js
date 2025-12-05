@@ -183,7 +183,7 @@ export default function Dashboard() {
           <div className="bg-[#0a0e27] rounded-lg p-4 mb-4 overflow-x-auto">
             <pre className="text-[#00CED1] text-sm font-mono">
               <code>{`<script
-  src="${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'}/api/widget.js"
+  src="https://testing.gopivot.me/api/widget.js"
   data-website-id="YOUR_WEBSITE_ID"
   id="pivot-widget"
   async
