@@ -94,7 +94,7 @@ async def setup_demo_content():
     
     # Demo 1: PDF Website
     print("\n📄 Scraping PDF Demo (demo.gopivot.me/pdf)...")
-    pdf_sections = await scrape_page_content("https://demo.gopivot.me/pdf")
+    pdf_sections = await scrape_page_content("https://demo.gopivot.me/pdf/")
     
     if pdf_sections:
         # Create page
