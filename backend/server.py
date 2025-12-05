@@ -278,9 +278,12 @@ async def create_website(website_data: WebsiteCreate, current_user: dict = Depen
 
 @api_router.get("/websites/{website_id}", response_model=Website)
 async def get_website(website_id: str, current_user: dict = Depends(get_current_user)):
-    website = await db.websites.find_one({"id": website_id, "owner_id": current_user['id']}, {"_id": 0})
-    if not website:
+    # Check if user has access (owner or collaborator)
+    has_access = await check_website_access(website_id, current_user['id'])
+    if not has_access:
         raise HTTPException(status_code=404, detail="Website not found")
+    
+    website = await db.websites.find_one({"id": website_id}, {"_id": 0})
     return website
 
 @api_router.delete("/websites/{website_id}")
