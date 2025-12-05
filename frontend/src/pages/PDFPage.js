@@ -20,163 +20,210 @@ export default function PDFPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm4 18H6V4h7v5h5v11z"/>
-                </svg>
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">PDF Resources</h1>
-                <p className="text-sm text-gray-500">Accessible documents and materials</p>
-              </div>
-            </div>
+      <header className="bg-white shadow-sm">
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          <div className="text-center">
+            <h1 className="text-5xl font-bold text-gray-900 mb-3">PIVOT</h1>
+            <p className="text-2xl text-blue-600 font-semibold">The Future of Language Access Technology</p>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        {/* Info Banner */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-8 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-blue-900 mb-1">Accessibility Widget Active</h2>
-              <p className="text-sm text-blue-700">
-                Click the PIVOT widget button in the bottom-right corner to access ASL videos, audio, and text for each section.
-              </p>
-            </div>
-          </div>
-        </div>
+      <main className="max-w-6xl mx-auto px-6 py-12">
+        {/* Introduction */}
+        <section className="mb-16 text-center">
+          <p className="text-xl text-gray-700 leading-relaxed max-w-4xl mx-auto">
+            PIVOT is the first language access technology that embeds accessibility directly into where information lives.
+            No duplicate websites. No third-party dependencies. No expensive rebuilds.
+          </p>
+          <p className="text-lg text-gray-600 mt-4 max-w-4xl mx-auto">
+            Integrates seamlessly with a single line of code and transforms digital systems into inclusive, multilingual experiences.
+          </p>
+        </section>
 
-        {/* Section 1: PDF Resources Introduction */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6 hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              1
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">PDF Resources Introduction</h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p>
-                  Access our library of PDF resources and documents. All materials are available in multiple accessible formats.
-                </p>
-                <p className="mt-4">
-                  Our document library is designed to provide easy access to essential forms, guides, and informational 
-                  materials that support your needs. Every document has been optimized for accessibility.
-                </p>
+        {/* Key Features */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">Key Features</h2>
+          
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {/* Feature 1 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Triple-Modality Access</h3>
               </div>
+              <p className="text-gray-700">Make information accessible in Video (signed), Audio (spoken), and Text (written).</p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Built at the Source</h3>
+              </div>
+              <p className="text-gray-700">Language access embedded directly into digital platforms. No duplicate pages, rehosting, or third-party dependency.</p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Seamless Integration</h3>
+              </div>
+              <p className="text-gray-700">Compatible with any digital interface: websites, mobile apps, kiosks, and printed materials via QR code integration.</p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Self-Managed Dashboard</h3>
+              </div>
+              <p className="text-gray-700">A powerful, intuitive interface allowing organizations to manage, edit, and publish translations in real time.</p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Compliance Ready</h3>
+              </div>
+              <p className="text-gray-700">Built to support ADA, Section 508, and European Accessibility Act (EAA) requirements.</p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Global Language Coverage</h3>
+              </div>
+              <p className="text-gray-700">Bridges more than 7,000 spoken/written and 300 signed languages worldwide.</p>
             </div>
           </div>
         </section>
 
-        {/* Section 2: Document Categories */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6 hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              2
+        {/* Pricing Plans */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 text-center">Special Pre-Launch Rates for Early Adopters</h2>
+          <p className="text-center text-gray-600 mb-8">Choose the plan that fits your needs</p>
+          
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Basic Plan */}
+            <div className="bg-white rounded-xl p-8 shadow-sm border-2 border-gray-200 hover:border-blue-400 transition-colors">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">BASIC</h3>
+              <div className="text-4xl font-bold text-blue-600 mb-4">$6,500<span className="text-lg text-gray-500">/year</span></div>
+              <ul className="space-y-3 mb-6 text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>Up to 15 web pages</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>$75 per additional page</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>Unlimited language uploads</span>
+                </li>
+              </ul>
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">Document Categories</h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p>
-                  Browse through our categorized collection of forms, guides, and informational materials organized by topic.
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <span className="text-blue-600">📋</span>
-                      Application Forms
-                    </h3>
-                    <p className="text-sm text-gray-600">Service applications, intake forms, and enrollment documents</p>
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <span className="text-blue-600">📚</span>
-                      Resource Guides
-                    </h3>
-                    <p className="text-sm text-gray-600">Comprehensive guides and how-to manuals</p>
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <span className="text-blue-600">ℹ️</span>
-                      Informational Materials
-                    </h3>
-                    <p className="text-sm text-gray-600">Brochures, fact sheets, and educational content</p>
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-                    <h3 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                      <span className="text-blue-600">📄</span>
-                      Policy Documents
-                    </h3>
-                    <p className="text-sm text-gray-600">Official policies, procedures, and regulations</p>
-                  </div>
-                </div>
-              </div>
+
+            {/* Pro Plan */}
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-8 shadow-md border-2 border-blue-400 relative">
+              <div className="absolute top-0 right-0 bg-blue-600 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm font-semibold">POPULAR</div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">PRO</h3>
+              <div className="text-4xl font-bold text-blue-600 mb-4">$12,000<span className="text-lg text-gray-500">/year</span></div>
+              <ul className="space-y-3 mb-6 text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>Up to 40 web pages</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>$65 per additional page</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>AI translations with API access</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Enterprise Plan */}
+            <div className="bg-white rounded-xl p-8 shadow-sm border-2 border-gray-200 hover:border-purple-400 transition-colors">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">ENTERPRISE</h3>
+              <div className="text-4xl font-bold text-purple-600 mb-4">Custom</div>
+              <ul className="space-y-3 mb-6 text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>50+ web pages</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>Full-scale platform integrations</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-green-500 mt-1">✓</span>
+                  <span>Custom digital interface configurations</span>
+                </li>
+              </ul>
             </div>
           </div>
         </section>
 
-        {/* Section 3: Accessibility Features */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6 hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-600 font-bold flex-shrink-0">
-              3
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">Accessibility Features</h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p>
-                  All PDF documents include screen reader compatibility, alternative text descriptions, and can be 
-                  accessed through our multi-modal interface.
-                </p>
-                <div className="mt-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 border border-blue-200">
-                  <h3 className="font-semibold text-gray-900 mb-4">Our Accessibility Commitment:</h3>
-                  <ul className="space-y-3 text-gray-700">
-                    <li className="flex items-start gap-3">
-                      <span className="text-blue-500 mt-1 flex-shrink-0">✓</span>
-                      <span><strong>Screen Reader Compatible:</strong> All documents are tagged and optimized for screen reader navigation</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-blue-500 mt-1 flex-shrink-0">✓</span>
-                      <span><strong>Alternative Text:</strong> Images and graphics include descriptive alt text</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-blue-500 mt-1 flex-shrink-0">✓</span>
-                      <span><strong>Multi-Modal Access:</strong> Content available via ASL video, audio narration, and text</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-blue-500 mt-1 flex-shrink-0">✓</span>
-                      <span><strong>Keyboard Navigation:</strong> Full keyboard accessibility for all interactive elements</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-blue-500 mt-1 flex-shrink-0">✓</span>
-                      <span><strong>High Contrast Mode:</strong> Available through the PIVOT widget settings</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
+        {/* Call to Action */}
+        <section className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-12 text-white">
+          <h2 className="text-3xl font-bold mb-4">See PIVOT in Action</h2>
+          <p className="text-xl mb-6 text-blue-100">Experience the power of truly accessible content</p>
+          <a href="https://demo.gopivot.me/PDF" className="inline-block bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            Visit demo.goPIVOT.me/PDF
+          </a>
         </section>
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-8 mt-12">
-        <div className="max-w-5xl mx-auto px-6 text-center text-gray-600">
-          <p className="text-sm">
-            All documents are regularly updated to ensure accessibility compliance and accuracy.
-          </p>
+      <footer className="bg-gray-900 text-white py-12 mt-16">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-2xl font-bold mb-4">PIVOT</h3>
+              <p className="text-gray-400 mb-4">The Future of Language Access Technology</p>
+              <p className="text-gray-400">Serving Globally from Austin, TX | Washington, DC | Los Angeles, CA | Toronto, ON | Vancouver, BC</p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Contact Information</h4>
+              <p className="text-gray-400 mb-2">Email: <a href="mailto:hello@goPIVOT.me" className="text-blue-400 hover:underline">hello@goPIVOT.me</a></p>
+              <p className="text-gray-400 mb-2">Website: <a href="https://www.goPIVOT.me" className="text-blue-400 hover:underline">www.goPIVOT.me</a></p>
+              <p className="text-gray-400">LinkedIn: <a href="https://linkedin.com/company/gopivotme" className="text-blue-400 hover:underline">linkedin.com/company/gopivotme</a></p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

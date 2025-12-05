@@ -20,149 +20,152 @@ export default function DDSPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-5xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold text-xl shadow-lg">
-                DDS
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Developmental Disabilities Services</h1>
-                <p className="text-sm text-gray-500">Accessible support and resources</p>
-              </div>
-            </div>
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-3">
+            <img 
+              src="https://demo.gopivot.me/wp-content/uploads/2025/09/dds-logo.png" 
+              alt="Logo for DDS Department of Developmental Services"
+              className="h-16"
+            />
           </div>
         </div>
+        
+        {/* Navigation */}
+        <nav className="bg-gray-50 border-b border-gray-200">
+          <div className="max-w-6xl mx-auto px-6">
+            <ul className="flex gap-8 text-sm">
+              <li className="py-3"><a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Consumers</a></li>
+              <li className="py-3"><a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Services</a></li>
+              <li className="py-3"><a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Regional Centers</a></li>
+              <li className="py-3"><a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Vendors</a></li>
+              <li className="py-3"><a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Initiatives</a></li>
+              <li className="py-3"><a href="#" className="text-gray-700 hover:text-blue-600 font-medium">Transparency</a></li>
+            </ul>
+          </div>
+        </nav>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-5xl mx-auto px-6 py-12">
-        {/* Info Banner */}
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-8 shadow-sm">
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-green-900 mb-1">Accessibility Widget Active</h2>
-              <p className="text-sm text-green-700">
-                Click the PIVOT widget button in the bottom-right corner to access ASL videos, audio, and text for each section.
-              </p>
-            </div>
-          </div>
+      {/* Breadcrumb */}
+      <div className="bg-gray-50 border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-3">
+          <nav className="text-sm text-gray-600">
+            <a href="#" className="hover:text-blue-600">Home</a> › 
+            <a href="#" className="hover:text-blue-600"> General</a> › 
+            <span className="text-gray-900 font-medium"> Language Resources</span>
+          </nav>
         </div>
+      </div>
 
-        {/* Section 1: DDS Introduction */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6 hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-bold flex-shrink-0">
-              1
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">DDS Introduction</h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p>
-                  Welcome to the DDS (Developmental Disabilities Services) section. This page provides accessible 
-                  information about developmental disability services.
-                </p>
-                <p className="mt-4">
-                  Our mission is to ensure that individuals with developmental disabilities have access to quality 
-                  services, support, and opportunities to live fulfilling lives in their communities.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
+      {/* Main Content */}
+      <main className="max-w-6xl mx-auto px-6 py-12">
+        {/* Page Title */}
+        <h1 className="text-4xl font-bold text-gray-900 mb-8">Language Resources</h1>
 
-        {/* Section 2: Services Overview */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6 hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-bold flex-shrink-0">
-              2
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">Services Overview</h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p>
-                  Our DDS program offers comprehensive support services including case management, therapy services, 
-                  and community integration programs.
-                </p>
-                <ul className="mt-4 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Individual and family support coordination</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Behavioral and therapeutic services</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Employment and day program services</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500 mt-1">✓</span>
-                    <span>Residential and housing support</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 3: How to Apply */}
-        <section className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 mb-6 hover:shadow-md transition-shadow">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center text-green-600 font-bold flex-shrink-0">
-              3
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">How to Apply</h2>
-              <div className="prose prose-lg text-gray-700 leading-relaxed">
-                <p>
-                  To apply for DDS services, please contact your regional center or visit our application portal 
-                  for more information.
-                </p>
-                <div className="mt-6 bg-gray-50 rounded-lg p-6 border border-gray-200">
-                  <h3 className="font-semibold text-gray-900 mb-3">Application Process:</h3>
-                  <ol className="space-y-2 text-gray-700">
-                    <li className="flex items-start gap-2">
-                      <span className="font-semibold text-green-600">1.</span>
-                      <span>Contact your local regional center for eligibility assessment</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="font-semibold text-green-600">2.</span>
-                      <span>Complete the intake and evaluation process</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="font-semibold text-green-600">3.</span>
-                      <span>Develop an Individual Program Plan (IPP)</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="font-semibold text-green-600">4.</span>
-                      <span>Connect with service providers and begin receiving support</span>
-                    </li>
-                  </ol>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-gray-50 border-t border-gray-200 py-8 mt-12">
-        <div className="max-w-5xl mx-auto px-6 text-center text-gray-600">
-          <p className="text-sm">
-            For more information, please contact your regional center or visit our main website.
+        {/* Language Links */}
+        <div className="mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-gray-800">
+            DDS Resources are available in the following languages: {' '}
+            <a href="#" className="text-blue-600 hover:underline">Español (Spanish)</a>, {' '}
+            <a href="#" className="text-blue-600 hover:underline">繁體中文 (Traditional Chinese)</a>, {' '}
+            <a href="#" className="text-blue-600 hover:underline">简体中文 (Simplified Chinese)</a>, {' '}
+            <a href="#" className="text-blue-600 hover:underline">Tagalog</a>, {' '}
+            <a href="#" className="text-blue-600 hover:underline">Tiếng Việt (Vietnamese)</a> and {' '}
+            <a href="#" className="text-blue-600 hover:underline">한국어 (Korean)</a>.
           </p>
         </div>
-      </footer>
+
+        {/* Introduction */}
+        <div className="mb-12">
+          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            DDS works to ensure services are available to Californians with developmental disabilities through California's 21 regional centers. 
+            Services are supposed to be person-centered and meet the many different needs of consumers. Services should also reflect each 
+            individual's choices to lead independent and productive lives within their communities.
+          </p>
+          <p className="text-lg text-gray-700 leading-relaxed">
+            Below is a brief overview of important programs and services. For questions and more information, you can contact the program and 
+            request free verbal and sign language interpretation and written translation services in your own language.
+          </p>
+        </div>
+
+        {/* Section 1: Regional Center Eligibility & Services */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Regional Center Eligibility & Services</h2>
+          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            Regional centers provide assessments, determine eligibility for services, and offer case management services. Regional centers also 
+            develop, purchase, and coordinate the services in each person's Individual Program Plan.
+          </p>
+          <p className="text-lg text-gray-700">
+            Click <a href="#" className="text-blue-600 hover:underline font-medium">here</a> to contact your Regional Center and get free help in your language.
+          </p>
+        </section>
+
+        {/* Section 2: Self-Determination Program */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Self-Determination Program</h2>
+          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            The Self-Determination Program allows participants the opportunity to have more control in developing their service plans and selecting 
+            service providers to better meet their needs. If you are interested in participating in the Self-Determination Program reach out to 
+            your <a href="#" className="text-blue-600 hover:underline">regional center</a> for more information on how to get started.
+          </p>
+          <p className="text-lg text-gray-700">
+            Contact: <a href="mailto:sdp@dds.ca.gov" className="text-blue-600 hover:underline font-medium">sdp@dds.ca.gov</a> for more information or for free help in your language.
+          </p>
+        </section>
+
+        {/* Section 3: Early Start */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Early Start</h2>
+          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            The Early Start program is California's early intervention program for infants and toddlers with developmental delays or at risk for 
+            having a developmental disability and their families. Early Start services are available statewide and are provided in a coordinated, 
+            family-centered system.
+          </p>
+          <p className="text-lg text-gray-700">
+            Parents, caregivers, and families can contact <span className="font-medium">800-515-2229</span> or{' '}
+            <a href="mailto:earlystart@dds.ca.gov" className="text-blue-600 hover:underline font-medium">earlystart@dds.ca.gov</a> for free help in their language.
+          </p>
+        </section>
+
+        {/* Section 4: Office of the Lanterman Ombudsperson */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Office of the Lanterman Ombudsperson and the Self-Determination Ombudsperson</h2>
+          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            The Offices of the Lanterman Ombudsperson and the Self-Determination Ombudsperson can help regional center clients and their families 
+            when they have problems accessing their services.
+          </p>
+          <p className="text-lg text-gray-700 mb-4">
+            Contact <span className="font-medium">877-658-9731</span> or{' '}
+            <a href="mailto:Ombudsperson@dds.ca.gov" className="text-blue-600 hover:underline font-medium">Ombudsperson@dds.ca.gov</a> for more information and free help in your language.
+          </p>
+          <p className="text-lg text-gray-700">
+            If you are in the Self-Determination Program, contact <span className="font-medium">877-658-9731</span> or{' '}
+            <a href="mailto:SDP.Ombudsperson@dds.ca.gov" className="text-blue-600 hover:underline font-medium">SDP.Ombudsperson@dds.ca.gov</a> for more information and free help in your language.
+          </p>
+        </section>
+
+        {/* Section 5: Appeals & Complaints */}
+        <section className="mb-10">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Appeals & Complaints</h2>
+          <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            DDS is committed to resolving problems and concerns when they occur. Anyone aged 3 or older who has applied for regional center 
+            services, or who is currently receiving regional services,{' '}
+            <a href="#" className="text-blue-600 hover:underline font-medium">can appeal regional center decisions here</a>.
+          </p>
+          <p className="text-lg text-gray-700">
+            There are other types of complaints you can file regarding your rights, Title 17, "Whistleblower" and Early Start services. 
+            Contact <span className="font-medium">833-538-3723</span> or{' '}
+            <a href="mailto:appeals@dds.ca.gov" className="text-blue-600 hover:underline font-medium">appeals@dds.ca.gov</a> for more information on what kind of complaint you need to file and free help in your language.
+          </p>
+        </section>
+
+        {/* Last Modified */}
+        <div className="text-sm text-gray-500 mt-12 pt-6 border-t border-gray-200">
+          Last modified: October 23, 2024
+        </div>
+      </main>
     </div>
   );
 }
