@@ -305,8 +305,9 @@ async def get_pages(website_id: str, current_user: dict = Depends(get_current_us
 
 @api_router.post("/websites/{website_id}/pages", response_model=Page)
 async def create_page(website_id: str, page_data: PageCreate, current_user: dict = Depends(get_current_user)):
-    website = await db.websites.find_one({"id": website_id, "owner_id": current_user['id']})
-    if not website:
+    # Check if user has access (owner or collaborator)
+    has_access = await check_website_access(website_id, current_user['id'])
+    if not has_access:
         raise HTTPException(status_code=404, detail="Website not found")
     
     page = Page(website_id=website_id, url=page_data.url)
