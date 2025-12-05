@@ -479,9 +479,20 @@ async def upload_video(
     video: UploadFile = File(...),
     current_user: dict = Depends(get_current_user)
 ):
-    section = await db.sections.find_one({"id": section_id})
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
+    
+    # Check page ownership
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    # Check website ownership
+    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
+    if not website or website['owner_id'] != current_user['id']:
+        raise HTTPException(status_code=403, detail="Access denied: You don't own this section")
     
     file_id = str(uuid.uuid4())
     file_ext = video.filename.split('.')[-1]
