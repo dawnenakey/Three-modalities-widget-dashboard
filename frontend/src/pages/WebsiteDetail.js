@@ -106,6 +106,18 @@ export default function WebsiteDetail() {
     return statusConfig[status] || statusConfig['Not Setup'];
   };
 
+  const handleStatusChange = async (pageId, newStatus) => {
+    try {
+      await axios.patch(`${API}/pages/${pageId}/status`, { status: newStatus });
+      toast.success(`Status updated to ${newStatus}`);
+      // Refresh pages to show updated status
+      const response = await axios.get(`${API}/websites/${id}/pages`);
+      setPages(response.data);
+    } catch (error) {
+      toast.error('Failed to update status');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-8">
