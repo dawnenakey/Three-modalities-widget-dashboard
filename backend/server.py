@@ -324,6 +324,31 @@ async def get_pages(website_id: str, current_user: dict = Depends(get_current_us
     
     return pages
 
+@api_router.patch("/pages/{page_id}/status")
+async def update_page_status(page_id: str, status_data: dict, current_user: dict = Depends(get_current_user)):
+    """Update page status manually"""
+    page = await db.pages.find_one({"id": page_id}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    # Verify user has access to the website
+    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
+    if not website:
+        raise HTTPException(status_code=404, detail="Website not found")
+    
+    has_access = await check_website_access(page['website_id'], current_user['id'])
+    if not has_access:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Update status
+    new_status = status_data.get('status', 'Not Setup')
+    await db.pages.update_one(
+        {"id": page_id},
+        {"$set": {"status": new_status}}
+    )
+    
+    return {"message": "Status updated", "status": new_status}
+
 @api_router.post("/websites/{website_id}/pages", response_model=Page)
 async def create_page(website_id: str, page_data: PageCreate, current_user: dict = Depends(get_current_user)):
     # Check if user has access (owner or collaborator)
