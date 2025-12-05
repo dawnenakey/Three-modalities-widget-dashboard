@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIVOT Widget Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .section h2 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        code {
+            background: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .test-content {
+            line-height: 1.8;
+        }
+        .widget-check {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 PIVOT Widget Test Page</h1>
+        <p class="subtitle">Test your accessibility widget in a real environment</p>
+
+        <div class="instructions">
+            <strong>📋 Instructions:</strong>
+            <ol>
+                <li>Replace <code>YOUR_WEBSITE_ID</code> in the script tag below with your actual website ID</li>
+                <li>The widget should appear as a floating button in the bottom-right corner</li>
+                <li>Click the button to open the accessibility panel</li>
+                <li>Test all 3 modalities: ASL Video, Audio, and Text</li>
+            </ol>
+        </div>
+
+        <div class="widget-check">
+            <strong>✅ Widget Status Check:</strong>
+            <ul>
+                <li id="scriptCheck">Checking if widget script loaded...</li>
+                <li id="buttonCheck">Checking if widget button exists...</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>Sample Content Section 1</h2>
+            <div class="test-content">
+                <p>Welcome to our accessible website. We believe that everyone deserves equal access to information and services online. Our PIVOT widget helps make this content accessible through multiple formats.</p>
+                <p>This content should be available through American Sign Language (ASL) videos, audio narration, and text display. Try clicking the PIVOT widget button in the bottom-right corner to access these features.</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Sample Content Section 2</h2>
+            <div class="test-content">
+                <p>Accessibility is not just a feature—it's a fundamental right. By providing content in multiple modalities, we ensure that people with different abilities can access the same information.</p>
+                <p>The widget detects which page you're on and loads the appropriate content automatically. It's designed to be lightweight, fast, and easy to use.</p>
+            </div>
+        </div>
+
+        <div class="success">
+            <strong>🎉 What to Test:</strong>
+            <ul>
+                <li>✅ Widget button appears in bottom-right corner</li>
+                <li>✅ Panel opens when button is clicked</li>
+                <li>✅ ASL video plays correctly</li>
+                <li>✅ Audio player works</li>
+                <li>✅ Text is displayed and readable</li>
+                <li>✅ Text highlighting syncs with media playback</li>
+                <li>✅ Language selection works</li>
+                <li>✅ Settings can be adjusted</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>🔧 Current Configuration</h2>
+            <p><strong>Widget Script URL:</strong> <code id="scriptUrl">Loading...</code></p>
+            <p><strong>Website ID:</strong> <code id="websiteId">Loading...</code></p>
+            <p><strong>Current Page URL:</strong> <code id="currentUrl"></code></p>
+        </div>
+    </div>
+
+    <!-- PIVOT Widget Script -->
+    <!-- Widget configured for demo.gopivot.me/pdf website -->
+    <script 
+        src="https://testing.gopivot.me/api/widget.js" 
+        data-website-id="c7f48a91-8deb-4ed5-be40-d837c464b0ca"
+        id="pivot-widget"
+        async
+    ></script>
+
+    <script>
+        // Display current configuration
+        document.getElementById('currentUrl').textContent = window.location.href;
+        
+        // Check if widget script loaded
+        setTimeout(() => {
+            const script = document.getElementById('pivot-widget');
+            const scriptUrl = script ? script.src : 'Not found';
+            const websiteId = script ? script.getAttribute('data-website-id') : 'Not found';
+            
+            document.getElementById('scriptUrl').textContent = scriptUrl;
+            document.getElementById('websiteId').textContent = websiteId;
+            
+            if (script) {
+                document.getElementById('scriptCheck').innerHTML = '✅ Widget script loaded successfully';
+            } else {
+                document.getElementById('scriptCheck').innerHTML = '❌ Widget script NOT found';
+            }
+            
+            // Check if widget button exists
+            setTimeout(() => {
+                const widgetButton = document.querySelector('[data-pivot-widget-button]') || 
+                                   document.querySelector('#pivot-widget-button') ||
+                                   document.querySelector('.pivot-widget-button');
+                
+                if (widgetButton) {
+                    document.getElementById('buttonCheck').innerHTML = '✅ Widget button found on page';
+                } else {
+                    document.getElementById('buttonCheck').innerHTML = '⚠️ Widget button not yet visible (check console for errors)';
+                }
+            }, 2000);
+        }, 1000);
+        
+        // Log any console errors
+        window.addEventListener('error', (e) => {
+            console.error('Page Error:', e);
+        });
+    </script>
+</body>
+</html>
