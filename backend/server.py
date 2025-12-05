@@ -37,6 +37,23 @@ security = HTTPBearer()
 JWT_SECRET = os.environ['JWT_SECRET_KEY']
 JWT_ALGORITHM = os.environ['JWT_ALGORITHM']
 JWT_EXPIRATION = int(os.environ['JWT_EXPIRATION_HOURS'])
+# Helper function to check website access (owner or collaborator)
+async def check_website_access(website_id: str, user_id: str) -> bool:
+    """Check if user has access to website (as owner or collaborator)"""
+    website = await db.websites.find_one({"id": website_id}, {"_id": 0})
+    if not website:
+        return False
+    
+    # Check if user is owner
+    if website.get('owner_id') == user_id:
+        return True
+    
+    # Check if user is in collaborators list
+    collaborators = website.get('collaborators', [])
+    if user_id in collaborators:
+        return True
+    
+    return False
 
 # Initialize OpenAI TTS
 tts = OpenAITextToSpeech(api_key=os.getenv("EMERGENT_LLM_KEY"))
