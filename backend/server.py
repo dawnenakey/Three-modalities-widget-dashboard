@@ -940,11 +940,84 @@ async def serve_simple_test():
     return FileResponse(test_path, media_type="text/html")
 
 # Serve testing.gopivot.me test page
-@app.get("/test_widget")
-async def serve_test_widget_new():
-    from fastapi.responses import FileResponse
-    test_path = ROOT_DIR / "static" / "test_widget.html"
-    return FileResponse(test_path, media_type="text/html")
+@api_router.get("/test-widget-page")
+async def serve_test_widget_page():
+    from fastapi.responses import HTMLResponse
+    html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIVOT Widget Test - testing.gopivot.me/pivot-widget-test/</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+        }
+        .info-box {
+            background: #f4f4f4;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .content-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>PIVOT Widget Test Page</h1>
+    
+    <div class="info-box">
+        <strong>Simulating URL:</strong> https://testing.gopivot.me/pivot-widget-test/<br>
+        <strong>Widget Status:</strong> Widget should appear in the bottom-right corner<br>
+        <strong>Note:</strong> This is a test page showing how the widget will work after deployment
+    </div>
+
+    <div class="content-section">
+        <h2>Welcome Section</h2>
+        <p>Welcome to our PIVOT accessibility demo! This section demonstrates how we provide multiple modalities for content access.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Features Section</h2>
+        <p>Our platform offers ASL video interpretation, text-to-speech audio, and text transcripts for every section of your content.</p>
+    </div>
+
+    <div class="content-section">
+        <h2>Getting Started</h2>
+        <p>Click on any section to view the corresponding content in your preferred format. All modalities are synchronized for easy navigation.</p>
+    </div>
+
+    <!-- PIVOT Widget Embed Code (using current environment) -->
+    <script>
+        // Override window.location.href for testing purposes
+        Object.defineProperty(window, 'location', {
+            value: {
+                href: 'https://testing.gopivot.me/pivot-widget-test/',
+                origin: 'https://testing.gopivot.me',
+                protocol: 'https:',
+                host: 'testing.gopivot.me',
+                hostname: 'testing.gopivot.me',
+                pathname: '/pivot-widget-test/'
+            },
+            writable: false
+        });
+    </script>
+    <script src="/api/widget.js" data-website-id="fe05622a-8043-41c7-958c-5c657a701fc1"></script>
+</body>
+</html>"""
+    return HTMLResponse(content=html_content)
 
 
 
