@@ -226,7 +226,13 @@ async def get_widget_js():
 # Website routes
 @api_router.get("/websites", response_model=List[Website])
 async def get_websites(current_user: dict = Depends(get_current_user)):
-    websites = await db.websites.find({"owner_id": current_user['id']}, {"_id": 0}).to_list(1000)
+    # Get websites where user is owner OR collaborator
+    websites = await db.websites.find({
+        "$or": [
+            {"owner_id": current_user['id']},
+            {"collaborators": current_user['id']}
+        ]
+    }, {"_id": 0}).to_list(1000)
     return websites
 
 @api_router.get("/stats")
