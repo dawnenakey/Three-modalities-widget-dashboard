@@ -296,8 +296,9 @@ async def delete_website(website_id: str, current_user: dict = Depends(get_curre
 # Page routes
 @api_router.get("/websites/{website_id}/pages", response_model=List[Page])
 async def get_pages(website_id: str, current_user: dict = Depends(get_current_user)):
-    website = await db.websites.find_one({"id": website_id, "owner_id": current_user['id']})
-    if not website:
+    # Check if user has access (owner or collaborator)
+    has_access = await check_website_access(website_id, current_user['id'])
+    if not has_access:
         raise HTTPException(status_code=404, detail="Website not found")
     
     pages = await db.pages.find({"website_id": website_id}, {"_id": 0}).to_list(1000)
