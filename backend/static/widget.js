@@ -8,9 +8,16 @@
 
   // Configuration
   const CONFIG = {
-    apiBaseUrl: window.location.hostname === 'localhost' 
-      ? 'http://localhost:8001/api' 
-      : `${window.location.protocol}//${window.location.hostname}/api`,
+    apiBaseUrl: (() => {
+      // Get the script source URL to determine the API base URL
+      const scriptSrc = document.currentScript?.src || '';
+      if (scriptSrc.includes('localhost')) {
+        return 'http://localhost:8001/api';
+      }
+      // Extract domain from script source (where widget.js is hosted)
+      const scriptUrl = new URL(scriptSrc);
+      return `${scriptUrl.protocol}//${scriptUrl.hostname}/api`;
+    })(),
     websiteId: document.currentScript?.getAttribute('data-website-id') || '',
     position: 'bottom-right'
   };
