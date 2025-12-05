@@ -518,6 +518,19 @@ async def upload_video(
 
 @api_router.get("/sections/{section_id}/videos", response_model=List[Video])
 async def get_videos(section_id: str, current_user: dict = Depends(get_current_user)):
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
+    if not website or website['owner_id'] != current_user['id']:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
     videos = await db.videos.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return videos
 
