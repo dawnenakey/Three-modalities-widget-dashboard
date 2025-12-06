@@ -436,11 +436,11 @@ async def scrape_page_content(url: str) -> List[str]:
         logging.error(f"Scraping error: {e}")
         return []
 
-async def extract_og_image(url: str) -> str:
+async def extract_og_image(url: str) -> Optional[str]:
     """Extract OpenGraph image or featured image from webpage"""
     try:
         # Use a shorter timeout and handle errors more gracefully
-        response = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0'})
+        response = requests.get(url, timeout=3, headers={'User-Agent': 'Mozilla/5.0'}, allow_redirects=True)
         if response.status_code != 200:
             return None
             
