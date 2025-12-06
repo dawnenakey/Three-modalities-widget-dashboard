@@ -948,20 +948,23 @@
   }
 
   function renderSettings() {
+    currentView = 'settings';
+    modal.className = 'pivot-widget-modal open settings-view';
+    
     const mainContent = document.getElementById('pivot-main-content');
     mainContent.innerHTML = `
-      <div class="pivot-settings-view">
-        <div class="pivot-settings-section">
+      <div class="pivot-settings-view" style="padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div class="pivot-settings-section" style="margin-bottom: 10px;">
           <h3 class="pivot-settings-title">Text Size</h3>
           <div class="pivot-slider-container">
             <input type="range" class="pivot-slider" min="12" max="24" value="${textSize}" id="text-size-slider">
-            <p style="color: white; margin-top: 8px; font-size: ${textSize}px;">Sample Text (${textSize}px)</p>
+            <p style="color: white; margin-top: 10px; font-size: ${textSize}px;">Sample Text (${textSize}px)</p>
           </div>
         </div>
         
-        <div class="pivot-settings-section">
+        <div class="pivot-settings-section" style="margin-bottom: 10px;">
           <h3 class="pivot-settings-title">Modes</h3>
-          <div class="pivot-settings-option">
+          <div class="pivot-settings-option" style="margin-bottom: 10px;">
             <span class="pivot-settings-label">Dark Mode</span>
             <div class="pivot-toggle ${darkMode ? 'active' : ''}" onclick="window.PIVOTWidget.toggleDarkMode()">
               <div class="pivot-toggle-slider"></div>
@@ -975,15 +978,15 @@
           </div>
         </div>
 
-        <div class="pivot-settings-section">
+        <div class="pivot-settings-section" style="margin-bottom: 10px;">
           <h3 class="pivot-settings-title">Modality</h3>
-          <div class="pivot-settings-option">
+          <div class="pivot-settings-option" style="margin-bottom: 10px;">
             <span class="pivot-settings-label">Video (ASL)</span>
             <div class="pivot-toggle ${enabledModalities.video ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModalityInSettings('video')">
               <div class="pivot-toggle-slider"></div>
             </div>
           </div>
-          <div class="pivot-settings-option">
+          <div class="pivot-settings-option" style="margin-bottom: 10px;">
             <span class="pivot-settings-label">Audio</span>
             <div class="pivot-toggle ${enabledModalities.audio ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModalityInSettings('audio')">
               <div class="pivot-toggle-slider"></div>
@@ -997,7 +1000,7 @@
           </div>
         </div>
 
-        <button class="pivot-language-btn" style="width: 100%; margin-top: 24px;" onclick="window.PIVOTWidget.backToContent()">Back to Content</button>
+        <button class="pivot-language-btn" style="width: 100%; margin-top: 10px;" onclick="window.PIVOTWidget.backToContent()">Back to Content</button>
       </div>
     `;
 
