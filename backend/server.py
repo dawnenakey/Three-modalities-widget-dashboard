@@ -256,20 +256,20 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
 @api_router.post("/websites")
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
     try:
-        logging.info(f"Creating website: {website_data.name} - {website_data.url}")
+        print(f"DEBUG: Creating website: {website_data.name} - {website_data.url}")
         
         backend_url = os.getenv("REACT_APP_BACKEND_URL")
         if not backend_url:
             raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
         
-        logging.info(f"Backend URL: {backend_url}")
+        print(f"DEBUG: Backend URL: {backend_url}")
         
         # Extract OpenGraph/featured image from website
         # Temporarily skip image extraction for testing
         image_url = None
         # image_url = await extract_og_image(website_data.url)
         
-        logging.info(f"Creating Website object for user: {current_user['id']}")
+        print(f"DEBUG: Creating Website object for user: {current_user['id']}")
         
         website = Website(
             owner_id=current_user['id'],
@@ -279,23 +279,23 @@ async def create_website(website_data: WebsiteCreate, current_user: dict = Depen
             image_url=image_url
         )
         
-        logging.info(f"Website object created with ID: {website.id}")
+        print(f"DEBUG: Website object created with ID: {website.id}")
         
         website_dict = website.model_dump()
         website_dict['created_at'] = website_dict['created_at'].isoformat()
         website_dict['embed_code'] = website_dict['embed_code'].replace('{website_id}', website.id)
         
-        logging.info(f"Inserting website into database: {website_dict}")
+        print(f"DEBUG: Inserting website into database")
         
         await db.websites.insert_one(website_dict)
         
-        logging.info(f"Website created successfully: {website.id}")
+        print(f"DEBUG: Website created successfully: {website.id}")
         
-        return website
+        return website_dict
     except Exception as e:
-        logging.error(f"Error creating website: {str(e)}")
+        print(f"DEBUG ERROR: {str(e)}")
         import traceback
-        logging.error(f"Traceback: {traceback.format_exc()}")
+        print(f"DEBUG TRACEBACK: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Website creation failed: {str(e)}")
 
 @api_router.get("/websites/{website_id}", response_model=Website)
