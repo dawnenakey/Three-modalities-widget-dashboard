@@ -14,6 +14,10 @@
       if (scriptSrc.includes('localhost')) {
         return 'http://localhost:8001/api';
       }
+      // If loaded from R2 CDN, use the page's hostname instead
+      if (scriptSrc.includes('r2.dev')) {
+        return `${window.location.protocol}//${window.location.hostname}/api`;
+      }
       // Extract domain from script source (where widget.js is hosted)
       const scriptUrl = new URL(scriptSrc);
       return `${scriptUrl.protocol}//${scriptUrl.hostname}/api`;
