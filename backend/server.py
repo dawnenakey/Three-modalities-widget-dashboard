@@ -67,11 +67,6 @@ api_router = APIRouter(prefix="/api")
 async def root():
     return {"message": "PIVOT API - Accessibility Platform"}
 
-# Test POST endpoint
-@api_router.post("/test")
-async def test_post(data: dict):
-    return {"received": data, "status": "success"}
-
 # Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
