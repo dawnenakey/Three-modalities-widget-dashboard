@@ -279,14 +279,14 @@
     /* Text Content */
     .pivot-text-content {
       flex: 1;
-      overflow-y: scroll;
-      padding: 16px;
+      overflow-y: auto;
+      padding: 12px;
       background: white;
       color: #1a1a1a;
-      margin: 16px 16px 0;
+      margin: 12px 12px 0;
       border-radius: 8px 8px 0 0;
-      height: 140px;
-      min-height: 140px;
+      min-height: 100px;
+      max-height: 200px;
     }
     .pivot-text-content::-webkit-scrollbar {
       width: 8px;
