@@ -762,7 +762,7 @@
 
     const audioHTML = section.audios && section.audios.length > 0 ? `
       <div class="pivot-audio-player">
-        <audio id="pivot-audio" controls>
+        <audio id="pivot-audio" controls controlsList="nodownload">
           <source src="${section.audios[0].audio_url}" type="audio/mpeg">
         </audio>
       </div>
