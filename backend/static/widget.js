@@ -1113,15 +1113,18 @@
   }
 
   function showLanguages() {
+    currentView = 'languages';
+    modal.className = 'pivot-widget-modal open languages-view';
+    
     const mainContent = document.getElementById('pivot-main-content');
     
     let html = `
-      <div style="padding: 20px; overflow-y: auto; max-height: 70vh;">
-        <h3 style="color: white; margin-bottom: 20px; font-size: 18px;">Available Language Selections</h3>
+      <div style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
+        <h3 style="color: white; margin: 0 0 10px 0; font-size: 16px;">Available Language Selections</h3>
         
-        <div class="pivot-lang-section">
-          <h4 style="color: white; font-size: 16px; margin-bottom: 12px;">Video:</h4>
-          <div class="pivot-lang-selector">
+        <div class="pivot-lang-section" style="margin-bottom: 10px; padding: 12px; background: #1a1a1a; border-radius: 8px;">
+          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Video:</h4>
+          <div class="pivot-lang-selector" style="gap: 10px;">
             <span class="pivot-lang-flag">🇺🇸</span>
             <select class="pivot-lang-dropdown">
               <option>American Sign Language (ASL)</option>
@@ -1132,9 +1135,9 @@
           </div>
         </div>
 
-        <div class="pivot-lang-section">
-          <h4 style="color: white; font-size: 16px; margin-bottom: 12px;">Text:</h4>
-          <div class="pivot-lang-selector">
+        <div class="pivot-lang-section" style="margin-bottom: 10px; padding: 12px; background: #1a1a1a; border-radius: 8px;">
+          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Text:</h4>
+          <div class="pivot-lang-selector" style="gap: 10px;">
             <span class="pivot-lang-flag">🇪🇸</span>
             <select class="pivot-lang-dropdown">
               <option>English</option>
@@ -1146,9 +1149,9 @@
           </div>
         </div>
 
-        <div class="pivot-lang-section">
-          <h4 style="color: white; font-size: 16px; margin-bottom: 12px;">Audio:</h4>
-          <div class="pivot-lang-selector">
+        <div class="pivot-lang-section" style="margin-bottom: 10px; padding: 12px; background: #1a1a1a; border-radius: 8px;">
+          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Audio:</h4>
+          <div class="pivot-lang-selector" style="gap: 10px;">
             <span class="pivot-lang-flag">🇺🇸</span>
             <select class="pivot-lang-dropdown">
               <option selected>AI English (English)</option>
@@ -1160,12 +1163,12 @@
           </div>
         </div>
 
-        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
-          <p style="color: #999; font-size: 14px;">Email <strong style="color: #00CED1;">support@gopivot.me</strong> for feedback and/or support.</p>
-          <p style="color: #999; font-size: 12px; margin-top: 8px;">Powered by <strong>dozanu innovations</strong></p>
+        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+          <p style="color: #999; font-size: 12px; margin-bottom: 10px;">Email <strong style="color: #00CED1;">support@gopivot.me</strong> for feedback and/or support.</p>
+          <p style="color: #999; font-size: 11px; margin: 0;">Powered by <strong>dozanu innovations</strong></p>
         </div>
 
-        <button class="pivot-language-btn" style="width: 100%; margin-top: 20px;" onclick="window.PIVOTWidget.backToContent()">Back to Content</button>
+        <button class="pivot-language-btn" style="width: 100%; margin-top: 10px;" onclick="window.PIVOTWidget.backToContent()">Back to Content</button>
       </div>
     `;
     
