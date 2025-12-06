@@ -22,7 +22,7 @@ export default function PDFPage() {
     <div className="min-h-screen bg-white">
       {/* PDF Embed */}
       <iframe
-        src={`${process.env.REACT_APP_BACKEND_URL}/api/static/PIVOT-ONE-PAGER.pdf`}
+        src={`${process.env.REACT_APP_BACKEND_URL}/api/pivot-one-pager.pdf`}
         title="PIVOT One-Pager"
         className="w-full"
         style={{ height: '100vh', border: 'none' }}
