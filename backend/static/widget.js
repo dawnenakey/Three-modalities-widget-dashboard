@@ -100,13 +100,15 @@
       display: none;
     }
 
-    /* Modal Styles - Dynamic Heights */
+    /* Modal Styles - Fixed Dimensions */
     .pivot-widget-modal {
       position: fixed;
       top: 50%;
       right: 24px;
       transform: translateY(-50%);
-      width: 420px;
+      width: 280px;
+      height: 881px;
+      max-height: 95vh;
       background: #0f0f0f;
       z-index: 999999;
       display: none;
@@ -116,31 +118,10 @@
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       border: 2px solid #00CED1;
       overflow: hidden;
-      transition: height 0.3s ease;
+      transition: all 0.3s ease;
     }
     .pivot-widget-modal.open {
       display: flex;
-    }
-    /* Dynamic heights based on active modalities */
-    .pivot-widget-modal.modalities-3 {
-      height: 720px;
-      max-height: 85vh;
-    }
-    .pivot-widget-modal.modalities-2 {
-      height: 520px;
-      max-height: 70vh;
-    }
-    .pivot-widget-modal.modalities-1 {
-      height: 420px;
-      max-height: 55vh;
-    }
-    .pivot-widget-modal.modalities-0 {
-      height: 480px;
-      max-height: 60vh;
-    }
-    .pivot-widget-modal.instructional-view {
-      height: 600px;
-      max-height: 75vh;
     }
     
     @media (max-width: 768px) {
