@@ -145,7 +145,7 @@ class PIVOTAPITester:
         """Test login with dawnena user credentials as specified in review request"""
         login_data = {
             "email": "dawnena@dozanu.com",
-            "password": "pivot2024"
+            "password": "pivot2025"
         }
         
         success, response = self.run_test("Dawnena User Login", "POST", "auth/login", 200, login_data)
