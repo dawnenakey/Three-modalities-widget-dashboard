@@ -439,7 +439,11 @@ async def scrape_page_content(url: str) -> List[str]:
 async def extract_og_image(url: str) -> str:
     """Extract OpenGraph image or featured image from webpage"""
     try:
-        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        # Use a shorter timeout and handle errors more gracefully
+        response = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0'})
+        if response.status_code != 200:
+            return None
+            
         soup = BeautifulSoup(response.content, "html.parser")
         
         # Try OpenGraph image
