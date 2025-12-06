@@ -599,9 +599,9 @@ async def get_videos(section_id: str, current_user: dict = Depends(get_current_u
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     
-    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
-    if not website or website['owner_id'] != current_user['id']:
-        raise HTTPException(status_code=403, detail="Access denied")
+    # Check website access (owner or collaborator)
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     videos = await db.videos.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return videos
@@ -712,9 +712,9 @@ async def get_audios(section_id: str, current_user: dict = Depends(get_current_u
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     
-    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
-    if not website or website['owner_id'] != current_user['id']:
-        raise HTTPException(status_code=403, detail="Access denied")
+    # Check website access (owner or collaborator)
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     audios = await db.audios.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return audios
