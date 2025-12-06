@@ -141,6 +141,20 @@ class PIVOTAPITester:
             return True
         return False
 
+    def test_dawnena_user_login(self):
+        """Test login with dawnena user credentials as specified in review request"""
+        login_data = {
+            "email": "dawnena@dozanu.com",
+            "password": "pivot2024"
+        }
+        
+        success, response = self.run_test("Dawnena User Login", "POST", "auth/login", 200, login_data)
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            return True
+        return False
+
     def test_get_current_user(self):
         """Test get current user endpoint"""
         return self.run_test("Get Current User", "GET", "auth/me", 200)
