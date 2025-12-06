@@ -806,24 +806,28 @@
   }
 
   function renderContent() {
+    currentView = 'content';
     const mainContent = document.getElementById('pivot-main-content');
     
     if (!contentData || !contentData.sections || contentData.sections.length === 0) {
+      modal.className = 'pivot-widget-modal open content-view';
       mainContent.innerHTML = '<div class="pivot-loading">No content available for this page</div>';
       return;
     }
 
     const section = contentData.sections[currentSectionIndex];
     
-    // Count active modalities and update modal height
+    // Count active modalities
     const activeCount = Object.values(enabledModalities).filter(v => v).length;
-    modal.className = `pivot-widget-modal open modalities-${activeCount}`;
     
     // If no modalities are enabled, show getting started
     if (activeCount === 0) {
       showGettingStarted();
       return;
     }
+    
+    // Apply content-view class
+    modal.className = 'pivot-widget-modal open content-view';
     
     // Build content based on enabled modalities
     let contentHTML = '';
