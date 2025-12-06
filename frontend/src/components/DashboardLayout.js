@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }) {
       <div className="w-64 bg-[#1a1a1a] flex flex-col">
         {/* Logo */}
         <div className="p-6 border-b border-gray-800 flex flex-col items-center">
-          <img src="/pivot_white_logo.png" alt="PIVOT powered by dozanu" className="h-20 w-auto" />
+          <img src="/zigzag_logo.svg" alt="PIVOT powered by dozanu" className="h-20 w-auto" />
         </div>
 
         {/* Navigation */}
