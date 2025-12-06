@@ -1055,15 +1055,15 @@
 
   function showGettingStarted() {
     currentView = 'getting-started';
-    modal.className = 'pivot-widget-modal open modalities-0';
+    modal.className = 'pivot-widget-modal open getting-started-view';
     
     const mainContent = document.getElementById('pivot-main-content');
     mainContent.innerHTML = `
-      <div class="pivot-help-view">
-        <h2 class="pivot-help-title">Getting Started:</h2>
+      <div class="pivot-help-view" style="padding: 16px;">
+        <h2 class="pivot-help-title" style="margin-bottom: 10px;">Getting Started:</h2>
         
-        <div class="pivot-getting-started-steps">
-          <div class="pivot-step">
+        <div class="pivot-getting-started-steps" style="padding: 10px 0;">
+          <div class="pivot-step" style="margin-bottom: 10px;">
             <div class="pivot-step-number">1</div>
             <div class="pivot-step-text">
               <strong>Select which modality below you want to display:</strong><br>
@@ -1071,7 +1071,7 @@
             </div>
           </div>
           
-          <div class="pivot-step">
+          <div class="pivot-step" style="margin-bottom: 10px;">
             <div class="pivot-step-number">2</div>
             <div class="pivot-step-text">
               <strong>Click on 'Language Selections' button below</strong><br>
@@ -1088,7 +1088,7 @@
           </div>
         </div>
 
-        <div class="pivot-bottom-nav" style="margin-top: 24px;">
+        <div class="pivot-bottom-nav" style="margin-top: 10px;">
           <div class="pivot-nav-row-top">
             <button class="pivot-nav-arrow" disabled>←</button>
             <div class="pivot-modality-icons">
@@ -1101,9 +1101,9 @@
           <button class="pivot-language-btn" onclick="window.PIVOTWidget.showLanguages()">Language Selections</button>
         </div>
 
-        <div class="pivot-help-footer" style="margin-top: 24px;">
-          <p>Email <strong>support@gopivot.me</strong> for feedback and/or support.</p>
-          <p style="margin-top: 12px;">Powered by <strong>dozanu innovations</strong></p>
+        <div class="pivot-help-footer" style="margin-top: 10px;">
+          <p style="margin-bottom: 10px;">Email <strong>support@gopivot.me</strong> for feedback and/or support.</p>
+          <p>Powered by <strong>dozanu innovations</strong></p>
         </div>
       </div>
     `;
