@@ -255,26 +255,35 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
 
 @api_router.post("/websites", response_model=Website)
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
-    backend_url = os.getenv("REACT_APP_BACKEND_URL")
-    if not backend_url:
-        raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
-    
-    # Extract OpenGraph/featured image from website
-    image_url = await extract_og_image(website_data.url)
-    
-    website = Website(
-        owner_id=current_user['id'],
-        name=website_data.name,
-        url=website_data.url,
-        embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
-        image_url=image_url
-    )
-    website_dict = website.model_dump()
-    website_dict['created_at'] = website_dict['created_at'].isoformat()
-    website_dict['embed_code'] = website_dict['embed_code'].replace('{website_id}', website.id)
-    
-    await db.websites.insert_one(website_dict)
-    return website
+    try:
+        backend_url = os.getenv("REACT_APP_BACKEND_URL")
+        if not backend_url:
+            raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
+        
+        # Extract OpenGraph/featured image from website (non-blocking)
+        try:
+            image_url = await extract_og_image(website_data.url)
+        except Exception as e:
+            # Don't fail website creation if image extraction fails
+            logging.warning(f"Failed to extract OG image from {website_data.url}: {str(e)}")
+            image_url = None
+        
+        website = Website(
+            owner_id=current_user['id'],
+            name=website_data.name,
+            url=website_data.url,
+            embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
+            image_url=image_url
+        )
+        website_dict = website.model_dump()
+        website_dict['created_at'] = website_dict['created_at'].isoformat()
+        website_dict['embed_code'] = website_dict['embed_code'].replace('{website_id}', website.id)
+        
+        await db.websites.insert_one(website_dict)
+        return website
+    except Exception as e:
+        logging.error(f"Failed to create website: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to create website: {str(e)}")
 
 @api_router.get("/websites/{website_id}", response_model=Website)
 async def get_website(website_id: str, current_user: dict = Depends(get_current_user)):
