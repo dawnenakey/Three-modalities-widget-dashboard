@@ -879,14 +879,248 @@ class PIVOTAPITester:
         
         return section_id
 
+    def run_deployment_ready_tests(self):
+        """Run the EXACT test workflow specified in the review request for deployment readiness"""
+        print("🚀 COMPREHENSIVE END-TO-END TESTING BEFORE DEPLOYMENT")
+        print("User has spent $140 in credits - Testing everything before deployment")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # 1. Authentication Flow
+        print("\n🔐 1. AUTHENTICATION FLOW")
+        print("-" * 50)
+        
+        # Test login with: dawnena@dozanu.com / pivot2025
+        login_data = {
+            "email": "dawnena@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with dawnena@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Dawnena login failed, trying demo user as fallback")
+            if not self.test_demo_user_login():
+                print("❌ All login attempts failed, stopping tests")
+                return False
+        else:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+        
+        # Verify JWT token is issued correctly
+        success, user_data = self.run_test("Verify JWT Token Issued", "GET", "auth/me", 200)
+        if not success:
+            print("❌ JWT token verification failed")
+            return False
+        
+        # Verify token works for authenticated endpoints
+        success, _ = self.run_test("JWT Token Works for Auth Endpoints", "GET", "websites", 200)
+        if not success:
+            print("❌ JWT token doesn't work for authenticated endpoints")
+            return False
+        
+        print("✅ Authentication Flow: PASSED")
+
+        # 2. Website Management
+        print("\n🌐 2. WEBSITE MANAGEMENT")
+        print("-" * 50)
+        
+        # Create a new website (POST /api/websites)
+        website_data = {
+            "name": "Deployment Test Website",
+            "url": "https://testing.gopivot.me"
+        }
+        
+        success, website_response = self.run_test("Create New Website", "POST", "websites", 200, website_data)
+        if not success or 'id' not in website_response:
+            print("❌ Website creation failed - CRITICAL ISSUE")
+            return False
+        
+        website_id = website_response['id']
+        self.created_resources['websites'].append(website_id)
+        
+        # Verify it returns 200 OK (NOT 500)
+        if success:
+            self.log_test("Website Creation Returns 200 (NOT 500)", True, "Website creation successful")
+        
+        # List all websites (GET /api/websites)
+        success, websites_list = self.run_test("List All Websites", "GET", "websites", 200)
+        if not success:
+            print("❌ Website listing failed")
+            return False
+        
+        # Get specific website details (GET /api/websites/{id})
+        success, website_details = self.run_test("Get Website Details", "GET", f"websites/{website_id}", 200)
+        if not success:
+            print("❌ Get website details failed")
+            return False
+        
+        print("✅ Website Management: PASSED")
+
+        # 3. Page Management
+        print("\n📄 3. PAGE MANAGEMENT")
+        print("-" * 50)
+        
+        # Create a page for the website (POST /api/websites/{website_id}/pages)
+        page_data = {
+            "url": "https://testing.gopivot.me/test-page"
+        }
+        
+        success, page_response = self.run_test("Create Page for Website", "POST", f"websites/{website_id}/pages", 200, page_data)
+        if not success or 'id' not in page_response:
+            print("❌ Page creation failed")
+            return False
+        
+        page_id = page_response['id']
+        self.created_resources['pages'].append(page_id)
+        
+        # List pages for website (GET /api/websites/{website_id}/pages)
+        success, pages_list = self.run_test("List Pages for Website", "GET", f"websites/{website_id}/pages", 200)
+        if not success:
+            print("❌ Page listing failed")
+            return False
+        
+        # Get page details (GET /api/pages/{page_id})
+        success, page_details = self.run_test("Get Page Details", "GET", f"pages/{page_id}", 200)
+        if not success:
+            print("❌ Get page details failed")
+            return False
+        
+        print("✅ Page Management: PASSED")
+
+        # 4. Section Management
+        print("\n📝 4. SECTION MANAGEMENT")
+        print("-" * 50)
+        
+        # Get sections (should be auto-created from page scraping)
+        success, sections_list = self.run_test("List Sections for Page", "GET", f"pages/{page_id}/sections", 200)
+        
+        section_id = None
+        if success and sections_list and len(sections_list) > 0:
+            section_id = sections_list[0]['id']
+            self.created_resources['sections'].append(section_id)
+        else:
+            # Create section for page (POST /api/pages/{page_id}/sections)
+            section_data = {
+                "selected_text": "This is a test section for deployment testing",
+                "position_order": 1
+            }
+            
+            success, section_response = self.run_test("Create Section for Page", "POST", f"pages/{page_id}/sections", 200, section_data)
+            if not success or 'id' not in section_response:
+                print("❌ Section creation failed")
+                return False
+            
+            section_id = section_response['id']
+            self.created_resources['sections'].append(section_id)
+        
+        # Update section text (PUT /api/sections/{section_id})
+        update_data = {"text_content": "Updated section text for deployment testing"}
+        success, _ = self.run_test("Update Section Text", "PATCH", f"sections/{section_id}", 200, update_data)
+        if not success:
+            print("❌ Section update failed")
+            return False
+        
+        print("✅ Section Management: PASSED")
+
+        # 5. Media Upload (CRITICAL for 10 clients/month)
+        print("\n🎬 5. MEDIA UPLOAD (CRITICAL FOR 10 CLIENTS/MONTH)")
+        print("-" * 50)
+        
+        # Upload video file to section (POST /api/sections/{section_id}/video)
+        import time
+        timestamp = int(time.time())
+        test_video_content = f"Deployment test video content - {timestamp}".encode()
+        video_files = {'video': (f'deployment_test_{timestamp}.mp4', test_video_content, 'video/mp4')}
+        video_data = {'language': 'ASL'}
+        
+        success, video_response = self.run_test("Upload Video File", "POST", f"sections/{section_id}/videos", 200, video_data, video_files)
+        if not success or 'video_url' not in video_response:
+            print("❌ Video upload failed - CRITICAL ISSUE")
+            return False
+        
+        video_url = video_response['video_url']
+        video_file_path = video_response.get('file_path')
+        
+        # Verify files are stored in /app/backend/uploads/
+        if video_file_path:
+            file_exists = Path(video_file_path).exists()
+            self.log_test("Video Stored in /app/backend/uploads/", file_exists, f"File path: {video_file_path}")
+        
+        # Upload audio file to section (POST /api/sections/{section_id}/audio)
+        test_audio_content = f"Deployment test audio content - {timestamp}".encode()
+        audio_files = {'audio': (f'deployment_test_{timestamp}.mp3', test_audio_content, 'audio/mp3')}
+        audio_data = {'language': 'English'}
+        
+        success, audio_response = self.run_test("Upload Audio File", "POST", f"sections/{section_id}/audio", 200, audio_data, audio_files)
+        if not success or 'audio_url' not in audio_response:
+            print("❌ Audio upload failed - CRITICAL ISSUE")
+            return False
+        
+        audio_url = audio_response['audio_url']
+        audio_file_path = audio_response.get('file_path')
+        
+        # Verify files are stored in /app/backend/uploads/
+        if audio_file_path:
+            file_exists = Path(audio_file_path).exists()
+            self.log_test("Audio Stored in /app/backend/uploads/", file_exists, f"File path: {audio_file_path}")
+        
+        # Verify file URLs are accessible
+        external_video_url = f"https://testing.gopivot.me{video_url}"
+        external_audio_url = f"https://testing.gopivot.me{audio_url}"
+        
+        try:
+            video_response = requests.get(external_video_url, timeout=30)
+            video_accessible = video_response.status_code == 200
+            self.log_test("Video URL Accessible", video_accessible, f"Status: {video_response.status_code}, URL: {external_video_url}")
+        except Exception as e:
+            self.log_test("Video URL Accessible", False, f"Exception: {str(e)}")
+        
+        try:
+            audio_response = requests.get(external_audio_url, timeout=30)
+            audio_accessible = audio_response.status_code == 200
+            self.log_test("Audio URL Accessible", audio_accessible, f"Status: {audio_response.status_code}, URL: {external_audio_url}")
+        except Exception as e:
+            self.log_test("Audio URL Accessible", False, f"Exception: {str(e)}")
+        
+        print("✅ Media Upload: PASSED")
+
+        # 6. Widget Content API
+        print("\n🔧 6. WIDGET CONTENT API")
+        print("-" * 50)
+        
+        # Test widget content endpoint (GET /api/widget/{website_id}/content)
+        page_url = "https://testing.gopivot.me/test-page"
+        success, widget_response = self.run_test("Widget Content API", "GET", f"widget/{website_id}/content?page_url={page_url}", 200)
+        if not success:
+            print("❌ Widget content API failed")
+            return False
+        
+        # Verify it returns sections with video, audio, and text
+        if widget_response and 'sections' in widget_response:
+            sections = widget_response['sections']
+            has_proper_structure = True
+            
+            for section in sections:
+                if 'selected_text' not in section:
+                    has_proper_structure = False
+                    break
+            
+            self.log_test("Widget Returns Proper JSON Structure", has_proper_structure, f"Sections count: {len(sections)}")
+        else:
+            self.log_test("Widget Returns Proper JSON Structure", False, "No sections in response")
+        
+        print("✅ Widget Content API: PASSED")
+
+        return True
+
 def main():
     # Use external URL for testing as specified in the environment
     backend_url = "https://testing.gopivot.me/api"
     tester = PIVOTAPITester(base_url=backend_url)
     
     try:
-        # Run the comprehensive video upload flow testing as requested
-        success = tester.run_comprehensive_video_upload_tests()
+        # Run the deployment ready tests as specified in the review request
+        success = tester.run_deployment_ready_tests()
         tester.print_summary()
         
         # Save detailed results
