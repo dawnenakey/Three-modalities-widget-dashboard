@@ -667,9 +667,9 @@ async def generate_audio(
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     
-    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
-    if not website or website['owner_id'] != current_user['id']:
-        raise HTTPException(status_code=403, detail="Access denied: You don't own this section")
+    # Check website access (owner or collaborator)
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     try:
         audio_bytes = await tts.generate_speech(
