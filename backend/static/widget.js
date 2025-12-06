@@ -549,15 +549,15 @@
 
     /* Language Sections */
     .pivot-lang-section {
-      margin-bottom: 20px;
-      padding: 16px;
+      margin-bottom: 10px;
+      padding: 12px;
       background: #1a1a1a;
       border-radius: 8px;
     }
     .pivot-lang-selector {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .pivot-lang-flag {
       font-size: 28px;
