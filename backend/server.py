@@ -253,7 +253,7 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         "total_users": 1  # Current user
     }
 
-@api_router.post("/websites", response_model=Website)
+@api_router.post("/websites")
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
     try:
         logging.info(f"Creating website: {website_data.name} - {website_data.url}")
