@@ -740,16 +740,15 @@
     // Show ALL three modalities together
     const videoHTML = section.videos && section.videos.length > 0 ? `
       <div class="pivot-video-container">
-        <video class="pivot-video-player" id="pivot-video" controls>
+        <video class="pivot-video-player" id="pivot-video" controls controlsList="nodownload" disablePictureInPicture>
           <source src="${section.videos[0].video_url}" type="video/mp4">
         </video>
         <div class="pivot-video-speed-selector">
           <select id="speed-select" class="pivot-speed-dropdown">
             <option value="0.5">0.5x</option>
-            <option value="0.75">0.75x</option>
-            <option value="1" selected>Normal</option>
-            <option value="1.25">1.25x</option>
+            <option value="1" selected>1x</option>
             <option value="1.5">1.5x</option>
+            <option value="2">2x</option>
           </select>
         </div>
       </div>
