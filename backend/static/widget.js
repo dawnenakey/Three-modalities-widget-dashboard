@@ -715,23 +715,28 @@
   modal.querySelector('.pivot-help-btn').onclick = showHelp;
 
   // Functions
-  let firstOpen = true;
-  
   function openWidget() {
     isOpen = true;
     button.classList.add('hidden');
     modal.classList.add('open');
     
     if (firstOpen) {
-      showGettingStarted();
+      showInstructionalVideo();
       firstOpen = false;
+      // Load content in background
       if (!contentData) {
         loadContent();
       }
-    } else if (!contentData) {
-      loadContent();
     } else {
-      renderContent();
+      // Check if all modalities are disabled
+      const activeCount = Object.values(enabledModalities).filter(v => v).length;
+      if (activeCount === 0) {
+        showGettingStarted();
+      } else if (!contentData) {
+        loadContent();
+      } else {
+        renderContent();
+      }
     }
   }
 
