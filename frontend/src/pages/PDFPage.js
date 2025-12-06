@@ -18,11 +18,17 @@ export default function PDFPage() {
     };
   }, []);
 
+  // Use CDN URL for PDF (update this after uploading to CDN)
+  const CDN_URL = 'YOUR_CDN_URL_HERE'; // Replace with your CDN URL
+  const pdfUrl = CDN_URL !== 'YOUR_CDN_URL_HERE' 
+    ? `${CDN_URL}/PIVOT-ONE-PAGER.pdf` 
+    : `${process.env.REACT_APP_BACKEND_URL}/api/pivot-one-pager.pdf`;
+  
   return (
     <div className="min-h-screen bg-white">
       {/* PDF Embed */}
       <iframe
-        src={`${process.env.REACT_APP_BACKEND_URL}/api/pivot-one-pager.pdf`}
+        src={pdfUrl}
         title="PIVOT One-Pager"
         className="w-full"
         style={{ height: '100vh', border: 'none' }}
