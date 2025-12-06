@@ -926,22 +926,29 @@ class PIVOTAPITester:
         print("\n🌐 2. WEBSITE MANAGEMENT")
         print("-" * 50)
         
-        # Create a new website (POST /api/websites)
+        # Try to create a new website (POST /api/websites)
         website_data = {
             "name": "Deployment Test Website",
             "url": "https://example.com"
         }
         
         success, website_response = self.run_test("Create New Website", "POST", "websites", 200, website_data)
-        if not success or 'id' not in website_response:
-            print("❌ Website creation failed - CRITICAL ISSUE")
-            return False
         
-        website_id = website_response['id']
-        self.created_resources['websites'].append(website_id)
-        
-        # Verify it returns 200 OK (NOT 500)
-        if success:
+        if not success:
+            # Website creation failed, use existing website for testing
+            self.log_test("Website Creation Returns 200 (NOT 500)", False, "Website creation failed - using existing website for testing")
+            
+            # Get existing websites
+            success, websites_list = self.run_test("List All Websites (Fallback)", "GET", "websites", 200)
+            if not success or not websites_list:
+                print("❌ No existing websites found and creation failed - CRITICAL ISSUE")
+                return False
+            
+            website_id = websites_list[0]['id']
+            print(f"Using existing website: {website_id}")
+        else:
+            website_id = website_response['id']
+            self.created_resources['websites'].append(website_id)
             self.log_test("Website Creation Returns 200 (NOT 500)", True, "Website creation successful")
         
         # List all websites (GET /api/websites)
