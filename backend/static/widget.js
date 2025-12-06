@@ -619,15 +619,7 @@
   button.className = 'pivot-widget-button';
   button.setAttribute('aria-label', 'Open PIVOT accessibility options');
   button.innerHTML = `
-    <div class="pivot-logo-container">
-      <div class="pivot-icons-row">
-        <div class="pivot-icon-circle">${handIcon}</div>
-        <div class="pivot-icon-circle">${textIcon}</div>
-        <div class="pivot-icon-circle">${audioIcon}</div>
-      </div>
-      <div class="pivot-logo-text">PI<span class="pivot-logo-v">V</span>OT</div>
-      <div class="pivot-logo-subtitle">Language Translation</div>
-    </div>
+    <img src="${CONFIG.apiBaseUrl.replace('/api', '')}/static/images/newpivotpill.png" alt="PIVOT Language Translation" />
   `;
   button.onclick = openWidget;
 
