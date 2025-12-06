@@ -333,17 +333,17 @@
       gap: 8px;
     }
     .pivot-nav-arrow {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       background: rgba(0, 206, 209, 0.1);
       border: 2px solid #00CED1;
       color: #00CED1;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 16px;
       transition: all 0.2s;
       flex-shrink: 0;
     }
