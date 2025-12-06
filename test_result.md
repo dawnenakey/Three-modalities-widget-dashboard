@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Create Demo Websites for Dawnena+admin Account - Test complete website creation, page addition, and content scraping workflow"
+user_problem_statement: "Comprehensive Video Upload Flow Testing - Test complete video upload and playback functionality including authentication, upload, retrieval, playback, collaborator access, and error handling"
 
 backend:
   - task: "User Authentication API"
@@ -115,9 +115,9 @@ backend:
     status_history:
         - working: "NA"
           agent: "testing"
-          comment: "Need to test login with dawnena+admin@dozanu.com credentials"
+          comment: "Need to test login with dawnena@dozanu.com (password: pivot2024) for video upload testing"
 
-  - task: "Website Creation API"
+  - task: "Video Upload API"
     implemented: true
     working: "NA"
     file: "server.py"
@@ -127,9 +127,9 @@ backend:
     status_history:
         - working: "NA"
           agent: "testing"
-          comment: "Need to test POST /api/websites endpoint for creating demo websites"
+          comment: "Need to test POST /api/sections/{section_id}/videos endpoint with file upload, verify storage in /app/backend/uploads/videos/, database entry creation, and correct video_url formatting"
 
-  - task: "Page Creation and Scraping API"
+  - task: "Video Retrieval API"
     implemented: true
     working: "NA"
     file: "server.py"
@@ -139,9 +139,9 @@ backend:
     status_history:
         - working: "NA"
           agent: "testing"
-          comment: "Need to test POST /api/websites/{id}/pages endpoint and content scraping functionality"
+          comment: "Need to test GET /api/sections/{section_id}/videos endpoint to verify uploaded videos are returned correctly"
 
-  - task: "Content Section Generation"
+  - task: "Video Playback API"
     implemented: true
     working: "NA"
     file: "server.py"
@@ -151,7 +151,31 @@ backend:
     status_history:
         - working: "NA"
           agent: "testing"
-          comment: "Need to verify sections are created after page scraping"
+          comment: "Need to test GET /api/uploads/videos/{filename} endpoint for direct video file access with correct content-type and file size"
+
+  - task: "Collaborator Access Control"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to verify both owner and collaborators can upload videos, view videos, and access video files"
+
+  - task: "Video Upload Error Handling"
+    implemented: true
+    working: "NA"
+    file: "server.py"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test error scenarios: invalid section_id, no authentication, corrupted files, and verify proper error messages"
 
 frontend:
   - task: "Login Flow"
