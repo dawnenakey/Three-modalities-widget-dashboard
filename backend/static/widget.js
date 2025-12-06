@@ -402,13 +402,13 @@
     }
     .pivot-language-btn {
       width: 100%;
-      padding: 10px 16px;
+      padding: 8px 12px;
       background: linear-gradient(135deg, #6B46C1 0%, #805AD5 100%);
       border: none;
       color: white;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s;
     }
