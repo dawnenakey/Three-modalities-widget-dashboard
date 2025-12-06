@@ -929,7 +929,7 @@ class PIVOTAPITester:
         # Create a new website (POST /api/websites)
         website_data = {
             "name": "Deployment Test Website",
-            "url": "https://testing.gopivot.me"
+            "url": "https://example.com"
         }
         
         success, website_response = self.run_test("Create New Website", "POST", "websites", 200, website_data)
