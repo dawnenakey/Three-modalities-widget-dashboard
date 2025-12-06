@@ -346,7 +346,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 10px;
     }
     .pivot-nav-arrow {
       width: 32px;
