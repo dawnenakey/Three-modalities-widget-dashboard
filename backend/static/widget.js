@@ -148,7 +148,7 @@
       gap: 12px;
     }
     .pivot-header-logo {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 800;
       color: white;
       letter-spacing: 1px;
