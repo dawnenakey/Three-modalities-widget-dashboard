@@ -609,13 +609,14 @@
 
     /* Audio Player */
     .pivot-audio-player {
-      padding: 12px 16px;
+      padding: 8px 12px;
       background: #1a1a1a;
-      margin: 0 16px;
+      margin: 0 12px;
+      flex-shrink: 0;
     }
     .pivot-audio-player audio {
       width: 100%;
-      height: 40px;
+      height: 36px;
     }
 
     /* Loading State */
