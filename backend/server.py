@@ -96,7 +96,7 @@ class Website(BaseModel):
     name: str
     url: str
     embed_code: str = ""
-    image_url: str = None
+    image_url: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class WebsiteCreate(BaseModel):
