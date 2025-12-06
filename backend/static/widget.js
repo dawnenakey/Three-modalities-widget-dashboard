@@ -100,14 +100,13 @@
       display: none;
     }
 
-    /* Modal Styles - Fixed Dimensions */
+    /* Modal Styles - View-Specific Dimensions */
     .pivot-widget-modal {
       position: fixed;
       top: 50%;
       right: 24px;
       transform: translateY(-50%);
       width: 280px;
-      height: 881px;
       max-height: 95vh;
       background: #0f0f0f;
       z-index: 999999;
@@ -122,6 +121,23 @@
     }
     .pivot-widget-modal.open {
       display: flex;
+    }
+    /* View-specific heights */
+    .pivot-widget-modal.instructional-view {
+      height: 881px;
+    }
+    .pivot-widget-modal.settings-view {
+      height: 664px;
+    }
+    .pivot-widget-modal.getting-started-view {
+      height: 523px;
+    }
+    .pivot-widget-modal.languages-view {
+      height: 457px;
+    }
+    .pivot-widget-modal.content-view {
+      height: auto;
+      min-height: 600px;
     }
     
     @media (max-width: 768px) {
