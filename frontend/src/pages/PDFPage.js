@@ -18,11 +18,9 @@ export default function PDFPage() {
     };
   }, []);
 
-  // Use CDN URL for PDF (update this after uploading to CDN)
-  const CDN_URL = 'YOUR_CDN_URL_HERE'; // Replace with your CDN URL
-  const pdfUrl = CDN_URL !== 'YOUR_CDN_URL_HERE' 
-    ? `${CDN_URL}/PIVOT-ONE-PAGER.pdf` 
-    : `${process.env.REACT_APP_BACKEND_URL}/api/pivot-one-pager.pdf`;
+  // PIVOT Brand Assets CDN
+  const CDN_URL = 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev';
+  const pdfUrl = `${CDN_URL}/PIVOT-ONE-PAGER.pdf`;
   
   return (
     <div className="min-h-screen bg-white">
