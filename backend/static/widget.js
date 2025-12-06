@@ -362,11 +362,11 @@
       justify-content: center;
     }
     .pivot-modality-btn {
-      width: 44px;
-      height: 44px;
+      width: 36px;
+      height: 36px;
       background: rgba(0, 206, 209, 0.1);
       border: 2px solid transparent;
-      border-radius: 8px;
+      border-radius: 6px;
       cursor: pointer;
       display: flex;
       align-items: center;
