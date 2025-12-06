@@ -1188,13 +1188,21 @@
     },
     showLanguages,
     showGettingStarted,
+    skipToGettingStarted: () => {
+      showGettingStarted();
+    },
     selectLanguage: (lang) => {
       selectedLanguage = lang;
       renderContent();
     },
     backToContent: () => {
       currentView = 'content';
-      renderContent();
+      const activeCount = Object.values(enabledModalities).filter(v => v).length;
+      if (activeCount === 0) {
+        showGettingStarted();
+      } else {
+        renderContent();
+      }
     },
     toggleDarkMode: () => {
       darkMode = !darkMode;
@@ -1202,6 +1210,14 @@
     },
     toggleHighContrast: () => {
       highContrast = !highContrast;
+      renderSettings();
+    },
+    toggleModality: (modality) => {
+      enabledModalities[modality] = !enabledModalities[modality];
+      renderContent();
+    },
+    toggleModalityInSettings: (modality) => {
+      enabledModalities[modality] = !enabledModalities[modality];
       renderSettings();
     }
   };
