@@ -126,9 +126,9 @@
     
     @media (max-width: 768px) {
       .pivot-widget-modal {
-        width: 90vw;
-        max-width: 420px;
-        right: 5vw;
+        width: 280px;
+        max-height: 90vh;
+        right: 12px;
       }
     }
 
