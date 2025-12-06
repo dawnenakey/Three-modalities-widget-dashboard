@@ -900,7 +900,7 @@ app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads"
 
 # Mount static directory for widget files
 STATIC_DIR = ROOT_DIR / "static"
-app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+app.mount("/api/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Serve widget.js through both routes
 @app.get("/widget.js")
