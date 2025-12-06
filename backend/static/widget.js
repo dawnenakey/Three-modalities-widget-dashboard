@@ -1168,10 +1168,16 @@
     try {
       const response = await fetch(`${CONFIG.apiBaseUrl}/widget/${CONFIG.websiteId}/content?page_url=${encodeURIComponent(window.location.href)}`);
       contentData = await response.json();
-      renderContent();
+      // Only render if we're in content view (not instructional or getting-started)
+      if (currentView === 'content') {
+        renderContent();
+      }
     } catch (error) {
       console.error('Failed to load content:', error);
-      document.getElementById('pivot-main-content').innerHTML = '<div class="pivot-loading">Unable to load content</div>';
+      // Only show error if we're in content view
+      if (currentView === 'content') {
+        document.getElementById('pivot-main-content').innerHTML = '<div class="pivot-loading">Unable to load content</div>';
+      }
     }
   }
 
