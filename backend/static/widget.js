@@ -318,12 +318,13 @@
 
     /* Bottom Navigation */
     .pivot-bottom-nav {
-      padding: 12px 16px;
+      padding: 10px 12px;
       background: #1a1a1a;
       border-top: 2px solid #00CED1;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      flex-shrink: 0;
     }
     .pivot-nav-row-top {
       display: flex;
