@@ -757,6 +757,49 @@
     showGettingStarted();
   }
 
+  function showInstructionalVideo() {
+    currentView = 'instructional';
+    modal.className = 'pivot-widget-modal open instructional-view';
+    
+    const mainContent = document.getElementById('pivot-main-content');
+    mainContent.innerHTML = `
+      <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: #0f0f0f;">
+        <video 
+          id="pivot-instructional-video" 
+          width="100%" 
+          height="auto" 
+          controls 
+          autoplay
+          poster="${CDN_URL}/welcome-to-pivot-video-poster.png"
+          style="max-width: 100%; border-radius: 12px; box-shadow: 0 8px 24px rgba(0, 206, 209, 0.3);"
+        >
+          <source src="${CDN_URL}/welcome_to_pivot_video_instruction-NEW.mov" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <p style="color: #999; font-size: 14px; margin-top: 16px; text-align: center;">
+          Watch this quick tutorial to learn how to use PIVOT
+        </p>
+        <button 
+          class="pivot-language-btn" 
+          style="margin-top: 16px; width: 80%;" 
+          onclick="window.PIVOTWidget.skipToGettingStarted()"
+        >
+          Skip Tutorial
+        </button>
+      </div>
+    `;
+    
+    // When video ends, automatically show getting started
+    setTimeout(() => {
+      const video = document.getElementById('pivot-instructional-video');
+      if (video) {
+        video.onended = () => {
+          showGettingStarted();
+        };
+      }
+    }, 100);
+  }
+
   function renderContent() {
     const mainContent = document.getElementById('pivot-main-content');
     
