@@ -131,12 +131,16 @@
       max-height: 70vh;
     }
     .pivot-widget-modal.modalities-1 {
-      height: 320px;
-      max-height: 50vh;
+      height: 420px;
+      max-height: 55vh;
     }
     .pivot-widget-modal.modalities-0 {
       height: 480px;
       max-height: 60vh;
+    }
+    .pivot-widget-modal.instructional-view {
+      height: 600px;
+      max-height: 75vh;
     }
     
     @media (max-width: 768px) {
