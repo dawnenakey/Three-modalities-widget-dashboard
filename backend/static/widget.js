@@ -67,60 +67,27 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-      border: 2px solid #00CED1;
-      border-radius: 30px;
-      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      padding: 0;
       cursor: pointer;
       z-index: 999998;
-      box-shadow: 0 8px 24px rgba(0, 206, 209, 0.3);
       transition: all 0.3s ease;
-      font-family: 'Inter', sans-serif;
+    }
+    .pivot-widget-button img {
+      height: 80px;
+      width: auto;
+      display: block;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
     }
     .pivot-widget-button:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 32px rgba(0, 206, 209, 0.4);
+      transform: translateY(-4px) scale(1.05);
+    }
+    .pivot-widget-button:hover img {
+      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
     }
     .pivot-widget-button.hidden {
       display: none;
-    }
-    .pivot-logo-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-    }
-    .pivot-icons-row {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 4px;
-    }
-    .pivot-icon-circle {
-      width: 32px;
-      height: 32px;
-      border: 2px solid #00CED1;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0, 206, 209, 0.1);
-    }
-    .pivot-icon-circle svg {
-      color: #00CED1;
-    }
-    .pivot-logo-text {
-      font-size: 18px;
-      font-weight: 800;
-      color: white;
-      letter-spacing: 1px;
-    }
-    .pivot-logo-v {
-      color: #00CED1;
-    }
-    .pivot-logo-subtitle {
-      font-size: 10px;
-      color: #00CED1;
-      font-weight: 600;
     }
 
     /* Modal Styles */
