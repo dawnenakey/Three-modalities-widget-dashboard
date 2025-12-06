@@ -134,12 +134,13 @@
 
     /* Header */
     .pivot-header {
-      padding: 16px 24px;
+      padding: 12px 16px;
       background: #1a1a1a;
       display: flex;
       align-items: center;
       justify-content: space-between;
       border-bottom: 2px solid #00CED1;
+      flex-shrink: 0;
     }
     .pivot-header-left {
       display: flex;
