@@ -304,9 +304,9 @@
       background: #555;
     }
     .pivot-text-content p {
-      font-size: 14px;
-      line-height: 1.7;
-      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 10px;
       transition: all 0.3s ease;
     }
     .pivot-text-content p.highlighted {
