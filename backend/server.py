@@ -898,6 +898,13 @@ from fastapi.responses import FileResponse
 # Static files (uploads)
 app.mount("/api/uploads", StaticFiles(directory=str(UPLOAD_DIR)), name="uploads")
 
+# Serve PDF directly with proper headers
+@api_router.get("/pivot-one-pager.pdf")
+async def serve_pdf():
+    from fastapi.responses import FileResponse
+    pdf_path = ROOT_DIR / "static" / "PIVOT-ONE-PAGER.pdf"
+    return FileResponse(pdf_path, media_type="application/pdf", headers={"Content-Disposition": "inline"})
+
 # Mount static directory for widget files
 STATIC_DIR = ROOT_DIR / "static"
 app.mount("/api/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
