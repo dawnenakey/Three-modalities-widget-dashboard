@@ -364,10 +364,23 @@
       justify-content: center;
       transition: all 0.2s;
       flex-shrink: 0;
+      position: relative;
     }
     .pivot-modality-btn.active {
-      border-color: #00CED1;
-      background: rgba(0, 206, 209, 0.2);
+      border-color: #00ff00;
+      background: rgba(0, 255, 0, 0.1);
+      box-shadow: 0 0 12px rgba(0, 255, 0, 0.4);
+    }
+    .pivot-modality-btn.active::after {
+      content: '';
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 16px;
+      height: 16px;
+      background: #00ff00;
+      border-radius: 50%;
+      border: 2px solid #0f0f0f;
     }
     .pivot-modality-btn svg {
       width: 22px;
