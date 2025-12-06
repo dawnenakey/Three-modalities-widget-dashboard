@@ -955,7 +955,7 @@
         </div>
         
         <div class="pivot-settings-section">
-          <h3 class="pivot-settings-title">Display Modes</h3>
+          <h3 class="pivot-settings-title">Modes</h3>
           <div class="pivot-settings-option">
             <span class="pivot-settings-label">Dark Mode</span>
             <div class="pivot-toggle ${darkMode ? 'active' : ''}" onclick="window.PIVOTWidget.toggleDarkMode()">
@@ -971,22 +971,22 @@
         </div>
 
         <div class="pivot-settings-section">
-          <h3 class="pivot-settings-title">Enable Modalities</h3>
+          <h3 class="pivot-settings-title">Modality</h3>
           <div class="pivot-settings-option">
             <span class="pivot-settings-label">Video (ASL)</span>
-            <div class="pivot-toggle active">
+            <div class="pivot-toggle ${enabledModalities.video ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModalityInSettings('video')">
               <div class="pivot-toggle-slider"></div>
             </div>
           </div>
           <div class="pivot-settings-option">
             <span class="pivot-settings-label">Audio</span>
-            <div class="pivot-toggle active">
+            <div class="pivot-toggle ${enabledModalities.audio ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModalityInSettings('audio')">
               <div class="pivot-toggle-slider"></div>
             </div>
           </div>
           <div class="pivot-settings-option">
             <span class="pivot-settings-label">Text</span>
-            <div class="pivot-toggle active">
+            <div class="pivot-toggle ${enabledModalities.text ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModalityInSettings('text')">
               <div class="pivot-toggle-slider"></div>
             </div>
           </div>
