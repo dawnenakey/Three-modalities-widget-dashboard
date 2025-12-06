@@ -610,9 +610,11 @@
   document.head.appendChild(styleSheet);
 
   // SVG Icons
-  const handIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>';
-  const textIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17 6.1H3"/><path d="M21 12.1H3"/><path d="M15.1 18H3"/></svg>';
-  const audioIcon = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+  // PIVOT Brand Icons from CDN
+  const CDN_URL = 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev';
+  const handIcon = `<img src="${CDN_URL}/widget_asl_button_icon.svg" alt="ASL" style="width: 20px; height: 20px;" />`;
+  const textIcon = `<img src="${CDN_URL}/caption_button_icon.svg" alt="Captions" style="width: 20px; height: 20px;" />`;
+  const audioIcon = `<img src="${CDN_URL}/audio_button_icon.svg" alt="Audio" style="width: 20px; height: 20px;" />`;
 
   // Create floating button
   const button = document.createElement('button');
