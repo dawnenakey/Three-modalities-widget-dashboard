@@ -65,26 +65,26 @@
     
     .pivot-widget-button {
       position: fixed;
-      bottom: 24px;
-      right: 24px;
+      bottom: 20px;
+      right: 20px;
       background: transparent;
       border: none;
       padding: 0;
       cursor: pointer;
       z-index: 999998;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
     }
     .pivot-widget-button img {
-      height: 80px;
+      height: 60px;
       width: auto;
       display: block;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+      filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.2));
     }
     .pivot-widget-button:hover {
-      transform: translateY(-4px) scale(1.05);
+      transform: translateY(-2px);
     }
     .pivot-widget-button:hover img {
-      filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
     }
     .pivot-widget-button.hidden {
       display: none;
