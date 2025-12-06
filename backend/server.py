@@ -253,50 +253,28 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
         "total_users": 1  # Current user
     }
 
-@api_router.post("/websites")
+@api_router.post("/websites", response_model=Website)
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
-    try:
-        print(f"DEBUG: Creating website: {website_data.name} - {website_data.url}")
-        
-        backend_url = os.getenv("REACT_APP_BACKEND_URL")
-        if not backend_url:
-            raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
-        
-        print(f"DEBUG: Backend URL: {backend_url}")
-        
-        # Extract OpenGraph/featured image from website
-        # Temporarily skip image extraction for testing
-        image_url = None
-        # image_url = await extract_og_image(website_data.url)
-        
-        print(f"DEBUG: Creating Website object for user: {current_user['id']}")
-        
-        website = Website(
-            owner_id=current_user['id'],
-            name=website_data.name,
-            url=website_data.url,
-            embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
-            image_url=image_url
-        )
-        
-        print(f"DEBUG: Website object created with ID: {website.id}")
-        
-        website_dict = website.model_dump()
-        website_dict['created_at'] = website_dict['created_at'].isoformat()
-        website_dict['embed_code'] = website_dict['embed_code'].replace('{website_id}', website.id)
-        
-        print(f"DEBUG: Inserting website into database")
-        
-        await db.websites.insert_one(website_dict)
-        
-        print(f"DEBUG: Website created successfully: {website.id}")
-        
-        return website_dict
-    except Exception as e:
-        print(f"DEBUG ERROR: {str(e)}")
-        import traceback
-        print(f"DEBUG TRACEBACK: {traceback.format_exc()}")
-        raise HTTPException(status_code=500, detail=f"Website creation failed: {str(e)}")
+    backend_url = os.getenv("REACT_APP_BACKEND_URL")
+    if not backend_url:
+        raise ValueError("REACT_APP_BACKEND_URL environment variable is required")
+    
+    # Extract OpenGraph/featured image from website
+    image_url = await extract_og_image(website_data.url)
+    
+    website = Website(
+        owner_id=current_user['id'],
+        name=website_data.name,
+        url=website_data.url,
+        embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
+        image_url=image_url
+    )
+    website_dict = website.model_dump()
+    website_dict['created_at'] = website_dict['created_at'].isoformat()
+    website_dict['embed_code'] = website_dict['embed_code'].replace('{website_id}', website.id)
+    
+    await db.websites.insert_one(website_dict)
+    return website
 
 @api_router.get("/websites/{website_id}", response_model=Website)
 async def get_website(website_id: str, current_user: dict = Depends(get_current_user)):
