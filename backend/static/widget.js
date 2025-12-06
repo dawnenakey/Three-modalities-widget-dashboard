@@ -619,11 +619,8 @@
   button.className = 'pivot-widget-button';
   button.setAttribute('aria-label', 'Open PIVOT accessibility options');
   
-  // Get base URL for static assets
-  const baseUrl = CONFIG.apiBaseUrl.replace('/api', '');
-  
   button.innerHTML = `
-    <img src="${baseUrl}/static/images/newpivotpill.png" alt="PIVOT Language Translation" />
+    <img src="${CONFIG.apiBaseUrl}/static/images/newpivotpill.png" alt="PIVOT Language Translation" />
   `;
   button.onclick = openWidget;
 
