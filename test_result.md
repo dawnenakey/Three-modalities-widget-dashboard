@@ -246,14 +246,16 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Login Flow"
-    - "Website Creation UI"
-    - "Page Creation UI"
-    - "Content Sections Display"
+    - "User Authentication API"
+    - "Video Upload API"
+    - "Video Retrieval API"
+    - "Video Playback API"
+    - "Collaborator Access Control"
+    - "Video Upload Error Handling"
   stuck_tasks: []
   test_all: true
-  test_priority: "sequential"
+  test_priority: "high_first"
 
 agent_communication:
     - agent: "testing"
-      message: "Starting comprehensive testing of demo website creation workflow for Dawnena+admin account. Will test: 1) Login with provided credentials, 2) Create 2 demo websites (PIVOT PDF Demo, California DDS Demo), 3) Add pages with specific URLs, 4) Verify content scraping and section generation."
+      message: "Starting comprehensive video upload flow testing as requested. Will test: 1) Authentication with dawnena@dozanu.com (password: pivot2024), 2) Video upload to sections, 3) Video retrieval, 4) Video playback, 5) Collaborator access, 6) Error handling scenarios. Focus on file storage, database consistency, security checks, and proper response headers."
