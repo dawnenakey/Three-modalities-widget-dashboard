@@ -287,13 +287,28 @@
     /* Text Content */
     .pivot-text-content {
       flex: 1;
-      overflow-y: auto;
+      overflow-y: scroll;
       padding: 16px;
       background: white;
       color: #1a1a1a;
       margin: 16px 16px 0;
       border-radius: 8px 8px 0 0;
-      max-height: 200px;
+      height: 140px;
+      min-height: 140px;
+    }
+    .pivot-text-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .pivot-text-content::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .pivot-text-content::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    .pivot-text-content::-webkit-scrollbar-thumb:hover {
+      background: #555;
     }
     .pivot-text-content p {
       font-size: 14px;
