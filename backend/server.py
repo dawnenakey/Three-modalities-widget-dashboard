@@ -562,10 +562,9 @@ async def upload_video(
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     
-    # Check website ownership
-    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
-    if not website or website['owner_id'] != current_user['id']:
-        raise HTTPException(status_code=403, detail="Access denied: You don't own this section")
+    # Check website access (owner or collaborator)
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     file_id = str(uuid.uuid4())
     file_ext = video.filename.split('.')[-1]
@@ -625,10 +624,9 @@ async def upload_audio(
     if not page:
         raise HTTPException(status_code=404, detail="Page not found")
     
-    # Check website ownership
-    website = await db.websites.find_one({"id": page['website_id']}, {"_id": 0})
-    if not website or website['owner_id'] != current_user['id']:
-        raise HTTPException(status_code=403, detail="Access denied: You don't own this section")
+    # Check website access (owner or collaborator)
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     file_id = str(uuid.uuid4())
     file_ext = audio.filename.split('.')[-1]
