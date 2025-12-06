@@ -161,7 +161,7 @@
     .pivot-header-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .pivot-header-logo {
       font-size: 18px;
