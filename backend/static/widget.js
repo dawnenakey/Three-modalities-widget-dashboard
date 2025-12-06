@@ -28,7 +28,7 @@
 
   // State
   let isOpen = false;
-  let currentView = 'content'; // 'content', 'settings', 'help', 'languages'
+  let currentView = 'content'; // 'content', 'settings', 'help', 'languages', 'instructional'
   let currentModality = 'video'; // 'video', 'audio', 'text'
   let contentData = null;
   let currentSectionIndex = 0;
@@ -37,6 +37,12 @@
   let textSize = 16;
   let darkMode = true;
   let highContrast = false;
+  let firstOpen = true;
+  let enabledModalities = {
+    video: true,
+    audio: true,
+    text: true
+  };
 
   // Language data
   const SIGN_LANGUAGES = [
