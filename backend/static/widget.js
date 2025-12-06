@@ -189,12 +189,13 @@
     .pivot-video-container {
       width: 100%;
       max-width: 100%;
-      margin: 16px auto 0;
+      margin: 12px auto 0;
       aspect-ratio: 5 / 7;
       background: #000;
       border-radius: 8px;
       overflow: hidden;
       position: relative;
+      flex-shrink: 0;
     }
     .pivot-video-player {
       width: 100%;
