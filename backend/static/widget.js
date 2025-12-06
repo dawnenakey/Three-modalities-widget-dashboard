@@ -435,11 +435,14 @@
 
     /* Settings View */
     .pivot-settings-view {
-      padding: 20px;
+      padding: 16px;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
     }
     .pivot-settings-section {
-      margin-bottom: 32px;
+      margin-bottom: 10px;
     }
     .pivot-settings-title {
       color: white;
