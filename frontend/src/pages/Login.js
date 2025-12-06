@@ -37,7 +37,7 @@ export default function Login() {
         </div>
         <div className="relative z-10 text-center">
           <div className="flex flex-col items-center">
-            <img src="/zigzag_logo.svg" alt="PIVOT Logo" className="h-48 w-auto mb-4" />
+            <img src="https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/zigzag_logo.svg" alt="PIVOT Logo" className="h-48 w-auto mb-4" />
             <p className="text-lg text-gray-300">Language Access Technology</p>
           </div>
         </div>
