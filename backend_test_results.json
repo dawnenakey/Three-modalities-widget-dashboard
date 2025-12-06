@@ -1,40 +1,148 @@
 {
   "summary": {
-    "total_tests": 5,
-    "passed_tests": 3,
-    "failed_tests": 2,
-    "success_rate": 60.0
+    "total_tests": 23,
+    "passed_tests": 17,
+    "failed_tests": 6,
+    "success_rate": 73.91304347826086
   },
   "detailed_results": [
     {
       "test": "Login with dawnena@dozanu.com",
       "success": false,
       "details": "Status: 401, Error: {'detail': 'Invalid credentials'}",
-      "timestamp": "2025-12-06T20:25:24.431986"
+      "timestamp": "2025-12-06T20:36:04.077460"
     },
     {
       "test": "Demo User Login",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjUxMzkxMjV9.537tgpvNvUomrSeq63d4HCGrjYptZ7VV2ni5zVmxqkA\",\n  \"token_ty...",
-      "timestamp": "2025-12-06T20:25:25.626798"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjUxMzk3NjZ9.299zdWzEsPL_CjSMm5AzPuuVgjDtbShTsrg0zNlkU4w\",\n  \"token_ty...",
+      "timestamp": "2025-12-06T20:36:06.257838"
     },
     {
       "test": "Verify JWT Token Issued",
       "success": true,
       "details": "Status: 200, Response: {\n  \"id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n  \"email\": \"demo@pivot.com\",\n  \"name\": \"Demo User\",\n  \"created_at\": \"2025-12-01T04:45:47.846000\"\n}...",
-      "timestamp": "2025-12-06T20:25:26.008695"
+      "timestamp": "2025-12-06T20:36:06.472540"
     },
     {
       "test": "JWT Token Works for Auth Endpoints",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
-      "timestamp": "2025-12-06T20:25:26.262438"
+      "timestamp": "2025-12-06T20:36:06.622408"
     },
     {
       "test": "Create New Website",
       "success": false,
       "details": "Status: 500, Error: Internal Server Error",
-      "timestamp": "2025-12-06T20:25:26.703293"
+      "timestamp": "2025-12-06T20:36:06.979539"
+    },
+    {
+      "test": "Website Creation Returns 200 (NOT 500)",
+      "success": false,
+      "details": "Website creation failed - using existing website for testing",
+      "timestamp": "2025-12-06T20:36:06.980210"
+    },
+    {
+      "test": "List All Websites (Fallback)",
+      "success": true,
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
+      "timestamp": "2025-12-06T20:36:07.147517"
+    },
+    {
+      "test": "List All Websites",
+      "success": true,
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
+      "timestamp": "2025-12-06T20:36:07.347668"
+    },
+    {
+      "test": "Get Website Details",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n  \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n  \"name\": \"Demo Website\",\n  \"url\": \"https://example.com\",\n  \"embed_code\": \"<script src=\\\"http://...",
+      "timestamp": "2025-12-06T20:36:07.528409"
+    },
+    {
+      "test": "Create Page for Website",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"f0789af5-2236-4fc5-9f20-cd087461312c\",\n  \"website_id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n  \"url\": \"https://testing.gopivot.me/test-page\",\n  \"status\": \"Not Setup\",\n  \"sections_count\": ...",
+      "timestamp": "2025-12-06T20:36:08.177023"
+    },
+    {
+      "test": "List Pages for Website",
+      "success": true,
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"3c47572d-74fe-4d0a-a69f-7175600a97cd\",\n    \"website_id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"url\": \"https://example.com\",\n    \"status\": \"Active\",\n    \"sections_count\": 1,\n   ...",
+      "timestamp": "2025-12-06T20:36:08.390725"
+    },
+    {
+      "test": "Get Page Details",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"f0789af5-2236-4fc5-9f20-cd087461312c\",\n  \"website_id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n  \"url\": \"https://testing.gopivot.me/test-page\",\n  \"status\": \"Not Setup\",\n  \"sections_count\": ...",
+      "timestamp": "2025-12-06T20:36:08.534452"
+    },
+    {
+      "test": "List Sections for Page",
+      "success": true,
+      "details": "Status: 200, Response: []...",
+      "timestamp": "2025-12-06T20:36:08.676082"
+    },
+    {
+      "test": "Create Section for Page",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"fbb1d2a3-651f-4495-ade1-71dff565f854\",\n  \"page_id\": \"f0789af5-2236-4fc5-9f20-cd087461312c\",\n  \"selected_text\": \"This is a test section for deployment testing\",\n  \"position_order\": 1,\n  \"sta...",
+      "timestamp": "2025-12-06T20:36:08.872819"
+    },
+    {
+      "test": "Update Section Text",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"fbb1d2a3-651f-4495-ade1-71dff565f854\",\n  \"page_id\": \"f0789af5-2236-4fc5-9f20-cd087461312c\",\n  \"selected_text\": \"This is a test section for deployment testing\",\n  \"position_order\": 1,\n  \"sta...",
+      "timestamp": "2025-12-06T20:36:09.035605"
+    },
+    {
+      "test": "Upload Video File",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"c2b14fbd-d42a-4c44-906b-6e9451eb8147\",\n  \"section_id\": \"fbb1d2a3-651f-4495-ade1-71dff565f854\",\n  \"language\": \"ASL\",\n  \"video_url\": \"/api/uploads/videos/3135783b-38c5-4c77-9cd4-8af5117ce977....",
+      "timestamp": "2025-12-06T20:36:09.201919"
+    },
+    {
+      "test": "Video Stored in /app/backend/uploads/",
+      "success": false,
+      "details": "File path: /app/backend/uploads/videos/3135783b-38c5-4c77-9cd4-8af5117ce977.mp4",
+      "timestamp": "2025-12-06T20:36:09.202655"
+    },
+    {
+      "test": "Upload Audio File",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"8e790d00-e192-4915-8da7-6a7936793e2f\",\n  \"section_id\": \"fbb1d2a3-651f-4495-ade1-71dff565f854\",\n  \"language\": \"English\",\n  \"audio_url\": \"/api/uploads/audio/14541ce0-c995-484c-aab1-e48d61e07f...",
+      "timestamp": "2025-12-06T20:36:09.373897"
+    },
+    {
+      "test": "Audio Stored in /app/backend/uploads/",
+      "success": false,
+      "details": "File path: /app/backend/uploads/audio/14541ce0-c995-484c-aab1-e48d61e07f24.mp3",
+      "timestamp": "2025-12-06T20:36:09.374603"
+    },
+    {
+      "test": "Video URL Accessible",
+      "success": true,
+      "details": "Status: 200, URL: https://testing.gopivot.me/api/uploads/videos/3135783b-38c5-4c77-9cd4-8af5117ce977.mp4",
+      "timestamp": "2025-12-06T20:36:09.631434"
+    },
+    {
+      "test": "Audio URL Accessible",
+      "success": false,
+      "details": "Status: 404, URL: https://testing.gopivot.me/api/uploads/audio/14541ce0-c995-484c-aab1-e48d61e07f24.mp3",
+      "timestamp": "2025-12-06T20:36:09.874331"
+    },
+    {
+      "test": "Widget Content API",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"sections\": []\n}...",
+      "timestamp": "2025-12-06T20:36:10.155695"
+    },
+    {
+      "test": "Widget Returns Proper JSON Structure",
+      "success": true,
+      "details": "Sections count: 0",
+      "timestamp": "2025-12-06T20:36:10.156292"
     }
   ]
 }
