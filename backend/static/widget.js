@@ -768,7 +768,7 @@
     
     const mainContent = document.getElementById('pivot-main-content');
     mainContent.innerHTML = `
-      <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: #0f0f0f;">
+      <div style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; background: #0f0f0f; gap: 10px;">
         <video 
           id="pivot-instructional-video" 
           width="100%" 
@@ -781,12 +781,12 @@
           <source src="${CDN_URL}/welcome_to_pivot_video_instruction-NEW.mov" type="video/mp4">
           Your browser does not support the video tag.
         </video>
-        <p style="color: #999; font-size: 14px; margin-top: 16px; text-align: center;">
+        <p style="color: #999; font-size: 13px; margin: 0; text-align: center;">
           Watch this quick tutorial to learn how to use PIVOT
         </p>
         <button 
           class="pivot-language-btn" 
-          style="margin-top: 16px; width: 80%;" 
+          style="width: 80%;" 
           onclick="window.PIVOTWidget.skipToGettingStarted()"
         >
           Skip Tutorial
