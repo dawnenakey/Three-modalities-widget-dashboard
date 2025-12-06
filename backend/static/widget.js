@@ -580,12 +580,12 @@
 
     /* Getting Started Steps */
     .pivot-getting-started-steps {
-      padding: 20px 0;
+      padding: 10px 0;
     }
     .pivot-step {
       display: flex;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 10px;
       align-items: flex-start;
     }
     .pivot-step-number {
