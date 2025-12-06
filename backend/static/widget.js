@@ -613,9 +613,10 @@
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 
-  // SVG Icons
-  // PIVOT Brand Icons from CDN
+  // PIVOT Brand Assets from CDN
   const CDN_URL = 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev';
+  
+  // SVG Icons
   const handIcon = `<img src="${CDN_URL}/widget_asl_button_icon.svg" alt="ASL" style="width: 20px; height: 20px;" />`;
   const textIcon = `<img src="${CDN_URL}/caption_button_icon.svg" alt="Captions" style="width: 20px; height: 20px;" />`;
   const audioIcon = `<img src="${CDN_URL}/audio_button_icon.svg" alt="Audio" style="width: 20px; height: 20px;" />`;
@@ -624,9 +625,6 @@
   const button = document.createElement('button');
   button.className = 'pivot-widget-button';
   button.setAttribute('aria-label', 'Open PIVOT accessibility options');
-  
-  // PIVOT Brand Assets CDN
-  const CDN_URL = 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev';
   
   button.innerHTML = `
     <img src="${CDN_URL}/newpivotpill.png" alt="PIVOT Language Translation" />
