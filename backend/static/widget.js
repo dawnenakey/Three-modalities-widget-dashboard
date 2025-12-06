@@ -373,7 +373,7 @@
     }
     .pivot-modality-icons {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex: 1;
       justify-content: center;
     }
