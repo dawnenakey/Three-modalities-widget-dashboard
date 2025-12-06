@@ -620,7 +620,7 @@
   button.setAttribute('aria-label', 'Open PIVOT accessibility options');
   
   button.innerHTML = `
-    <img src="${CONFIG.apiBaseUrl}/static/images/newpivotpill.png" alt="PIVOT Language Translation" />
+    <img src="${CONFIG.apiBaseUrl}/static/images/newpivotpill.png?v=2" alt="PIVOT Language Translation" />
   `;
   button.onclick = openWidget;
 
