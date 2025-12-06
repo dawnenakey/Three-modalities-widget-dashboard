@@ -10,31 +10,31 @@
       "test": "Login with dawnena@dozanu.com",
       "success": false,
       "details": "Status: 401, Error: {'detail': 'Invalid credentials'}",
-      "timestamp": "2025-12-06T20:24:57.081822"
+      "timestamp": "2025-12-06T20:25:24.431986"
     },
     {
       "test": "Demo User Login",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjUxMzkwOTh9.pfuz5XIhKPorPUIsZLVwb0chPzIVCQbkPfj1OxzBgLA\",\n  \"token_ty...",
-      "timestamp": "2025-12-06T20:24:58.396551"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjUxMzkxMjV9.537tgpvNvUomrSeq63d4HCGrjYptZ7VV2ni5zVmxqkA\",\n  \"token_ty...",
+      "timestamp": "2025-12-06T20:25:25.626798"
     },
     {
       "test": "Verify JWT Token Issued",
       "success": true,
       "details": "Status: 200, Response: {\n  \"id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n  \"email\": \"demo@pivot.com\",\n  \"name\": \"Demo User\",\n  \"created_at\": \"2025-12-01T04:45:47.846000\"\n}...",
-      "timestamp": "2025-12-06T20:24:58.668643"
+      "timestamp": "2025-12-06T20:25:26.008695"
     },
     {
       "test": "JWT Token Works for Auth Endpoints",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
-      "timestamp": "2025-12-06T20:24:58.984106"
+      "timestamp": "2025-12-06T20:25:26.262438"
     },
     {
       "test": "Create New Website",
       "success": false,
       "details": "Status: 500, Error: Internal Server Error",
-      "timestamp": "2025-12-06T20:24:59.584773"
+      "timestamp": "2025-12-06T20:25:26.703293"
     }
   ]
 }
