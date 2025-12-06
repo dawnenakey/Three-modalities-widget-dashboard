@@ -172,7 +172,7 @@
     .pivot-header-right {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .pivot-icon-btn {
       width: 32px;
