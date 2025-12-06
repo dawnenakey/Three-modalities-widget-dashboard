@@ -619,14 +619,11 @@
   button.className = 'pivot-widget-button';
   button.setAttribute('aria-label', 'Open PIVOT accessibility options');
   
-  // Use CDN URL for static assets (fallback to local if CDN not configured)
-  const CDN_URL = 'YOUR_CDN_URL_HERE'; // Replace with your CDN URL
-  const imageUrl = CDN_URL !== 'YOUR_CDN_URL_HERE' 
-    ? `${CDN_URL}/newpivotpill.png` 
-    : `${CONFIG.apiBaseUrl}/static/images/newpivotpill.png`;
+  // PIVOT Brand Assets CDN
+  const CDN_URL = 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev';
   
   button.innerHTML = `
-    <img src="${imageUrl}?v=3" alt="PIVOT Language Translation" />
+    <img src="${CDN_URL}/newpivotpill.png" alt="PIVOT Language Translation" />
   `;
   button.onclick = openWidget;
 
