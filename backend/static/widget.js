@@ -454,10 +454,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px;
+      padding: 12px;
       background: #1a1a1a;
       border-radius: 8px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
     .pivot-settings-label {
       color: #e0e0e0;
