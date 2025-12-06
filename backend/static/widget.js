@@ -1049,6 +1049,9 @@
   }
 
   function showGettingStarted() {
+    currentView = 'getting-started';
+    modal.className = 'pivot-widget-modal open modalities-0';
+    
     const mainContent = document.getElementById('pivot-main-content');
     mainContent.innerHTML = `
       <div class="pivot-help-view">
@@ -1084,9 +1087,9 @@
           <div class="pivot-nav-row-top">
             <button class="pivot-nav-arrow" disabled>←</button>
             <div class="pivot-modality-icons">
-              <button class="pivot-modality-btn active">${handIcon}</button>
-              <button class="pivot-modality-btn active">${textIcon}</button>
-              <button class="pivot-modality-btn active">${audioIcon}</button>
+              <button class="pivot-modality-btn ${enabledModalities.video ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModality('video')">${handIcon}</button>
+              <button class="pivot-modality-btn ${enabledModalities.text ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModality('text')">${textIcon}</button>
+              <button class="pivot-modality-btn ${enabledModalities.audio ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModality('audio')">${audioIcon}</button>
             </div>
             <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.backToContent()">→</button>
           </div>
