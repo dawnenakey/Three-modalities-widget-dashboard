@@ -810,49 +810,75 @@
 
     const section = contentData.sections[currentSectionIndex];
     
-    // Show ALL three modalities together
-    const videoHTML = section.videos && section.videos.length > 0 ? `
-      <div class="pivot-video-container">
-        <video class="pivot-video-player" id="pivot-video" controls controlsList="nodownload" disablePictureInPicture>
-          <source src="${section.videos[0].video_url}" type="video/mp4">
-        </video>
-        <div class="pivot-video-speed-selector">
-          <select id="speed-select" class="pivot-speed-dropdown">
-            <option value="0.5">0.5x</option>
-            <option value="1" selected>1x</option>
-            <option value="1.5">1.5x</option>
-            <option value="2">2x</option>
-          </select>
+    // Count active modalities and update modal height
+    const activeCount = Object.values(enabledModalities).filter(v => v).length;
+    modal.className = `pivot-widget-modal open modalities-${activeCount}`;
+    
+    // If no modalities are enabled, show getting started
+    if (activeCount === 0) {
+      showGettingStarted();
+      return;
+    }
+    
+    // Build content based on enabled modalities
+    let contentHTML = '';
+    
+    // Video modality
+    if (enabledModalities.video) {
+      if (section.videos && section.videos.length > 0) {
+        contentHTML += `
+          <div class="pivot-video-container">
+            <video class="pivot-video-player" id="pivot-video" controls controlsList="nodownload" disablePictureInPicture>
+              <source src="${section.videos[0].video_url}" type="video/mp4">
+            </video>
+            <div class="pivot-video-speed-selector">
+              <select id="speed-select" class="pivot-speed-dropdown">
+                <option value="0.5">0.5x</option>
+                <option value="1" selected>1x</option>
+                <option value="1.5">1.5x</option>
+                <option value="2">2x</option>
+              </select>
+            </div>
+          </div>
+        `;
+      } else {
+        contentHTML += '<div class="pivot-no-video">No video available</div>';
+      }
+    }
+
+    // Text modality
+    if (enabledModalities.text) {
+      contentHTML += `
+        <div class="pivot-text-content" id="pivot-text-content">
+          <p id="pivot-text-paragraph">${section.text_content || 'No text content available'}</p>
         </div>
-      </div>
-    ` : '<div class="pivot-no-video">No video available</div>';
+      `;
+    }
 
-    const textHTML = `
-      <div class="pivot-text-content" id="pivot-text-content">
-        <p id="pivot-text-paragraph">${section.text_content || 'No text content available'}</p>
-      </div>
-    `;
+    // Audio modality
+    if (enabledModalities.audio && section.audios && section.audios.length > 0) {
+      contentHTML += `
+        <div class="pivot-audio-player">
+          <audio id="pivot-audio" controls controlsList="nodownload">
+            <source src="${section.audios[0].audio_url}" type="audio/mpeg">
+          </audio>
+        </div>
+      `;
+    }
 
-    const audioHTML = section.audios && section.audios.length > 0 ? `
-      <div class="pivot-audio-player">
-        <audio id="pivot-audio" controls controlsList="nodownload">
-          <source src="${section.audios[0].audio_url}" type="audio/mpeg">
-        </audio>
-      </div>
-    ` : '';
-
+    // Bottom navigation
     const navHTML = `
       <div class="pivot-bottom-nav">
         <div class="pivot-nav-row-top">
           <button class="pivot-nav-arrow" onclick="window.PIVOTWidget.prevSection()" ${currentSectionIndex === 0 ? 'disabled' : ''}>←</button>
           <div class="pivot-modality-icons">
-            <button class="pivot-modality-btn active">
+            <button class="pivot-modality-btn ${enabledModalities.video ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModality('video')">
               ${handIcon}
             </button>
-            <button class="pivot-modality-btn active">
+            <button class="pivot-modality-btn ${enabledModalities.text ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModality('text')">
               ${textIcon}
             </button>
-            <button class="pivot-modality-btn active">
+            <button class="pivot-modality-btn ${enabledModalities.audio ? 'active' : ''}" onclick="window.PIVOTWidget.toggleModality('audio')">
               ${audioIcon}
             </button>
           </div>
@@ -862,7 +888,7 @@
       </div>
     `;
 
-    mainContent.innerHTML = videoHTML + textHTML + audioHTML + navHTML;
+    mainContent.innerHTML = contentHTML + navHTML;
     
     // Setup video speed control and text highlighting
     setTimeout(() => {
