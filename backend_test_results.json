@@ -1,106 +1,40 @@
 {
   "summary": {
-    "total_tests": 16,
-    "passed_tests": 14,
+    "total_tests": 5,
+    "passed_tests": 3,
     "failed_tests": 2,
-    "success_rate": 87.5
+    "success_rate": 60.0
   },
   "detailed_results": [
     {
-      "test": "Dawnena User Login",
+      "test": "Login with dawnena@dozanu.com",
       "success": false,
       "details": "Status: 401, Error: {'detail': 'Invalid credentials'}",
-      "timestamp": "2025-12-06T01:01:24.940341"
+      "timestamp": "2025-12-06T20:24:57.081822"
     },
     {
       "test": "Demo User Login",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjUwNjkyODZ9.lVzmJljkXOIyG5KclZ8KOm7u3xxP5uHQFJayJb0qqFA\",\n  \"token_ty...",
-      "timestamp": "2025-12-06T01:01:26.543390"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0ZmU5ZWFkZi05YzFmLTRlNTEtYmRkMi03NGFjZjJiM2I3YzgiLCJleHAiOjE3NjUxMzkwOTh9.pfuz5XIhKPorPUIsZLVwb0chPzIVCQbkPfj1OxzBgLA\",\n  \"token_ty...",
+      "timestamp": "2025-12-06T20:24:58.396551"
     },
     {
-      "test": "Verify JWT Token",
+      "test": "Verify JWT Token Issued",
       "success": true,
       "details": "Status: 200, Response: {\n  \"id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n  \"email\": \"demo@pivot.com\",\n  \"name\": \"Demo User\",\n  \"created_at\": \"2025-12-01T04:45:47.846000\"\n}...",
-      "timestamp": "2025-12-06T01:01:26.687683"
+      "timestamp": "2025-12-06T20:24:58.668643"
     },
     {
-      "test": "Check Website Access",
+      "test": "JWT Token Works for Auth Endpoints",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
-      "timestamp": "2025-12-06T01:01:26.888366"
+      "timestamp": "2025-12-06T20:24:58.984106"
     },
     {
-      "test": "Get Websites for Testing",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"owner_id\": \"4fe9eadf-9c1f-4e51-bdd2-74acf2b3b7c8\",\n    \"name\": \"Demo Website\",\n    \"url\": \"https://example.com\",\n    \"embed_code\": \"<script...",
-      "timestamp": "2025-12-06T01:01:27.129436"
-    },
-    {
-      "test": "Get Pages for Testing",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"3c47572d-74fe-4d0a-a69f-7175600a97cd\",\n    \"website_id\": \"a7c7c359-2b0a-4717-80b7-743c33037c12\",\n    \"url\": \"https://example.com\",\n    \"status\": \"Active\",\n    \"sections_count\": 1,\n   ...",
-      "timestamp": "2025-12-06T01:01:27.425143"
-    },
-    {
-      "test": "Get Sections for Testing",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"6a94f2a8-abdc-4776-8e1e-e6dcb9d1669d\",\n    \"page_id\": \"3c47572d-74fe-4d0a-a69f-7175600a97cd\",\n    \"selected_text\": \"This domain is for use in documentation examples without needing pe...",
-      "timestamp": "2025-12-06T01:01:27.591910"
-    },
-    {
-      "test": "Upload Video to Section",
-      "success": true,
-      "details": "Status: 200, Response: {\n  \"id\": \"dccac4cf-be02-4cc3-98a9-071e94767ca5\",\n  \"section_id\": \"6a94f2a8-abdc-4776-8e1e-e6dcb9d1669d\",\n  \"language\": \"ASL\",\n  \"video_url\": \"/api/uploads/videos/d08730f1-5627-4451-a416-a1d2a44743e9....",
-      "timestamp": "2025-12-06T01:01:27.876675"
-    },
-    {
-      "test": "Video Stored in uploads/videos/",
+      "test": "Create New Website",
       "success": false,
-      "details": "File path: /app/backend/uploads/videos/d08730f1-5627-4451-a416-a1d2a44743e9.mp4",
-      "timestamp": "2025-12-06T01:01:27.877389"
-    },
-    {
-      "test": "Video URL Correctly Formatted",
-      "success": true,
-      "details": "URL: /api/uploads/videos/d08730f1-5627-4451-a416-a1d2a44743e9.mp4",
-      "timestamp": "2025-12-06T01:01:27.877408"
-    },
-    {
-      "test": "Retrieve Videos List",
-      "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"a3b4ec72-5ad3-4749-a41e-8b3948af5e07\",\n    \"section_id\": \"6a94f2a8-abdc-4776-8e1e-e6dcb9d1669d\",\n    \"language\": \"Test-Upload\",\n    \"video_url\": \"/api/uploads/videos/7758a23d-4f73-4f8...",
-      "timestamp": "2025-12-06T01:01:28.131300"
-    },
-    {
-      "test": "Uploaded Video in Response",
-      "success": true,
-      "details": "Video ID dccac4cf-be02-4cc3-98a9-071e94767ca5 found in list",
-      "timestamp": "2025-12-06T01:01:28.131934"
-    },
-    {
-      "test": "Video External Access",
-      "success": true,
-      "details": "External URL Status: 200, Content-Type: video/mp4, Size: 57",
-      "timestamp": "2025-12-06T01:01:28.305883"
-    },
-    {
-      "test": "File Size Matches",
-      "success": true,
-      "details": "Expected: 57, Got: 57",
-      "timestamp": "2025-12-06T01:01:28.305922"
-    },
-    {
-      "test": "Upload to Invalid Section",
-      "success": true,
-      "details": "Status: 404, Response: {\n  \"detail\": \"Section not found\"\n}...",
-      "timestamp": "2025-12-06T01:01:28.478181"
-    },
-    {
-      "test": "Upload Without Auth",
-      "success": true,
-      "details": "Status: 403, Response: {\n  \"detail\": \"Not authenticated\"\n}...",
-      "timestamp": "2025-12-06T01:01:28.607484"
+      "details": "Status: 500, Error: Internal Server Error",
+      "timestamp": "2025-12-06T20:24:59.584773"
     }
   ]
 }
