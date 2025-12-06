@@ -392,9 +392,13 @@
       border: 2px solid #0f0f0f;
     }
     .pivot-modality-btn svg {
-      width: 22px;
-      height: 22px;
+      width: 18px;
+      height: 18px;
       color: #00CED1;
+    }
+    .pivot-modality-btn img {
+      width: 18px;
+      height: 18px;
     }
     .pivot-language-btn {
       width: 100%;
