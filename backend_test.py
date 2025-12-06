@@ -702,14 +702,191 @@ class PIVOTAPITester:
         
         return self.tests_passed == self.tests_run
 
+    def run_comprehensive_video_upload_tests(self):
+        """Run comprehensive video upload flow testing as specified in review request"""
+        print("🎥 COMPREHENSIVE VIDEO UPLOAD FLOW TESTING")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Test Scenario 1: Authentication & Website Access
+        print("\n📋 Test Scenario 1: Authentication & Website Access")
+        print("-" * 50)
+        
+        # Login as dawnena@dozanu.com (password: pivot2024)
+        if not self.test_dawnena_user_login():
+            print("❌ Dawnena user login failed, trying demo user as fallback")
+            if not self.test_demo_user_login():
+                print("❌ Both login attempts failed, stopping tests")
+                return False
+        
+        # Verify JWT token is valid by getting current user
+        success, user_data = self.run_test("Verify JWT Token", "GET", "auth/me", 200)
+        if not success:
+            print("❌ JWT token validation failed")
+            return False
+        
+        # Check that Testing PIVOT Site website is accessible
+        success, websites = self.run_test("Check Website Access", "GET", "websites", 200)
+        if not success:
+            print("❌ Website access check failed")
+            return False
+        
+        print("✅ Authentication & Website Access: PASSED")
+
+        # Test Scenario 2: Video Upload Test
+        print("\n📋 Test Scenario 2: Video Upload Test")
+        print("-" * 50)
+        
+        # Get or create test data (website, page, section)
+        section_id = self._get_or_create_test_section()
+        if not section_id:
+            print("❌ Failed to get or create test section")
+            return False
+        
+        # Create a small test video file
+        import time
+        timestamp = int(time.time())
+        test_video_content = f"Test video content for comprehensive testing - {timestamp}".encode()
+        files = {'video': (f'comprehensive_test_{timestamp}.mp4', test_video_content, 'video/mp4')}
+        data = {'language': 'ASL'}
+        
+        # Upload video to section via POST /api/sections/{section_id}/videos
+        success, video_data = self.run_test("Upload Video to Section", "POST", f"sections/{section_id}/videos", 200, data, files)
+        if not success or 'video_url' not in video_data:
+            print("❌ Video upload failed")
+            return False
+        
+        video_id = video_data.get('id')
+        video_url = video_data.get('video_url')
+        file_path = video_data.get('file_path')
+        
+        # Verify video is stored in /app/backend/uploads/videos/
+        if file_path:
+            file_exists = Path(file_path).exists()
+            self.log_test("Video Stored in uploads/videos/", file_exists, f"File path: {file_path}")
+        else:
+            self.log_test("Video Stored in uploads/videos/", False, "No file_path returned")
+        
+        # Verify video_url is correctly formatted
+        url_correct = video_url and video_url.startswith('/api/uploads/videos/')
+        self.log_test("Video URL Correctly Formatted", url_correct, f"URL: {video_url}")
+        
+        print("✅ Video Upload Test: PASSED")
+
+        # Test Scenario 3: Video Retrieval Test
+        print("\n📋 Test Scenario 3: Video Retrieval Test")
+        print("-" * 50)
+        
+        # GET /api/sections/{section_id}/videos
+        success, videos_list = self.run_test("Retrieve Videos List", "GET", f"sections/{section_id}/videos", 200)
+        if not success:
+            print("❌ Video retrieval failed")
+            return False
+        
+        # Verify returns uploaded video in response
+        video_found = False
+        if videos_list:
+            for video in videos_list:
+                if video.get('id') == video_id:
+                    video_found = True
+                    break
+        
+        self.log_test("Uploaded Video in Response", video_found, f"Video ID {video_id} found in list")
+        
+        print("✅ Video Retrieval Test: PASSED")
+
+        # Test Scenario 4: Video Playback Test
+        print("\n📋 Test Scenario 4: Video Playback Test")
+        print("-" * 50)
+        
+        # Access video URL directly: GET /api/uploads/videos/{filename}
+        if video_url:
+            # Test external access (production URL)
+            external_url = f"https://testing.gopivot.me{video_url}"
+            try:
+                ext_response = requests.get(external_url, timeout=30)
+                external_success = ext_response.status_code == 200
+                content_type = ext_response.headers.get('content-type', '')
+                file_size = len(ext_response.content) if external_success else 0
+                
+                self.log_test("Video External Access", external_success, 
+                            f"External URL Status: {ext_response.status_code}, Content-Type: {content_type}, Size: {file_size}")
+                
+                # Verify file size matches uploaded file
+                if external_success:
+                    size_matches = file_size == len(test_video_content)
+                    self.log_test("File Size Matches", size_matches, f"Expected: {len(test_video_content)}, Got: {file_size}")
+                
+            except Exception as e:
+                self.log_test("Video External Access", False, f"Exception: {str(e)}")
+        
+        print("✅ Video Playback Test: PASSED")
+
+        # Test Scenario 5: Error Handling Test
+        print("\n📋 Test Scenario 5: Error Handling Test")
+        print("-" * 50)
+        
+        # Test upload with invalid section_id
+        invalid_section_id = "invalid-section-id-12345"
+        files_error = {'video': ('error_test.mp4', b'test content', 'video/mp4')}
+        data_error = {'language': 'English'}
+        
+        success, _ = self.run_test("Upload to Invalid Section", "POST", 
+                                 f"sections/{invalid_section_id}/videos", 404, data_error, files_error)
+        
+        # Test upload without authentication
+        old_token = self.token
+        self.token = None
+        success, _ = self.run_test("Upload Without Auth", "POST", 
+                                 f"sections/{section_id}/videos", 401, data_error, files_error)
+        self.token = old_token
+        
+        print("✅ Error Handling Test: PASSED")
+
+        return True
+
+    def _get_or_create_test_section(self):
+        """Helper method to get or create a test section for video upload"""
+        # Get existing websites
+        success, websites = self.run_test("Get Websites for Testing", "GET", "websites", 200)
+        if not success or not websites:
+            # Create test website
+            website_success, website_id = self.test_create_website()
+            if not website_success:
+                return None
+        else:
+            website_id = websites[0]['id']
+        
+        # Get existing pages
+        success, pages = self.run_test("Get Pages for Testing", "GET", f"websites/{website_id}/pages", 200)
+        if not success or not pages:
+            # Create test page
+            page_success, page_id = self.test_create_page(website_id)
+            if not page_success:
+                return None
+        else:
+            page_id = pages[0]['id']
+        
+        # Get existing sections
+        success, sections = self.run_test("Get Sections for Testing", "GET", f"pages/{page_id}/sections", 200)
+        if not success or not sections:
+            # Create test section
+            section_success, section_id = self.test_create_section(page_id)
+            if not section_success:
+                return None
+        else:
+            section_id = sections[0]['id']
+        
+        return section_id
+
 def main():
     # Use external URL for testing as specified in the environment
     backend_url = "https://testing.gopivot.me/api"
     tester = PIVOTAPITester(base_url=backend_url)
     
     try:
-        # Run the specific COMPLETE video upload flow with persistence check as requested
-        success = tester.test_video_persistence_flow()
+        # Run the comprehensive video upload flow testing as requested
+        success = tester.run_comprehensive_video_upload_tests()
         tester.print_summary()
         
         # Save detailed results
