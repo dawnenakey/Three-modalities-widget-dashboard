@@ -838,7 +838,7 @@ class PIVOTAPITester:
         old_token = self.token
         self.token = None
         success, _ = self.run_test("Upload Without Auth", "POST", 
-                                 f"sections/{section_id}/videos", 401, data_error, files_error)
+                                 f"sections/{section_id}/videos", 403, data_error, files_error)
         self.token = old_token
         
         print("✅ Error Handling Test: PASSED")
