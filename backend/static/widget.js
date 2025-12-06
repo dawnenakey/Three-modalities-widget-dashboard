@@ -619,8 +619,14 @@
   button.className = 'pivot-widget-button';
   button.setAttribute('aria-label', 'Open PIVOT accessibility options');
   
+  // Use CDN URL for static assets (fallback to local if CDN not configured)
+  const CDN_URL = 'YOUR_CDN_URL_HERE'; // Replace with your CDN URL
+  const imageUrl = CDN_URL !== 'YOUR_CDN_URL_HERE' 
+    ? `${CDN_URL}/newpivotpill.png` 
+    : `${CONFIG.apiBaseUrl}/static/images/newpivotpill.png`;
+  
   button.innerHTML = `
-    <img src="${CONFIG.apiBaseUrl}/static/images/newpivotpill.png?v=2" alt="PIVOT Language Translation" />
+    <img src="${imageUrl}?v=3" alt="PIVOT Language Translation" />
   `;
   button.onclick = openWidget;
 
