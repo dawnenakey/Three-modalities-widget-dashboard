@@ -6,9 +6,77 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText } from 'lucide-react';
+import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2 } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+// VideoPlayer Component with Loading State
+function VideoPlayer({ video }) {
+  const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
+  const [retryCount, setRetryCount] = useState(0);
+
+  const handleLoadStart = () => {
+    setLoadingState('loading');
+  };
+
+  const handleCanPlay = () => {
+    setLoadingState('loaded');
+  };
+
+  const handleError = (e) => {
+    // Retry up to 2 times before showing error
+    if (retryCount < 2) {
+      setTimeout(() => {
+        setRetryCount(retryCount + 1);
+        e.target.load(); // Reload the video
+      }, 1000);
+    } else {
+      setLoadingState('error');
+    }
+  };
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-3">
+      <p className="text-sm font-medium text-gray-900 mb-2">{video.language}</p>
+      
+      {loadingState === 'loading' && (
+        <div className="bg-blue-50 border border-blue-200 rounded p-6 text-center">
+          <Loader2 className="h-8 w-8 text-blue-600 animate-spin mx-auto mb-2" />
+          <p className="text-sm text-blue-600 font-medium">Loading video...</p>
+          <p className="text-xs text-blue-500 mt-1">Please wait while the video loads</p>
+        </div>
+      )}
+      
+      {loadingState === 'error' && (
+        <div className="bg-red-50 border border-red-200 rounded p-4 text-center">
+          <p className="text-sm text-red-600">⚠️ Unable to load video</p>
+          <p className="text-xs text-red-500 mt-1">The video file may be corrupted or moved</p>
+          <Button
+            onClick={() => {
+              setRetryCount(0);
+              setLoadingState('loading');
+            }}
+            size="sm"
+            className="mt-3"
+            variant="outline"
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+      
+      <video
+        src={`${process.env.REACT_APP_BACKEND_URL}${video.video_url}?t=${Date.now()}`}
+        controls
+        preload="metadata"
+        className={`w-full rounded ${loadingState !== 'loaded' ? 'hidden' : ''}`}
+        onLoadStart={handleLoadStart}
+        onCanPlay={handleCanPlay}
+        onError={handleError}
+      />
+    </div>
+  );
+}
 
 const ASL_LANGUAGES = ['ASL (American Sign Language)', 'LSM (Mexican)', 'BSL (British)', 'LSF (French)', 'Auslan (Australian)', 'JSL (Japanese)', 'KSL (Korean)', 'LIBRAS (Brazilian)'];
 const AUDIO_LANGUAGES = ['English', 'Spanish', 'French', 'Chinese', 'Arabic', 'Hindi', 'Portuguese', 'Russian', 'Japanese', 'Korean'];
