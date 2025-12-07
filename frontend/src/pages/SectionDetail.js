@@ -114,11 +114,13 @@ export default function SectionDetail() {
   const [section, setSection] = useState(null);
   const [videos, setVideos] = useState([]);
   const [audios, setAudios] = useState([]);
+  const [translations, setTranslations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [editedText, setEditedText] = useState('');
+  const [newTranslation, setNewTranslation] = useState({ language: '', language_code: '', text: '' });
 
   useEffect(() => {
     fetchData();
