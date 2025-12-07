@@ -56,6 +56,9 @@ class R2Client:
         
         try:
             # Generate presigned POST URL (more secure than PUT)
+            # Allow up to 500MB per file (plenty for videos)
+            max_file_size = 500 * 1024 * 1024  # 500MB in bytes
+            
             presigned_post = self.client.generate_presigned_post(
                 Bucket=self.bucket_name,
                 Key=file_key,
@@ -64,7 +67,7 @@ class R2Client:
                 },
                 Conditions=[
                     {'Content-Type': content_type},
-                    ['content-length-range', 0, 5368709120]  # Max 5GB
+                    ['content-length-range', 0, max_file_size]  # Max 500MB
                 ],
                 ExpiresIn=expires_in
             )
