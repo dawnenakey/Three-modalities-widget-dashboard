@@ -665,6 +665,14 @@ async def get_video_upload_url(
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied")
     
+    # Validate file size (500MB max)
+    MAX_FILE_SIZE = 500 * 1024 * 1024  # 500MB
+    if request.file_size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=413, 
+            detail=f"File too large. Maximum size is 500MB. Your file is {request.file_size / 1024 / 1024:.1f}MB"
+        )
+    
     # Generate unique file key
     file_id = str(uuid.uuid4())
     file_ext = request.filename.split('.')[-1] if '.' in request.filename else 'mp4'
