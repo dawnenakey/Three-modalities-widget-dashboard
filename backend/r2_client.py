@@ -39,26 +39,38 @@ class R2Client:
             region_name='auto'
         )
     
-    def generate_presigned_upload_url(self, file_key: str, content_type: str = 'video/mp4', expires_in: int = 3600):
+    def generate_presigned_upload_url(
+        self,
+        file_key: str,
+        content_type: str = 'video/mp4',
+        expires_in: int = 3600
+    ) -> Optional[Dict]:
         """
-        Generate a presigned URL for uploading files directly to R2
+        Generate a presigned POST URL for uploading to R2
         
         Args:
-            file_key: The key/path where file will be stored (e.g., 'videos/uuid.mp4')
-            content_type: MIME type of the file
-            expires_in: URL expiration time in seconds (default 1 hour)
+            file_key: The S3 key where the file will be stored
+            content_type: MIME type of the file (e.g., video/mp4, video/quicktime)
+            expires_in: URL expiration time in seconds
         
         Returns:
-            dict: Contains 'upload_url' and 'public_url'
+            Dictionary with 'upload_url', 'fields', 'public_url', and 'file_key'
         """
         if not self.client:
-            raise ValueError("R2 client not configured")
+            logger.error("R2 client not initialized - cannot generate presigned URL")
+            return None
+        
+        # Log which bucket we're using for debugging
+        logger.info(f"Generating presigned URL for bucket: {self.bucket_name}, key: {file_key}")
         
         try:
-            # Generate presigned POST URL (more secure than PUT)
-            # Allow up to 500MB per file (plenty for videos)
+            # Allow up to 500MB per file
             max_file_size = 500 * 1024 * 1024  # 500MB in bytes
             
+            # Extract main type (e.g., "video" from "video/quicktime")
+            main_type = content_type.split('/')[0] if '/' in content_type else 'video'
+            
+            # Use loosened Content-Type condition to accept any video/* or audio/* format
             presigned_post = self.client.generate_presigned_post(
                 Bucket=self.bucket_name,
                 Key=file_key,
@@ -66,14 +78,18 @@ class R2Client:
                     'Content-Type': content_type
                 },
                 Conditions=[
-                    {'Content-Type': content_type},
+                    # Loosened: Accept any subtype (e.g., video/mp4, video/quicktime, video/webm)
+                    ["starts-with", "$Content-Type", f"{main_type}/"],
                     ['content-length-range', 0, max_file_size]  # Max 500MB
                 ],
                 ExpiresIn=expires_in
             )
             
-            # Construct public URL
-            public_url = f"{self.public_url}/{file_key}"
+            # Construct public URL with fallback
+            public_url_base = self.public_url or f"https://pub-{self.account_id}.r2.dev"
+            public_url = f"{public_url_base}/{file_key}"
+            
+            logger.info(f"Generated presigned URL successfully. Public URL: {public_url}")
             
             return {
                 'upload_url': presigned_post['url'],
@@ -82,9 +98,9 @@ class R2Client:
                 'file_key': file_key
             }
             
-        except ClientError as e:
-            logger.error(f"Error generating presigned URL: {e}")
-            raise
+        except Exception as e:
+            logger.error(f"Failed to generate presigned URL: {str(e)}")
+            return None
     
     def generate_presigned_download_url(self, file_key: str, expires_in: int = 3600):
         """
