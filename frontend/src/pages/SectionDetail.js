@@ -669,6 +669,95 @@ export default function SectionDetail() {
           </div>
         </div>
 
+
+        {/* Caption Settings (Text Translations) */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mt-8">
+          <div className="flex items-center gap-2 mb-6">
+            <FileText className="h-5 w-5 text-[#00CED1]" />
+            <h2 className="text-lg font-semibold text-gray-900">Caption Settings</h2>
+          </div>
+
+          {/* Add New Translation Form */}
+          <form onSubmit={handleAddTranslation} className="space-y-4 mb-6 p-4 bg-gray-50 rounded-lg">
+            <p className="text-sm font-medium text-gray-700">Add Text Translation</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Language
+                </label>
+                <input
+                  type="text"
+                  value={newTranslation.language}
+                  onChange={(e) => setNewTranslation({...newTranslation, language: e.target.value})}
+                  placeholder="e.g., Spanish, Chinese"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Language Code
+                </label>
+                <input
+                  type="text"
+                  value={newTranslation.language_code}
+                  onChange={(e) => setNewTranslation({...newTranslation, language_code: e.target.value.toUpperCase()})}
+                  placeholder="e.g., ES, ZH"
+                  maxLength={2}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Translated Text
+              </label>
+              <textarea
+                value={newTranslation.text}
+                onChange={(e) => setNewTranslation({...newTranslation, text: e.target.value})}
+                placeholder="Enter the translated text..."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+              />
+            </div>
+            <Button
+              type="submit"
+              className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
+            >
+              Add Translation
+            </Button>
+          </form>
+
+          {/* Existing Translations List */}
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-gray-600">Text Translations ({translations.length})</p>
+            {translations.length === 0 ? (
+              <p className="text-sm text-gray-500 py-4 text-center">No text translations yet. The original English text will be used.</p>
+            ) : (
+              <div className="space-y-3">
+                {translations.map((translation) => (
+                  <div key={translation.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-gray-900">{translation.language}</span>
+                        <span className="text-xs px-2 py-1 bg-gray-100 rounded">{translation.language_code}</span>
+                      </div>
+                      <Button
+                        onClick={() => handleDeleteTranslation(translation.id)}
+                        size="sm"
+                        variant="destructive"
+                        className="h-7 px-2 text-xs"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">{translation.text_content}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Section Analytics Placeholder */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mt-8">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Section Analytics</h2>
