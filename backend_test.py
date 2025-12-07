@@ -881,6 +881,255 @@ class PIVOTAPITester:
         
         return section_id
 
+    def test_white_page_after_video_upload_debug(self):
+        """Debug the white page issue after video upload on PDF page for katherine+admin@dozanu.com"""
+        print("🔍 WHITE PAGE AFTER VIDEO UPLOAD DEBUG TEST")
+        print("Testing the specific issue: User uploaded video on testing.gopivot.me/pdf page and got white page")
+        print("This suggests video upload succeeded but subsequent data fetching failed")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login with katherine+admin@dozanu.com / pivot2025
+        print("\n🔐 Step 1: Login with katherine+admin@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "katherine+admin@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Katherine login failed, trying fallback users")
+            # Try dawnena as fallback
+            login_data = {
+                "email": "dawnena@dozanu.com", 
+                "password": "pivot2025"
+            }
+            success, response = self.run_test("Login with dawnena@dozanu.com (fallback)", "POST", "auth/login", 200, login_data)
+            if not success:
+                # Try demo user as last resort
+                if not self.test_demo_user_login():
+                    print("❌ All login attempts failed, stopping tests")
+                    return False
+        
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Get all websites for this user
+        print("\n🌐 Step 2: Get all websites for this user")
+        print("-" * 50)
+        
+        success, websites = self.run_test("Get All Websites", "GET", "websites", 200)
+        if not success or not websites:
+            print("❌ No websites found for user")
+            return False
+        
+        print(f"✅ Found {len(websites)} websites")
+        for i, website in enumerate(websites):
+            print(f"   Website {i+1}: {website.get('name', 'Unknown')} - URL: {website.get('url', 'Unknown')} (ID: {website.get('id', 'Unknown')})")
+
+        # Step 3: Find the website with URL containing "testing.gopivot.me/pdf"
+        print("\n🔍 Step 3: Find website with URL containing 'testing.gopivot.me/pdf'")
+        print("-" * 50)
+        
+        target_website = None
+        for website in websites:
+            website_url = website.get('url', '')
+            if 'testing.gopivot.me' in website_url or 'pdf' in website_url.lower():
+                target_website = website
+                print(f"✅ Found target website: {website.get('name', 'Unknown')} - {website_url}")
+                break
+        
+        if not target_website:
+            print("❌ No website found with URL containing 'testing.gopivot.me/pdf'")
+            print("Available websites:")
+            for website in websites:
+                print(f"   - {website.get('name', 'Unknown')}: {website.get('url', 'Unknown')}")
+            # Use first website as fallback for testing
+            target_website = websites[0]
+            print(f"Using first website as fallback: {target_website.get('name', 'Unknown')}")
+
+        website_id = target_website.get('id')
+
+        # Step 4: Get all pages for that website
+        print("\n📄 Step 4: Get all pages for the target website")
+        print("-" * 50)
+        
+        success, pages = self.run_test("Get All Pages for Website", "GET", f"websites/{website_id}/pages", 200)
+        if not success or not pages:
+            print("❌ No pages found for website")
+            return False
+        
+        print(f"✅ Found {len(pages)} pages")
+        for i, page in enumerate(pages):
+            print(f"   Page {i+1}: {page.get('url', 'Unknown')} (ID: {page.get('id', 'Unknown')}, Status: {page.get('status', 'Unknown')})")
+
+        # Step 5: Find the page with URL "testing.gopivot.me/pdf"
+        print("\n🔍 Step 5: Find page with URL 'testing.gopivot.me/pdf'")
+        print("-" * 50)
+        
+        target_page = None
+        for page in pages:
+            page_url = page.get('url', '')
+            if 'testing.gopivot.me/pdf' in page_url or page_url.endswith('/pdf'):
+                target_page = page
+                print(f"✅ Found target page: {page_url}")
+                break
+        
+        if not target_page:
+            print("❌ No page found with URL 'testing.gopivot.me/pdf'")
+            print("Available pages:")
+            for page in pages:
+                print(f"   - {page.get('url', 'Unknown')}")
+            # Use first page as fallback for testing
+            target_page = pages[0]
+            print(f"Using first page as fallback: {target_page.get('url', 'Unknown')}")
+
+        page_id = target_page.get('id')
+
+        # Step 6: Get all sections for that page
+        print("\n📝 Step 6: Get all sections for the target page")
+        print("-" * 50)
+        
+        success, sections = self.run_test("Get All Sections for Page", "GET", f"pages/{page_id}/sections", 200)
+        if not success:
+            print("❌ Failed to get sections for page - THIS COULD BE THE WHITE PAGE ISSUE!")
+            return False
+        
+        if not sections:
+            print("❌ No sections found for page")
+            return False
+        
+        print(f"✅ Found {len(sections)} sections")
+        for i, section in enumerate(sections):
+            section_text = section.get('selected_text', section.get('text_content', 'No text'))[:50]
+            print(f"   Section {i+1}: {section_text}... (ID: {section.get('id', 'Unknown')}, Status: {section.get('status', 'Unknown')})")
+
+        # Step 7: For each section, test the critical endpoints that could cause white page
+        print("\n🎯 Step 7: Test critical endpoints for each section (WHITE PAGE DIAGNOSIS)")
+        print("-" * 50)
+        
+        failed_endpoints = []
+        
+        for i, section in enumerate(sections):
+            section_id = section.get('id')
+            section_text = section.get('selected_text', section.get('text_content', 'No text'))[:30]
+            
+            print(f"\n   Testing Section {i+1}: {section_text}... (ID: {section_id})")
+            
+            # Test 1: GET /api/sections/{section_id} - Check if it returns 200
+            success, section_data = self.run_test(f"GET Section {i+1} Details", "GET", f"sections/{section_id}", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id} - Section details failed")
+            
+            # Test 2: GET /api/sections/{section_id}/videos - Check if it returns 200
+            success, videos_data = self.run_test(f"GET Section {i+1} Videos", "GET", f"sections/{section_id}/videos", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id}/videos - Videos endpoint failed")
+            else:
+                video_count = len(videos_data) if videos_data else 0
+                print(f"     → Found {video_count} videos")
+                
+                # If videos exist, verify the video URLs are accessible
+                if videos_data:
+                    for j, video in enumerate(videos_data):
+                        video_url = video.get('video_url')
+                        if video_url:
+                            if not video_url.startswith('http'):
+                                external_video_url = f"https://testing.gopivot.me{video_url}"
+                            else:
+                                external_video_url = video_url
+                            
+                            try:
+                                video_response = requests.get(external_video_url, timeout=10)
+                                video_accessible = video_response.status_code == 200
+                                if not video_accessible:
+                                    failed_endpoints.append(f"Video URL not accessible: {external_video_url} (Status: {video_response.status_code})")
+                                    print(f"     → Video {j+1} NOT accessible: {video_response.status_code}")
+                                else:
+                                    print(f"     → Video {j+1} accessible: 200 OK")
+                            except Exception as e:
+                                failed_endpoints.append(f"Video URL error: {external_video_url} - {str(e)}")
+                                print(f"     → Video {j+1} error: {str(e)}")
+            
+            # Test 3: GET /api/sections/{section_id}/audio - Check if it returns 200 (note: singular "audio" not "audios")
+            success, audio_data = self.run_test(f"GET Section {i+1} Audio", "GET", f"sections/{section_id}/audio", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id}/audio - Audio endpoint failed")
+            else:
+                audio_count = len(audio_data) if audio_data else 0
+                print(f"     → Found {audio_count} audio files")
+                
+                # If audio exists, verify the audio URLs are accessible
+                if audio_data:
+                    for j, audio in enumerate(audio_data):
+                        audio_url = audio.get('audio_url')
+                        if audio_url:
+                            if not audio_url.startswith('http'):
+                                external_audio_url = f"https://testing.gopivot.me{audio_url}"
+                            else:
+                                external_audio_url = audio_url
+                            
+                            try:
+                                audio_response = requests.get(external_audio_url, timeout=10)
+                                audio_accessible = audio_response.status_code == 200
+                                if not audio_accessible:
+                                    failed_endpoints.append(f"Audio URL not accessible: {external_audio_url} (Status: {audio_response.status_code})")
+                                    print(f"     → Audio {j+1} NOT accessible: {audio_response.status_code}")
+                                else:
+                                    print(f"     → Audio {j+1} accessible: 200 OK")
+                            except Exception as e:
+                                failed_endpoints.append(f"Audio URL error: {external_audio_url} - {str(e)}")
+                                print(f"     → Audio {j+1} error: {str(e)}")
+
+        # Step 8: Analysis and Diagnosis
+        print("\n🔍 Step 8: WHITE PAGE ISSUE DIAGNOSIS")
+        print("-" * 50)
+        
+        print(f"\n📊 SUMMARY:")
+        print(f"• Target website: {target_website.get('name', 'Unknown')} ({target_website.get('url', 'Unknown')})")
+        print(f"• Target page: {target_page.get('url', 'Unknown')}")
+        print(f"• Sections found: {len(sections)}")
+        print(f"• Failed endpoints: {len(failed_endpoints)}")
+        
+        if failed_endpoints:
+            print(f"\n❌ CRITICAL ISSUES FOUND (LIKELY CAUSE OF WHITE PAGE):")
+            for i, error in enumerate(failed_endpoints, 1):
+                print(f"   {i}. {error}")
+            
+            print(f"\n🚨 ROOT CAUSE ANALYSIS:")
+            if any("Section details failed" in error for error in failed_endpoints):
+                print("   → Section endpoint returning errors - fetchData() fails when getting section details")
+            if any("Videos endpoint failed" in error for error in failed_endpoints):
+                print("   → Videos endpoint returning errors - fetchData() fails when getting videos")
+            if any("Audio endpoint failed" in error for error in failed_endpoints):
+                print("   → Audio endpoint returning errors - fetchData() fails when getting audio")
+            if any("not accessible" in error for error in failed_endpoints):
+                print("   → Media files not accessible - frontend shows white page when media URLs fail")
+            
+            print(f"\n💡 RECOMMENDED FIXES:")
+            print("   1. Check backend logs for API endpoint errors")
+            print("   2. Verify database connectivity and data integrity")
+            print("   3. Check file storage and URL generation")
+            print("   4. Add proper error handling in frontend fetchData() function")
+            
+        else:
+            print(f"\n✅ NO CRITICAL ISSUES FOUND")
+            print("   → All section endpoints return 200 OK")
+            print("   → All video endpoints return 200 OK") 
+            print("   → All audio endpoints return 200 OK")
+            print("   → All media URLs are accessible")
+            print("\n💡 WHITE PAGE ISSUE MIGHT BE:")
+            print("   1. Frontend JavaScript error in fetchData() function")
+            print("   2. CORS or network connectivity issue")
+            print("   3. Frontend state management problem")
+            print("   4. Browser-specific issue or caching problem")
+
+        return len(failed_endpoints) == 0
+
     def test_widget_content_debug(self):
         """Debug widget content API to identify why it's showing 'no content'"""
         print("🔍 WIDGET CONTENT API DEBUG TEST")
