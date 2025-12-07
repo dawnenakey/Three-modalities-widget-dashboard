@@ -541,23 +541,35 @@ export default function SectionDetail() {
               {audios.length === 0 ? (
                 <p className="text-sm text-gray-500 py-4 text-center">No audio files yet</p>
               ) : (
-                audios.map((audio) => (
-                  <div key={audio.id} className="border border-gray-200 rounded-lg p-3">
-                    <p className="text-sm font-medium text-gray-900 mb-2">{audio.language}</p>
-                    <audio
-                      src={`${process.env.REACT_APP_BACKEND_URL}${audio.audio_url}`}
-                      controls
-                      className="w-full"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        const errorDiv = document.createElement('div');
-                        errorDiv.className = 'bg-red-50 border border-red-200 rounded p-4 text-center';
-                        errorDiv.innerHTML = `<p class="text-sm text-red-600">⚠️ Audio file not found</p><p class="text-xs text-red-500 mt-1">This audio file may have been deleted or moved</p>`;
-                        e.target.parentNode.appendChild(errorDiv);
-                      }}
-                    />
-                  </div>
-                ))
+                <div className="space-y-3">
+                  {audios.map((audio) => (
+                    <div key={audio.id} className="border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium text-gray-900">{audio.language}</p>
+                        <Button
+                          onClick={() => handleDeleteAudio(audio.id)}
+                          size="sm"
+                          variant="destructive"
+                          className="h-7 px-2 text-xs"
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                      <audio
+                        src={`${process.env.REACT_APP_BACKEND_URL}${audio.audio_url}`}
+                        controls
+                        className="w-full"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const errorDiv = document.createElement('div');
+                          errorDiv.className = 'bg-red-50 border border-red-200 rounded p-4 text-center';
+                          errorDiv.innerHTML = `<p class="text-sm text-red-600">⚠️ Audio file not found</p><p class="text-xs text-red-500 mt-1">This audio file may have been deleted or moved</p>`;
+                          e.target.parentNode.appendChild(errorDiv);
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
