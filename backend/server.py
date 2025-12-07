@@ -825,8 +825,7 @@ async def delete_video(video_id: str, current_user: dict = Depends(get_current_u
 @api_router.post("/sections/{section_id}/audio/upload-url")
 async def get_audio_upload_url(
     section_id: str,
-    filename: str,
-    content_type: str = "audio/mpeg",
+    request: UploadUrlRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """Generate presigned URL for direct audio upload to R2"""
