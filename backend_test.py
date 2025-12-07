@@ -2201,10 +2201,10 @@ def main():
     tester = PIVOTAPITester(base_url=backend_url)
     
     try:
-        # Run the specific white screen investigation test as requested in the review
-        print("🎯 RUNNING WHITE SCREEN AFTER VIDEO UPLOAD INVESTIGATION")
+        # Run the specific R2 video upload flow test as requested in the review
+        print("🎯 RUNNING R2 VIDEO UPLOAD FLOW TEST AFTER FIXING R2 CREDENTIALS")
         print("=" * 80)
-        success = tester.test_white_screen_video_upload_investigation()
+        success = tester.test_r2_video_upload_flow()
         tester.print_summary()
         
         # Save detailed results
