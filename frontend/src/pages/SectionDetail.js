@@ -216,7 +216,7 @@ export default function SectionDetail() {
         }
       });
       
-      // Step 4: Confirm upload with backend
+      // Step 3: Confirm upload with backend
       await axios.post(`${API}/sections/${sectionId}/video/confirm`, {
         file_key: uploadData.file_key,
         public_url: uploadData.public_url,
