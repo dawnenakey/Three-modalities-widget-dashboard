@@ -3448,8 +3448,10 @@ if __name__ == "__main__":
             success = tester.test_white_screen_video_upload_investigation()
         elif test_type == "fetchdata":
             success = tester.test_fetchdata_endpoints_after_video_upload()
+        elif test_type == "bucket":
+            success = tester.test_r2_bucket_name_verification()
         else:
-            print("Available test types: video, comprehensive, persistence, white-page, r2, widget, scraping, deployment, white-screen")
+            print("Available test types: video, comprehensive, persistence, white-page, r2, widget, scraping, deployment, white-screen, bucket")
             success = tester.run_all_tests()
     else:
         success = tester.run_all_tests()
