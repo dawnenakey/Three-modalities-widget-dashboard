@@ -1167,52 +1167,60 @@
     
     const mainContent = document.getElementById('pivot-main-content');
     
-    let html = `
-      <div style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;">
-        <h3 style="color: white; margin: 0 0 10px 0; font-size: 16px;">Available Language Selections</h3>
-        
+    let languageSections = '';
+    
+    // Only show language selectors for enabled modalities
+    if (enabledModalities.video) {
+      const videoLangFlag = SIGN_LANGUAGES.find(l => l.code === selectedLanguages.video)?.flag || '🇺🇸';
+      languageSections += `
         <div class="pivot-lang-section" style="margin-bottom: 10px; padding: 12px; background: #1a1a1a; border-radius: 8px;">
-          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Video:</h4>
-          <div class="pivot-lang-selector" style="gap: 10px;">
-            <span class="pivot-lang-flag">🇺🇸</span>
-            <select class="pivot-lang-dropdown">
-              <option>American Sign Language (ASL)</option>
-              <option>British Sign Language (BSL)</option>
-              <option>French Sign Language (LSF)</option>
-              <option>Australian Sign Language (Auslan)</option>
+          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">ASL Video:</h4>
+          <div class="pivot-lang-selector" style="gap: 10px; display: flex; align-items: center;">
+            <span class="pivot-lang-flag" style="font-size: 24px;">${videoLangFlag}</span>
+            <select class="pivot-lang-dropdown" id="video-lang-select" onchange="window.PIVOTWidget.updateLanguage('video', this.value)" style="flex: 1; padding: 8px; background: #0f0f0f; color: white; border: 1px solid #333; border-radius: 6px; font-size: 13px;">
+              ${SIGN_LANGUAGES.map(lang => `<option value="${lang.code}" ${selectedLanguages.video === lang.code ? 'selected' : ''}>${lang.name}</option>`).join('')}
             </select>
           </div>
         </div>
-
+      `;
+    }
+    
+    if (enabledModalities.text) {
+      const textLangFlag = SPOKEN_LANGUAGES.find(l => l.code === selectedLanguages.text)?.flag || '🇺🇸';
+      languageSections += `
         <div class="pivot-lang-section" style="margin-bottom: 10px; padding: 12px; background: #1a1a1a; border-radius: 8px;">
-          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Text:</h4>
-          <div class="pivot-lang-selector" style="gap: 10px;">
-            <span class="pivot-lang-flag">🇪🇸</span>
-            <select class="pivot-lang-dropdown">
-              <option>English</option>
-              <option selected>Español (Spanish)</option>
-              <option>Français (French)</option>
-              <option>Deutsch (German)</option>
-              <option>中文 (Chinese)</option>
+          <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Text Caption:</h4>
+          <div class="pivot-lang-selector" style="gap: 10px; display: flex; align-items: center;">
+            <span class="pivot-lang-flag" style="font-size: 24px;">${textLangFlag}</span>
+            <select class="pivot-lang-dropdown" id="text-lang-select" onchange="window.PIVOTWidget.updateLanguage('text', this.value)" style="flex: 1; padding: 8px; background: #0f0f0f; color: white; border: 1px solid #333; border-radius: 6px; font-size: 13px;">
+              ${SPOKEN_LANGUAGES.map(lang => `<option value="${lang.code}" ${selectedLanguages.text === lang.code ? 'selected' : ''}>${lang.name}</option>`).join('')}
             </select>
           </div>
         </div>
-
+      `;
+    }
+    
+    if (enabledModalities.audio) {
+      const audioLangFlag = SPOKEN_LANGUAGES.find(l => l.code === selectedLanguages.audio)?.flag || '🇺🇸';
+      languageSections += `
         <div class="pivot-lang-section" style="margin-bottom: 10px; padding: 12px; background: #1a1a1a; border-radius: 8px;">
           <h4 style="color: white; font-size: 14px; margin-bottom: 10px;">Audio:</h4>
-          <div class="pivot-lang-selector" style="gap: 10px;">
-            <span class="pivot-lang-flag">🇺🇸</span>
-            <select class="pivot-lang-dropdown">
-              <option selected>AI English (English)</option>
-              <option>AI Spanish (Spanish)</option>
-              <option>AI French (French)</option>
-              <option>AI German (German)</option>
-              <option>AI Chinese (Chinese)</option>
+          <div class="pivot-lang-selector" style="gap: 10px; display: flex; align-items: center;">
+            <span class="pivot-lang-flag" style="font-size: 24px;">${audioLangFlag}</span>
+            <select class="pivot-lang-dropdown" id="audio-lang-select" onchange="window.PIVOTWidget.updateLanguage('audio', this.value)" style="flex: 1; padding: 8px; background: #0f0f0f; color: white; border: 1px solid #333; border-radius: 6px; font-size: 13px;">
+              ${SPOKEN_LANGUAGES.map(lang => `<option value="${lang.code}" ${selectedLanguages.audio === lang.code ? 'selected' : ''}>${lang.name}</option>`).join('')}
             </select>
           </div>
         </div>
-
-        <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
+      `;
+    }
+    
+    let html = `
+      <div style="padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; height: 100%;">
+        <h3 style="color: white; margin: 0 0 10px 0; font-size: 16px;">Available Language Selections</h3>
+        ${languageSections}
+        
+        <div style="margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); text-align: center;">
           <p style="color: #999; font-size: 12px; margin-bottom: 10px;">Email <strong style="color: #00CED1;">support@gopivot.me</strong> for feedback and/or support.</p>
           <p style="color: #999; font-size: 11px; margin: 0;">Powered by <strong>dozanu innovations</strong></p>
         </div>
