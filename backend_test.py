@@ -1905,10 +1905,10 @@ def main():
     tester = PIVOTAPITester(base_url=backend_url)
     
     try:
-        # Run the specific white page debug test as requested in the review
-        print("🎯 RUNNING WHITE PAGE AFTER VIDEO UPLOAD DEBUG TEST")
+        # Run the specific white screen investigation test as requested in the review
+        print("🎯 RUNNING WHITE SCREEN AFTER VIDEO UPLOAD INVESTIGATION")
         print("=" * 80)
-        success = tester.test_white_page_after_video_upload_debug()
+        success = tester.test_white_screen_video_upload_investigation()
         tester.print_summary()
         
         # Save detailed results
