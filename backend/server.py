@@ -710,7 +710,84 @@ async def get_videos(section_id: str, current_user: dict = Depends(get_current_u
     videos = await db.videos.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return videos
 
-# Audio routes
+# Audio routes - R2 Direct Upload (NEW - RECOMMENDED)
+@api_router.post("/sections/{section_id}/audio/upload-url")
+async def get_audio_upload_url(
+    section_id: str,
+    filename: str,
+    content_type: str = "audio/mpeg",
+    current_user: dict = Depends(get_current_user)
+):
+    """Generate presigned URL for direct audio upload to R2"""
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    file_id = str(uuid.uuid4())
+    file_ext = filename.split('.')[-1] if '.' in filename else 'mp3'
+    file_key = f"audios/{file_id}.{file_ext}"
+    
+    try:
+        upload_data = r2_client.generate_presigned_upload_url(
+            file_key=file_key,
+            content_type=content_type,
+            expires_in=3600
+        )
+        
+        return {
+            "upload_url": upload_data['upload_url'],
+            "fields": upload_data['fields'],
+            "public_url": upload_data['public_url'],
+            "file_id": file_id,
+            "file_key": file_key
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate upload URL: {str(e)}")
+
+
+@api_router.post("/sections/{section_id}/audio/confirm", response_model=Audio)
+async def confirm_audio_upload(
+    section_id: str,
+    file_key: str,
+    public_url: str,
+    language: str = "English",
+    current_user: dict = Depends(get_current_user)
+):
+    """Confirm audio upload and save to database"""
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    audio_obj = Audio(
+        section_id=section_id,
+        language=language,
+        audio_url=public_url,
+        file_path=file_key
+    )
+    audio_dict = audio_obj.model_dump()
+    audio_dict['created_at'] = audio_dict['created_at'].isoformat()
+    
+    await db.audios.insert_one(audio_dict)
+    await db.sections.update_one({"id": section_id}, {"$inc": {"audios_count": 1}})
+    
+    return audio_obj
+
+
+# Audio routes - Legacy Backend Upload (KEPT FOR COMPATIBILITY)
 @api_router.post("/sections/{section_id}/audio", response_model=Audio)
 async def upload_audio(
     section_id: str,
