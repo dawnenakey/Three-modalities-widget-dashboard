@@ -504,12 +504,41 @@ async def get_page(page_id: str, current_user: dict = Depends(get_current_user))
 
 @api_router.delete("/pages/{page_id}")
 async def delete_page(page_id: str, current_user: dict = Depends(get_current_user)):
-    result = await db.pages.delete_one({"id": page_id})
-    if result.deleted_count == 0:
+    """Delete a page and all its associated content (sections, videos, audio, translations)"""
+    # Find the page
+    page = await db.pages.find_one({"id": page_id}, {"_id": 0})
+    if not page:
         raise HTTPException(status_code=404, detail="Page not found")
-    # Also delete associated sections
-    await db.sections.delete_many({"page_id": page_id})
-    return {"message": "Page deleted"}
+    
+    # Security: Verify page belongs to current user
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Get all sections for this page
+    sections = await db.sections.find({"page_id": page_id}, {"_id": 0}).to_list(1000)
+    section_ids = [section['id'] for section in sections]
+    
+    if section_ids:
+        # Delete all videos for these sections
+        await db.videos.delete_many({"section_id": {"$in": section_ids}})
+        # Delete all audio for these sections
+        await db.audios.delete_many({"section_id": {"$in": section_ids}})
+        # Delete all translations for these sections
+        await db.text_translations.delete_many({"section_id": {"$in": section_ids}})
+        # Delete all sections
+        await db.sections.delete_many({"page_id": page_id})
+    
+    # Delete the page itself
+    await db.pages.delete_one({"id": page_id})
+    
+    # Update website page count
+    page_count = await db.pages.count_documents({"website_id": page['website_id']})
+    await db.websites.update_one(
+        {"id": page['website_id']},
+        {"$set": {"pages_count": page_count}}
+    )
+    
+    return {"message": "Page and all associated content deleted successfully"}
 
 # Section routes
 @api_router.get("/pages/{page_id}/sections", response_model=List[Section])
