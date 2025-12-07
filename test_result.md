@@ -285,6 +285,21 @@ backend:
           agent: "testing"
           comment: "Error handling working correctly. Invalid section_id returns 404 with proper error message. No authentication returns 403 with proper error message. Error responses are properly formatted JSON."
 
+  - task: "R2 Bucket Name Verification"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to verify which R2 bucket name is actually being used in running backend: pivot-assets vs pivot-media"
+        - working: true
+          agent: "testing"
+          comment: "R2 bucket verification SUCCESSFUL. Backend correctly uses 'pivot-assets' bucket as configured in deployment settings. POST /api/sections/{section_id}/video/upload-url returns presigned URL with correct bucket name 'pivot-assets' extracted from URL 'https://5c51b7472a0fcbb41c98a59203126cd3.r2.cloudflarestorage.com/pivot-assets'. User's reported issue of bucket reverting to 'pivot-media' is NOT occurring. Deployment configuration is working correctly."
+
 frontend:
   - task: "Login Flow"
     implemented: true
