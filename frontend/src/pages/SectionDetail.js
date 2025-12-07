@@ -10,11 +10,12 @@ import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2 } from '
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-// VideoPlayer Component with Loading State
-function VideoPlayer({ video }) {
+// VideoPlayer Component with Loading State and Delete Button
+function VideoPlayer({ video, onDelete }) {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
   const [retryCount, setRetryCount] = useState(0);
   const [cacheBuster] = useState(() => Date.now()); // Cache buster set once on mount
+  const [deleting, setDeleting] = useState(false);
 
   const handleLoadStart = () => {
     setLoadingState('loading');
@@ -36,9 +37,28 @@ function VideoPlayer({ video }) {
     }
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete this video (${video.language})?`)) {
+      return;
+    }
+    setDeleting(true);
+    await onDelete(video.id);
+  };
+
   return (
     <div className="border border-gray-200 rounded-lg p-3">
-      <p className="text-sm font-medium text-gray-900 mb-2">{video.language}</p>
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-sm font-medium text-gray-900">{video.language}</p>
+        <Button
+          onClick={handleDelete}
+          disabled={deleting}
+          size="sm"
+          variant="destructive"
+          className="h-7 px-2 text-xs"
+        >
+          {deleting ? 'Deleting...' : 'Delete'}
+        </Button>
+      </div>
       
       {loadingState === 'loading' && (
         <div className="bg-blue-50 border border-blue-200 rounded p-6 text-center">
