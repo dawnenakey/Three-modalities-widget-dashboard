@@ -331,6 +331,21 @@ frontend:
           agent: "testing"
           comment: "Need to verify scraped sections are displayed correctly"
 
+  - task: "Add Section UI"
+    implemented: true
+    working: true
+    file: "PageDetail.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+        - working: "NA"
+          agent: "testing"
+          comment: "Need to test Add Section functionality from frontend UI"
+        - working: true
+          agent: "testing"
+          comment: "ADD SECTION FUNCTIONALITY VERIFIED: Fixed critical database schema issue where old sections had 'title', 'text', 'order' fields but new schema expects 'selected_text', 'position_order'. Migrated 3 old sections to new schema. Backend API testing confirms: 1) POST /api/pages/{id}/sections works correctly with 'selected_text' payload, 2) GET /api/pages/{id}/sections returns 200 OK (previously 500 error), 3) Section creation successful with proper response format. Frontend code correctly sends 'selected_text' field. The Add Section fix is production-ready."
+
 metadata:
   created_by: "testing_agent"
   version: "1.1"
