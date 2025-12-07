@@ -962,10 +962,6 @@ async def delete_audio(audio_id: str, current_user: dict = Depends(get_current_u
     
     return {"message": "Audio deleted successfully"}
 
-    
-    audios = await db.audios.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
-    return audios
-
 # Widget API (Public)
 @api_router.get("/widget/{website_id}/content")
 async def get_widget_content(website_id: str, page_url: str):
