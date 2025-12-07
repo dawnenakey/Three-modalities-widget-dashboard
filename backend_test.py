@@ -1424,6 +1424,272 @@ class PIVOTAPITester:
             
         return all_steps_passed
 
+    def test_video_upload_fix_deployment_11(self):
+        """Test video upload fix before 11th deployment as specified in review request"""
+        print("🎥 DEPLOYMENT #11 VIDEO UPLOAD FIX VERIFICATION")
+        print("CRITICAL: User has deployed 10 times with white screen issues. Must verify this fix works 100% before they deploy again.")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login as katherine+admin@dozanu.com / pivot2025
+        print("\n🔐 Step 1: Login as katherine+admin@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "katherine+admin@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Katherine login failed, stopping test - DEPLOYMENT NOT READY")
+            return False
+        
+        self.token = response['access_token']
+        self.user_id = response['user']['id']
+        print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Find a section ID
+        print("\n📝 Step 2: Find a section ID")
+        print("-" * 50)
+        
+        section_id = self._get_or_create_test_section()
+        if not section_id:
+            print("❌ Failed to get section ID - DEPLOYMENT NOT READY")
+            return False
+        
+        print(f"✅ Using section ID: {section_id}")
+
+        # Step 3: Test Video Upload URL Endpoint
+        print("\n🎬 Step 3: Test Video Upload URL Endpoint")
+        print("-" * 50)
+        
+        upload_url_data = {
+            "filename": "test.mp4",
+            "content_type": "video/mp4"
+        }
+        
+        success, upload_response = self.run_test(
+            "POST /api/sections/{section_id}/video/upload-url", 
+            "POST", 
+            f"sections/{section_id}/video/upload-url", 
+            200, 
+            upload_url_data
+        )
+        
+        if not success:
+            print("❌ Video upload URL endpoint FAILED - DEPLOYMENT NOT READY")
+            return False
+        
+        # Verify response contains presigned URL
+        required_fields = ['upload_url', 'fields', 'public_url', 'file_key']
+        missing_fields = [field for field in required_fields if field not in upload_response]
+        
+        if missing_fields:
+            self.log_test("Video Upload URL Response Fields", False, f"Missing fields: {missing_fields}")
+            print("❌ Video upload URL response incomplete - DEPLOYMENT NOT READY")
+            return False
+        
+        self.log_test("Video Upload URL Response Fields", True, "All required fields present")
+        print("✅ Video Upload URL Endpoint: PASSED")
+
+        # Step 4: Test Video Confirm Endpoint
+        print("\n✅ Step 4: Test Video Confirm Endpoint")
+        print("-" * 50)
+        
+        confirm_data = {
+            "file_key": "videos/test-123.mp4",
+            "public_url": "https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/videos/test-123.mp4",
+            "language": "American Sign Language"
+        }
+        
+        success, video_response = self.run_test(
+            "POST /api/sections/{section_id}/video/confirm", 
+            "POST", 
+            f"sections/{section_id}/video/confirm", 
+            200, 
+            confirm_data
+        )
+        
+        if not success:
+            print("❌ Video confirm endpoint FAILED - DEPLOYMENT NOT READY")
+            return False
+        
+        # Verify video object is returned
+        required_video_fields = ['id', 'section_id', 'language', 'video_url', 'file_path']
+        missing_video_fields = [field for field in required_video_fields if field not in video_response]
+        
+        if missing_video_fields:
+            self.log_test("Video Confirm Response Fields", False, f"Missing fields: {missing_video_fields}")
+            print("❌ Video confirm response incomplete - DEPLOYMENT NOT READY")
+            return False
+        
+        self.log_test("Video Confirm Response Fields", True, "All required fields present")
+        print("✅ Video Confirm Endpoint: PASSED")
+
+        # Step 5: Test Audio Upload URL Endpoint
+        print("\n🎵 Step 5: Test Audio Upload URL Endpoint")
+        print("-" * 50)
+        
+        audio_upload_data = {
+            "filename": "test.mp3",
+            "content_type": "audio/mp3"
+        }
+        
+        success, audio_upload_response = self.run_test(
+            "POST /api/sections/{section_id}/audio/upload-url", 
+            "POST", 
+            f"sections/{section_id}/audio/upload-url", 
+            200, 
+            audio_upload_data
+        )
+        
+        if not success:
+            print("❌ Audio upload URL endpoint FAILED - DEPLOYMENT NOT READY")
+            return False
+        
+        # Verify response contains presigned URL
+        missing_audio_fields = [field for field in required_fields if field not in audio_upload_response]
+        
+        if missing_audio_fields:
+            self.log_test("Audio Upload URL Response Fields", False, f"Missing fields: {missing_audio_fields}")
+            print("❌ Audio upload URL response incomplete - DEPLOYMENT NOT READY")
+            return False
+        
+        self.log_test("Audio Upload URL Response Fields", True, "All required fields present")
+        print("✅ Audio Upload URL Endpoint: PASSED")
+
+        # Step 6: Test Audio Confirm Endpoint
+        print("\n✅ Step 6: Test Audio Confirm Endpoint")
+        print("-" * 50)
+        
+        audio_confirm_data = {
+            "file_key": "audios/test-123.mp3",
+            "public_url": "https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/audios/test-123.mp3",
+            "language": "English"
+        }
+        
+        success, audio_response = self.run_test(
+            "POST /api/sections/{section_id}/audio/confirm", 
+            "POST", 
+            f"sections/{section_id}/audio/confirm", 
+            200, 
+            audio_confirm_data
+        )
+        
+        if not success:
+            print("❌ Audio confirm endpoint FAILED - DEPLOYMENT NOT READY")
+            return False
+        
+        # Verify audio object is returned
+        required_audio_fields = ['id', 'section_id', 'language', 'audio_url', 'file_path']
+        missing_audio_response_fields = [field for field in required_audio_fields if field not in audio_response]
+        
+        if missing_audio_response_fields:
+            self.log_test("Audio Confirm Response Fields", False, f"Missing fields: {missing_audio_response_fields}")
+            print("❌ Audio confirm response incomplete - DEPLOYMENT NOT READY")
+            return False
+        
+        self.log_test("Audio Confirm Response Fields", True, "All required fields present")
+        print("✅ Audio Confirm Endpoint: PASSED")
+
+        # Step 7: Verify R2 Credentials
+        print("\n🔧 Step 7: Verify R2 Credentials")
+        print("-" * 50)
+        
+        # Check backend logs for R2 credential errors
+        try:
+            import subprocess
+            result = subprocess.run(['tail', '-n', '100', '/var/log/supervisor/backend.err.log'], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                log_content = result.stdout
+                r2_credential_errors = []
+                
+                for line in log_content.split('\n'):
+                    if 'R2 credentials not configured' in line:
+                        r2_credential_errors.append(line.strip())
+                
+                if r2_credential_errors:
+                    self.log_test("R2 Credentials Check", False, f"R2 credential errors found: {len(r2_credential_errors)}")
+                    print("❌ R2 credentials not configured - DEPLOYMENT NOT READY")
+                    return False
+                else:
+                    self.log_test("R2 Credentials Check", True, "No R2 credential errors found")
+            else:
+                self.log_test("Backend Log Check", False, "Could not read backend logs")
+                
+        except Exception as e:
+            self.log_test("Backend Log Check", False, f"Exception reading logs: {str(e)}")
+
+        # Verify R2 environment variables
+        import os
+        r2_bucket = os.getenv('R2_BUCKET_NAME')
+        r2_endpoint = os.getenv('R2_ENDPOINT')
+        
+        bucket_correct = r2_bucket == "pivot-media"
+        endpoint_set = r2_endpoint is not None and len(r2_endpoint) > 0
+        
+        self.log_test("R2_BUCKET_NAME Check", bucket_correct, f"R2_BUCKET_NAME = {r2_bucket}")
+        self.log_test("R2_ENDPOINT Check", endpoint_set, f"R2_ENDPOINT = {r2_endpoint}")
+        
+        if not bucket_correct or not endpoint_set:
+            print("❌ R2 configuration incomplete - DEPLOYMENT NOT READY")
+            return False
+        
+        print("✅ R2 Credentials: VERIFIED")
+
+        # Step 8: Test Complete Flow
+        print("\n🔄 Step 8: Test Complete Flow")
+        print("-" * 50)
+        
+        # Get upload URL → Should work (already tested above)
+        print("   ✅ Get upload URL: WORKING")
+        
+        # Simulate R2 upload (skip actual upload)
+        print("   ✅ Simulate R2 upload: SKIPPED (as requested)")
+        
+        # Confirm upload → Should create video in DB (already tested above)
+        print("   ✅ Confirm upload: WORKING")
+        
+        # Verify video appears in section
+        success, videos_list = self.run_test("Get Videos List", "GET", f"sections/{section_id}/videos", 200)
+        if not success:
+            print("❌ Failed to get videos list - DEPLOYMENT NOT READY")
+            return False
+        
+        # Check if our confirmed video appears in the list
+        video_id = video_response.get('id')
+        video_found = False
+        if videos_list:
+            for video in videos_list:
+                if video.get('id') == video_id:
+                    video_found = True
+                    break
+        
+        if video_found:
+            self.log_test("Video Appears in Section", True, f"Video ID {video_id} found in section")
+            print("   ✅ Video appears in section: WORKING")
+        else:
+            self.log_test("Video Appears in Section", False, f"Video ID {video_id} NOT found in section")
+            print("❌ Video does not appear in section - DEPLOYMENT NOT READY")
+            return False
+
+        # Final Summary
+        print("\n🎯 DEPLOYMENT #11 READINESS SUMMARY")
+        print("=" * 50)
+        print("✅ Video Upload URL Endpoint: WORKING")
+        print("✅ Video Confirm Endpoint: WORKING") 
+        print("✅ Audio Upload URL Endpoint: WORKING")
+        print("✅ Audio Confirm Endpoint: WORKING")
+        print("✅ R2 Credentials: CONFIGURED")
+        print("✅ Complete Flow: WORKING")
+        print("✅ NO 422 ERRORS DETECTED")
+        print("\n🚀 DEPLOYMENT #11 IS READY - ALL TESTS PASSED")
+        
+        return True
+
     def test_website_scraping_to_text_editing_flow(self):
         """Test complete website scraping to text editing flow as requested in review"""
         print("🌐 WEBSITE SCRAPING TO TEXT EDITING FLOW TEST")
