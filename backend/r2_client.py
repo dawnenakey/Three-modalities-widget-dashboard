@@ -47,7 +47,8 @@ class R2Client:
         expires_in: int = 3600
     ) -> Optional[Dict]:
         """
-        Generate a presigned POST URL for uploading to R2
+        Generate a presigned PUT URL for uploading to R2
+        (R2 does not support presigned POST - must use PUT)
         
         Args:
             file_key: The S3 key where the file will be stored
@@ -55,34 +56,24 @@ class R2Client:
             expires_in: URL expiration time in seconds
         
         Returns:
-            Dictionary with 'upload_url', 'fields', 'public_url', and 'file_key'
+            Dictionary with 'upload_url', 'public_url', and 'file_key'
         """
         if not self.client:
             logger.error("R2 client not initialized - cannot generate presigned URL")
             return None
         
         # Log which bucket we're using for debugging
-        logger.info(f"Generating presigned URL for bucket: {self.bucket_name}, key: {file_key}")
+        logger.info(f"Generating presigned PUT URL for bucket: {self.bucket_name}, key: {file_key}")
         
         try:
-            # Allow up to 500MB per file
-            max_file_size = 500 * 1024 * 1024  # 500MB in bytes
-            
-            # Extract main type (e.g., "video" from "video/quicktime")
-            main_type = content_type.split('/')[0] if '/' in content_type else 'video'
-            
-            # Use loosened Content-Type condition to accept any video/* or audio/* format
-            presigned_post = self.client.generate_presigned_post(
-                Bucket=self.bucket_name,
-                Key=file_key,
-                Fields={
-                    'Content-Type': content_type
+            # Generate presigned PUT URL (R2 supports PUT, not POST)
+            presigned_url = self.client.generate_presigned_url(
+                'put_object',
+                Params={
+                    'Bucket': self.bucket_name,
+                    'Key': file_key,
+                    'ContentType': content_type
                 },
-                Conditions=[
-                    # Loosened: Accept any subtype (e.g., video/mp4, video/quicktime, video/webm)
-                    ["starts-with", "$Content-Type", f"{main_type}/"],
-                    ['content-length-range', 0, max_file_size]  # Max 500MB
-                ],
                 ExpiresIn=expires_in
             )
             
@@ -90,13 +81,13 @@ class R2Client:
             public_url_base = self.public_url or f"https://pub-{self.account_id}.r2.dev"
             public_url = f"{public_url_base}/{file_key}"
             
-            logger.info(f"Generated presigned URL successfully. Public URL: {public_url}")
+            logger.info(f"Generated presigned PUT URL successfully. Public URL: {public_url}")
             
             return {
-                'upload_url': presigned_post['url'],
-                'fields': presigned_post['fields'],
+                'upload_url': presigned_url,
                 'public_url': public_url,
-                'file_key': file_key
+                'file_key': file_key,
+                'method': 'PUT'  # Tell frontend to use PUT
             }
             
         except Exception as e:
