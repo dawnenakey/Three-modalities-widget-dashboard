@@ -154,6 +154,17 @@ class Audio(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
+# Request models for R2 upload endpoints
+class UploadUrlRequest(BaseModel):
+    filename: str
+    content_type: str = "video/mp4"
+
+class ConfirmUploadRequest(BaseModel):
+    file_key: str
+    public_url: str
+    language: str = "American Sign Language"
+
+
 class TextTranslation(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
