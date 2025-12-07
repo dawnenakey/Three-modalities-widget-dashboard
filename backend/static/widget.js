@@ -1272,6 +1272,18 @@
       selectedLanguage = lang;
       renderContent();
     },
+    updateLanguage: (modality, languageCode) => {
+      selectedLanguages[modality] = languageCode;
+      savePreferences();
+      // Update the flag icon in real-time
+      const flagElement = document.querySelector(`#${modality}-lang-select`);
+      if (flagElement) {
+        const langData = modality === 'video' ? SIGN_LANGUAGES : SPOKEN_LANGUAGES;
+        const newFlag = langData.find(l => l.code === languageCode)?.flag || '🇺🇸';
+        const flagSpan = flagElement.closest('.pivot-lang-selector').querySelector('.pivot-lang-flag');
+        if (flagSpan) flagSpan.textContent = newFlag;
+      }
+    },
     backToContent: () => {
       currentView = 'content';
       const activeCount = Object.values(enabledModalities).filter(v => v).length;
@@ -1283,18 +1295,22 @@
     },
     toggleDarkMode: () => {
       darkMode = !darkMode;
+      savePreferences();
       renderSettings();
     },
     toggleHighContrast: () => {
       highContrast = !highContrast;
+      savePreferences();
       renderSettings();
     },
     toggleModality: (modality) => {
       enabledModalities[modality] = !enabledModalities[modality];
+      savePreferences();
       renderContent();
     },
     toggleModalityInSettings: (modality) => {
       enabledModalities[modality] = !enabledModalities[modality];
+      savePreferences();
       renderSettings();
     }
   };
