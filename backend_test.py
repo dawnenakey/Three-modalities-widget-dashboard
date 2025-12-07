@@ -1607,19 +1607,10 @@ class PIVOTAPITester:
         print("Step 8: Edit section text content")
         new_text = f"EDITED TEXT: This section has been updated via API testing at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. Original content was about accessibility and web scraping."
         
-        # Test the PATCH endpoint - check if it expects JSON or form data
-        patch_data = {
-            "text_content": new_text
-        }
-        
-        success, updated_section = self.run_test("Edit Section Text", "PATCH", f"sections/{section_id}", 200, patch_data)
-        
-        if not success:
-            # Try alternative approach with query parameter
-            print("   Trying alternative PATCH approach with query parameter...")
-            import urllib.parse
-            encoded_text = urllib.parse.quote(new_text)
-            success, updated_section = self.run_test("Edit Section Text (Alt)", "PATCH", f"sections/{section_id}?text_content={encoded_text}", 200)
+        # The PATCH endpoint expects text_content as query parameter
+        import urllib.parse
+        encoded_text = urllib.parse.quote(new_text)
+        success, updated_section = self.run_test("Edit Section Text", "PATCH", f"sections/{section_id}?text_content={encoded_text}", 200)
         
         if not success:
             print("❌ Section text editing failed")
