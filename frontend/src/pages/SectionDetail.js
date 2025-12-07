@@ -179,21 +179,20 @@ export default function SectionDetail() {
     const videoFile = formData.get('video');
     const language = formData.get('language');
     
-    // Validate file size (1GB = 1073741824 bytes)
-    const MAX_SIZE = 1073741824; // 1GB
+    if (!videoFile || !videoFile.name) {
+      toast.error('Please select a video file');
+      return;
+    }
+    
+    // Validate file size (500MB max)
+    const MAX_SIZE = 500 * 1024 * 1024; // 500MB
     if (videoFile.size > MAX_SIZE) {
-      toast.error(`Video file is too large. Maximum size is 1GB. Your file is ${(videoFile.size / 1073741824).toFixed(2)}GB`);
+      toast.error(`File too large! Maximum size is 500MB. Your file is ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`);
       return;
     }
     
     setUploading(true);
     try {
-      // Step 1: Check file size (500MB max)
-      const MAX_SIZE = 500 * 1024 * 1024; // 500MB
-      if (videoFile.size > MAX_SIZE) {
-        toast.error(`File too large! Maximum size is 500MB. Your file is ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`);
-        return;
-      }
       
       // Step 2: Get presigned upload URL from backend
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/video/upload-url`, {
