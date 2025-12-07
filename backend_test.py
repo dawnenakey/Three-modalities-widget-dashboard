@@ -1302,18 +1302,15 @@ class PIVOTAPITester:
         # STEP 3: POST /api/sections/{section_id}/video/confirm
         print("\n   Step 5.3: Confirm video upload")
         
-        confirm_data = {
-            "file_key": file_key,
-            "public_url": public_url,
-            "language": "ASL (American Sign Language)"
-        }
+        # The confirm endpoint expects query parameters, not JSON body
+        language = "ASL (American Sign Language)"
+        confirm_endpoint = f"sections/{section_id}/video/confirm?file_key={file_key}&public_url={public_url}&language={language}"
         
         success, video_response = self.run_test(
             "Confirm Video Upload", 
             "POST", 
-            f"sections/{section_id}/video/confirm", 
-            200,
-            confirm_data
+            confirm_endpoint, 
+            200
         )
         
         if not success:
