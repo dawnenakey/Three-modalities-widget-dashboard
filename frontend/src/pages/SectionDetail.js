@@ -178,16 +178,52 @@ export default function SectionDetail() {
   const handleAudioUpload = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const audioFile = formData.get('audio');
+    const language = formData.get('language');
+    
+    // Validate file size (500MB for audio)
+    const MAX_SIZE = 524288000; // 500MB
+    if (audioFile.size > MAX_SIZE) {
+      toast.error(`Audio file is too large. Maximum size is 500MB. Your file is ${(audioFile.size / 1048576).toFixed(2)}MB`);
+      return;
+    }
+    
     setUploading(true);
     try {
-      await axios.post(`${API}/sections/${sectionId}/audio`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      // Step 1: Get presigned upload URL
+      const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/audio/upload-url`, {
+        filename: audioFile.name,
+        content_type: audioFile.type || 'audio/mpeg'
       });
-      toast.success('Audio uploaded!');
+      
+      // Step 2: Upload directly to R2
+      const r2FormData = new FormData();
+      Object.keys(uploadData.fields).forEach(key => {
+        r2FormData.append(key, uploadData.fields[key]);
+      });
+      r2FormData.append('file', audioFile);
+      
+      await axios.post(uploadData.upload_url, r2FormData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
+        }
+      });
+      
+      // Step 3: Confirm upload
+      await axios.post(`${API}/sections/${sectionId}/audio/confirm`, {
+        file_key: uploadData.file_key,
+        public_url: uploadData.public_url,
+        language: language
+      });
+      
+      toast.success('Audio uploaded successfully!', { id: 'audio-upload' });
       e.target.reset();
       fetchData();
     } catch (error) {
-      toast.error('Failed to upload audio');
+      console.error('Upload error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to upload audio', { id: 'audio-upload' });
     } finally {
       setUploading(false);
     }
