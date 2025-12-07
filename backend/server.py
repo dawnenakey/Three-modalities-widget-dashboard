@@ -558,6 +558,34 @@ async def update_section(
     return updated_section
 
 
+@api_router.delete("/sections/{section_id}")
+async def delete_section(section_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a section and all its associated media"""
+    # Find the section
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    # Security: Verify section belongs to current user
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Delete all videos associated with this section
+    await db.videos.delete_many({"section_id": section_id})
+    
+    # Delete all audios associated with this section
+    await db.audios.delete_many({"section_id": section_id})
+    
+    # Delete the section itself
+    await db.sections.delete_one({"id": section_id})
+    
+    return {"message": "Section and all associated media deleted successfully"}
+
+
 # Video routes - R2 Direct Upload (NEW - RECOMMENDED)
 @api_router.post("/sections/{section_id}/video/upload-url")
 async def get_video_upload_url(
