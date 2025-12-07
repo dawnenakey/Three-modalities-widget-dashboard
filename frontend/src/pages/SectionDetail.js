@@ -114,8 +114,15 @@ export default function SectionDetail() {
       setVideos(videosRes.data);
       setAudios(audiosRes.data);
     } catch (error) {
-      toast.error('Failed to load section data');
-      navigate('/');
+      console.error('Failed to load section data:', error);
+      // Only navigate away if it's a 404 (section not found)
+      if (error.response?.status === 404) {
+        toast.error('Section not found');
+        navigate('/');
+      } else {
+        // For other errors, just show the error but stay on page
+        toast.error('Failed to load some section data. Please refresh the page.');
+      }
     } finally {
       setLoading(false);
     }
