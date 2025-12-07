@@ -45,7 +45,7 @@ export default function PageDetail() {
 
     try {
       await axios.post(`${API}/pages/${pageId}/sections`, {
-        text_content: newSectionText,
+        selected_text: newSectionText,
         position_order: sections.length + 1
       });
       toast.success('Section added successfully!');
