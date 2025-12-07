@@ -250,6 +250,17 @@ export default function WebsiteDetail() {
                       <option value="Inactive">Inactive</option>
                       <option value="Not Setup">Not Setup</option>
                     </select>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeletePage(page.id);
+                      }}
+                      size="sm"
+                      variant="destructive"
+                      className="h-8 px-3 text-xs"
+                    >
+                      Delete
+                    </Button>
                   </div>
                 </div>
               ))}
