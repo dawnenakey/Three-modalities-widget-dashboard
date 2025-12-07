@@ -172,6 +172,15 @@
       height: auto;
       min-height: 600px;
     }
+    .pivot-widget-modal.content-view-1 {
+      height: 500px;
+    }
+    .pivot-widget-modal.content-view-2 {
+      height: 650px;
+    }
+    .pivot-widget-modal.content-view-3 {
+      height: 850px;
+    }
     
     @media (max-width: 768px) {
       .pivot-widget-modal {
