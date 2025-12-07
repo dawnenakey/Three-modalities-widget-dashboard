@@ -153,6 +153,16 @@ class Audio(BaseModel):
     captions: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
+
+class TextTranslation(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    section_id: str
+    language: str  # Spanish, Chinese, French, etc.
+    language_code: str  # ES, ZH, FR, etc.
+    text_content: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
 class Analytics(BaseModel):
     model_config = ConfigDict(extra="ignore")
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
