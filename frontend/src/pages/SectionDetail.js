@@ -14,6 +14,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 function VideoPlayer({ video }) {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
   const [retryCount, setRetryCount] = useState(0);
+  const [cacheBuster] = useState(() => Date.now()); // Cache buster set once on mount
 
   const handleLoadStart = () => {
     setLoadingState('loading');
@@ -66,7 +67,7 @@ function VideoPlayer({ video }) {
       )}
       
       <video
-        src={`${process.env.REACT_APP_BACKEND_URL}${video.video_url}?t=${Date.now()}`}
+        src={`${process.env.REACT_APP_BACKEND_URL}${video.video_url}?t=${cacheBuster}`}
         controls
         preload="metadata"
         className={`w-full rounded ${loadingState !== 'loaded' ? 'hidden' : ''}`}
