@@ -691,9 +691,7 @@ async def get_video_upload_url(
 @api_router.post("/sections/{section_id}/video/confirm", response_model=Video)
 async def confirm_video_upload(
     section_id: str,
-    file_key: str,
-    public_url: str,
-    language: str = "ASL (American Sign Language)",
+    request: ConfirmUploadRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """
