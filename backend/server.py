@@ -713,9 +713,9 @@ async def confirm_video_upload(
     # Create video record
     video_obj = Video(
         section_id=section_id,
-        language=language,
-        video_url=public_url,
-        file_path=file_key  # Store R2 key for future reference
+        language=request.language,
+        video_url=request.public_url,
+        file_path=request.file_key  # Store R2 key for future reference
     )
     video_dict = video_obj.model_dump()
     video_dict['created_at'] = video_dict['created_at'].isoformat()
