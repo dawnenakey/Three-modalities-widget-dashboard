@@ -198,7 +198,7 @@ backend:
     file: "server.py"
     stuck_count: 1
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: true
           agent: "testing"
@@ -206,6 +206,9 @@ backend:
         - working: false
           agent: "testing"
           comment: "DEPLOYMENT READY TEST: Audio upload API has issues. POST /api/sections/{id}/audio returns 200 OK and creates database entries, but audio files are not accessible via external URLs (404 error). File persistence issue similar to videos but more severe for audio."
+        - working: false
+          agent: "testing"
+          comment: "WHITE SCREEN ISSUE ROOT CAUSE IDENTIFIED: GET /api/sections/{section_id}/audio endpoint returns 500 Internal Server Error. Found missing return statement in get_audios() function at line 972 in server.py. Function was missing the actual database query and return statement, causing it to return None which triggers a 500 error. FIXED: Added missing 'audios = await db.audios.find({\"section_id\": section_id}, {\"_id\": 0}).to_list(1000)' and 'return audios' statements. This was the exact cause of the white screen after video upload - fetchData() was failing on the audio endpoint call."
 
   - task: "Widget Content API"
     implemented: true
