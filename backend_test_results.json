@@ -1,76 +1,106 @@
 {
   "summary": {
-    "total_tests": 11,
-    "passed_tests": 10,
+    "total_tests": 16,
+    "passed_tests": 15,
     "failed_tests": 1,
-    "success_rate": 90.9090909090909
+    "success_rate": 93.75
   },
   "detailed_results": [
     {
       "test": "Login with katherine+admin@dozanu.com",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1N2RmMDkxMi00MGU4LTRiMjAtOWQzOS01OTg0NWI5Mjc4NTkiLCJleHAiOjE3NjUyMTcxNzJ9.vUPxu5OrbTvqmWMJIgL5-S9Hgj-sfldgdNlSlJDGJRw\",\n  \"token_ty...",
-      "timestamp": "2025-12-07T18:06:12.527815"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1N2RmMDkxMi00MGU4LTRiMjAtOWQzOS01OTg0NWI5Mjc4NTkiLCJleHAiOjE3NjUyMTcxOTJ9.a3xsAOoubNSdy8l8jTuKuoIREUCMgR6FoChHaXpSC6c\",\n  \"token_ty...",
+      "timestamp": "2025-12-07T18:06:32.939791"
     },
     {
       "test": "Get All Websites",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"704d0c1e-7fb7-4f0c-928a-afa3200ae486\",\n    \"owner_id\": \"57df0912-40e8-4b20-9d39-59845b927859\",\n    \"name\": \"Testing GoPivot\",\n    \"url\": \"https://testing.gopivot.me/\",\n    \"embed_code...",
-      "timestamp": "2025-12-07T18:06:12.882820"
+      "timestamp": "2025-12-07T18:06:33.134787"
     },
     {
       "test": "Get Pages for Website",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n    \"website_id\": \"704d0c1e-7fb7-4f0c-928a-afa3200ae486\",\n    \"url\": \"https://testing.gopivot.me/pdf\",\n    \"status\": \"Active\",\n    \"sections_cou...",
-      "timestamp": "2025-12-07T18:06:13.175268"
+      "timestamp": "2025-12-07T18:06:33.350811"
     },
     {
       "test": "Check Sections for Page https://testing.gopivot.me/pdf",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n    \"page_id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n    \"selected_text\": \"Testing\",\n    \"position_order\": 1,\n    \"status\": \"Not Setup\",\n    \"...",
-      "timestamp": "2025-12-07T18:06:13.467881"
+      "timestamp": "2025-12-07T18:06:33.751811"
     },
     {
       "test": "Get Sections for Selected Page",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n    \"page_id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n    \"selected_text\": \"Testing\",\n    \"position_order\": 1,\n    \"status\": \"Not Setup\",\n    \"...",
-      "timestamp": "2025-12-07T18:06:13.629005"
+      "timestamp": "2025-12-07T18:06:33.960492"
     },
     {
       "test": "Generate Presigned Upload URL",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"upload_url\": \"https://5c51b7472a0fcbb41c98a59203126cd3.r2.cloudflarestorage.com/pivot-assets\",\n  \"fields\": {\n    \"Content-Type\": \"video/mp4\",\n    \"key\": \"videos/3fa3e89d-3c84-492d-8786-27cbd06521...",
-      "timestamp": "2025-12-07T18:06:13.854887"
+      "details": "Status: 200, Response: {\n  \"upload_url\": \"https://5c51b7472a0fcbb41c98a59203126cd3.r2.cloudflarestorage.com/pivot-assets\",\n  \"fields\": {\n    \"Content-Type\": \"video/mp4\",\n    \"key\": \"videos/885b8dbb-6cb2-4d27-929b-d544ab72c6...",
+      "timestamp": "2025-12-07T18:06:34.151600"
     },
     {
       "test": "Upload URL Response Fields",
       "success": true,
       "details": "All required fields present: ['upload_url', 'fields', 'public_url', 'file_key']",
-      "timestamp": "2025-12-07T18:06:13.855551"
+      "timestamp": "2025-12-07T18:06:34.152278"
     },
     {
       "test": "R2 Credentials Check",
       "success": true,
       "details": "No R2 credential errors detected",
-      "timestamp": "2025-12-07T18:06:13.855722"
+      "timestamp": "2025-12-07T18:06:34.152456"
     },
     {
       "test": "Presigned URL Format",
       "success": true,
       "details": "URL format valid: True",
-      "timestamp": "2025-12-07T18:06:13.855739"
+      "timestamp": "2025-12-07T18:06:34.152473"
     },
     {
       "test": "Public URL Format",
       "success": true,
       "details": "Public URL format valid: True",
-      "timestamp": "2025-12-07T18:06:13.855745"
+      "timestamp": "2025-12-07T18:06:34.152479"
     },
     {
       "test": "Confirm Video Upload",
+      "success": true,
+      "details": "Status: 200, Response: {\n  \"id\": \"79237522-2442-4435-a23e-8f4c53f78ae2\",\n  \"section_id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n  \"language\": \"ASL (American Sign Language)\",\n  \"video_url\": \"https://pub-e8e4b23256f3485ca9c2...",
+      "timestamp": "2025-12-07T18:06:34.353343"
+    },
+    {
+      "test": "Video Record Fields",
+      "success": true,
+      "details": "All required fields present: ['id', 'section_id', 'language', 'video_url', 'file_path', 'created_at']",
+      "timestamp": "2025-12-07T18:06:34.353972"
+    },
+    {
+      "test": "Get Videos List",
+      "success": true,
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"79237522-2442-4435-a23e-8f4c53f78ae2\",\n    \"section_id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n    \"language\": \"ASL (American Sign Language)\",\n    \"video_url\": \"https://pub-e8e4b232...",
+      "timestamp": "2025-12-07T18:06:34.529012"
+    },
+    {
+      "test": "Video Found in List",
+      "success": true,
+      "details": "Video ID 79237522-2442-4435-a23e-8f4c53f78ae2 found in videos list",
+      "timestamp": "2025-12-07T18:06:34.529636"
+    },
+    {
+      "test": "Video Fields Populated",
+      "success": true,
+      "details": "All fields populated correctly: True",
+      "timestamp": "2025-12-07T18:06:34.529662"
+    },
+    {
+      "test": "Backend R2 Errors",
       "success": false,
-      "details": "Status: 422, Error: {'detail': [{'type': 'missing', 'loc': ['query', 'file_key'], 'msg': 'Field required', 'input': None, 'url': 'https://errors.pydantic.dev/2.12/v/missing'}, {'type': 'missing', 'loc': ['query', 'public_url'], 'msg': 'Field required', 'input': None, 'url': 'https://errors.pydantic.dev/2.12/v/missing'}]}",
-      "timestamp": "2025-12-07T18:06:14.121982"
+      "details": "R2 errors found: 3 errors",
+      "timestamp": "2025-12-07T18:06:34.535241"
     }
   ]
 }
