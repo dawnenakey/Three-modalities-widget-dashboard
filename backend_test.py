@@ -881,6 +881,240 @@ class PIVOTAPITester:
         
         return section_id
 
+    def test_widget_content_debug(self):
+        """Debug widget content API to identify why it's showing 'no content'"""
+        print("🔍 WIDGET CONTENT API DEBUG TEST")
+        print("Testing to debug why widget is showing 'no content' even though videos have been uploaded")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login with dawnena@dozanu.com / pivot2025
+        print("\n🔐 Step 1: Login with dawnena@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "dawnena@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with dawnena@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Dawnena login failed, trying demo user as fallback")
+            if not self.test_demo_user_login():
+                print("❌ All login attempts failed, stopping tests")
+                return False
+        else:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Get all websites for this user
+        print("\n🌐 Step 2: Get all websites for this user")
+        print("-" * 50)
+        
+        success, websites = self.run_test("Get All Websites", "GET", "websites", 200)
+        if not success or not websites:
+            print("❌ No websites found for user")
+            return False
+        
+        print(f"✅ Found {len(websites)} websites")
+        for i, website in enumerate(websites):
+            print(f"   Website {i+1}: {website.get('name', 'Unknown')} (ID: {website.get('id', 'Unknown')})")
+
+        # Step 3: For each website, check if there are pages with status="Active"
+        print("\n📄 Step 3: Check pages with status='Active' for each website")
+        print("-" * 50)
+        
+        active_pages_found = []
+        for website in websites:
+            website_id = website.get('id')
+            website_name = website.get('name', 'Unknown')
+            
+            success, pages = self.run_test(f"Get Pages for Website '{website_name}'", "GET", f"websites/{website_id}/pages", 200)
+            if success and pages:
+                active_pages = [page for page in pages if page.get('status') == 'Active']
+                print(f"   Website '{website_name}': {len(pages)} total pages, {len(active_pages)} active pages")
+                
+                for page in pages:
+                    page_status = page.get('status', 'Unknown')
+                    page_url = page.get('url', 'Unknown')
+                    print(f"     - Page: {page_url} (Status: {page_status})")
+                    
+                    if page_status == 'Active':
+                        active_pages_found.append({
+                            'website_id': website_id,
+                            'website_name': website_name,
+                            'page_id': page.get('id'),
+                            'page_url': page_url
+                        })
+            else:
+                print(f"   Website '{website_name}': No pages found or error retrieving pages")
+
+        if not active_pages_found:
+            print("❌ No active pages found across all websites")
+            # Let's check if there are any pages at all and their statuses
+            print("\n🔍 Investigating page statuses...")
+            for website in websites:
+                website_id = website.get('id')
+                success, pages = self.run_test(f"Debug Pages for {website.get('name')}", "GET", f"websites/{website_id}/pages", 200)
+                if success and pages:
+                    for page in pages:
+                        print(f"     Page {page.get('url')}: Status = {page.get('status')}")
+        else:
+            print(f"✅ Found {len(active_pages_found)} active pages")
+
+        # Step 4: For pages with sections, check if sections have status="Active"
+        print("\n📝 Step 4: Check sections with status='Active' for active pages")
+        print("-" * 50)
+        
+        active_sections_found = []
+        for page_info in active_pages_found:
+            page_id = page_info['page_id']
+            page_url = page_info['page_url']
+            
+            success, sections = self.run_test(f"Get Sections for Page {page_url}", "GET", f"pages/{page_id}/sections", 200)
+            if success and sections:
+                active_sections = [section for section in sections if section.get('status') == 'Active']
+                print(f"   Page '{page_url}': {len(sections)} total sections, {len(active_sections)} active sections")
+                
+                for section in sections:
+                    section_status = section.get('status', 'Unknown')
+                    section_text = section.get('selected_text', section.get('text_content', 'No text'))[:50] + "..."
+                    print(f"     - Section: {section_text} (Status: {section_status})")
+                    
+                    if section_status == 'Active':
+                        active_sections_found.append({
+                            **page_info,
+                            'section_id': section.get('id'),
+                            'section_text': section_text
+                        })
+            else:
+                print(f"   Page '{page_url}': No sections found or error retrieving sections")
+
+        if not active_sections_found:
+            print("❌ No active sections found")
+            # Let's check section statuses
+            print("\n🔍 Investigating section statuses...")
+            for page_info in active_pages_found:
+                page_id = page_info['page_id']
+                success, sections = self.run_test(f"Debug Sections for {page_info['page_url']}", "GET", f"pages/{page_id}/sections", 200)
+                if success and sections:
+                    for section in sections:
+                        print(f"     Section: Status = {section.get('status')}, Text = {section.get('selected_text', 'No text')[:30]}...")
+        else:
+            print(f"✅ Found {len(active_sections_found)} active sections")
+
+        # Step 5: Check if these sections have videos and audios associated
+        print("\n🎬 Step 5: Check if active sections have videos and audios")
+        print("-" * 50)
+        
+        sections_with_media = []
+        for section_info in active_sections_found:
+            section_id = section_info['section_id']
+            section_text = section_info['section_text']
+            
+            # Check videos
+            success, videos = self.run_test(f"Get Videos for Section", "GET", f"sections/{section_id}/videos", 200)
+            video_count = len(videos) if success and videos else 0
+            
+            # Check audios
+            success, audios = self.run_test(f"Get Audios for Section", "GET", f"sections/{section_id}/audio", 200)
+            audio_count = len(audios) if success and audios else 0
+            
+            print(f"   Section '{section_text}': {video_count} videos, {audio_count} audios")
+            
+            if video_count > 0 or audio_count > 0:
+                sections_with_media.append({
+                    **section_info,
+                    'video_count': video_count,
+                    'audio_count': audio_count,
+                    'videos': videos if success else [],
+                    'audios': audios if success else []
+                })
+
+        if not sections_with_media:
+            print("❌ No sections with media found")
+        else:
+            print(f"✅ Found {len(sections_with_media)} sections with media")
+
+        # Step 6: Test the widget content API endpoint
+        print("\n🔧 Step 6: Test widget content API endpoint")
+        print("-" * 50)
+        
+        widget_results = []
+        for page_info in active_pages_found:
+            website_id = page_info['website_id']
+            page_url = page_info['page_url']
+            
+            # Test widget API: GET /api/widget/{website_id}/content?page_url={page_url}
+            success, widget_response = self.run_test(
+                f"Widget API for {page_url}", 
+                "GET", 
+                f"widget/{website_id}/content?page_url={page_url}", 
+                200
+            )
+            
+            if success:
+                sections_returned = widget_response.get('sections', [])
+                print(f"   Widget API for '{page_url}': {len(sections_returned)} sections returned")
+                
+                widget_results.append({
+                    'website_id': website_id,
+                    'page_url': page_url,
+                    'sections_count': len(sections_returned),
+                    'sections': sections_returned
+                })
+                
+                # Analyze each section in the response
+                for i, section in enumerate(sections_returned):
+                    section_videos = section.get('videos', [])
+                    section_audios = section.get('audios', [])
+                    section_text = section.get('text_content', section.get('selected_text', 'No text'))[:50]
+                    
+                    print(f"     Section {i+1}: '{section_text}...' - {len(section_videos)} videos, {len(section_audios)} audios")
+            else:
+                print(f"   Widget API for '{page_url}': FAILED")
+
+        # Step 7: Verify the response includes sections with videos, audios, and text_content
+        print("\n✅ Step 7: Analysis and Diagnosis")
+        print("-" * 50)
+        
+        print("\n📊 SUMMARY OF FINDINGS:")
+        print(f"• Total websites: {len(websites)}")
+        print(f"• Active pages found: {len(active_pages_found)}")
+        print(f"• Active sections found: {len(active_sections_found)}")
+        print(f"• Sections with media: {len(sections_with_media)}")
+        
+        print("\n🔍 DIAGNOSIS:")
+        if not active_pages_found:
+            print("❌ ISSUE IDENTIFIED: No pages have status='Active'")
+            print("   → Pages exist but don't have status='Active'")
+            print("   → Widget API only returns content for pages with status='Active'")
+        elif not active_sections_found:
+            print("❌ ISSUE IDENTIFIED: Pages exist but sections don't have status='Active'")
+            print("   → Sections exist but don't have status='Active'")
+            print("   → Widget API only returns sections with status='Active'")
+        elif not sections_with_media:
+            print("❌ ISSUE IDENTIFIED: Sections exist but have no media")
+            print("   → Active sections exist but have no videos or audios")
+            print("   → Widget shows 'no content' because sections are empty")
+        else:
+            # Check if widget API is returning the data correctly
+            total_widget_sections = sum(result['sections_count'] for result in widget_results)
+            if total_widget_sections == 0:
+                print("❌ ISSUE IDENTIFIED: API is returning empty data")
+                print("   → Data exists in database but widget API returns empty sections")
+                print("   → Possible issue with widget API logic or query")
+            else:
+                print("✅ DATA FLOW APPEARS CORRECT")
+                print("   → Active pages exist")
+                print("   → Active sections exist")
+                print("   → Sections have media")
+                print("   → Widget API returns data")
+                print("   → Issue might be in widget frontend code")
+
+        return True
+
     def run_deployment_ready_tests(self):
         """Run the EXACT test workflow specified in the review request for deployment readiness"""
         print("🚀 COMPREHENSIVE END-TO-END TESTING BEFORE DEPLOYMENT")
