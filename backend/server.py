@@ -643,8 +643,7 @@ async def delete_section(section_id: str, current_user: dict = Depends(get_curre
 @api_router.post("/sections/{section_id}/video/upload-url")
 async def get_video_upload_url(
     section_id: str,
-    filename: str,
-    content_type: str = "video/mp4",
+    request: UploadUrlRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """
