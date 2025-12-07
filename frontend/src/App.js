@@ -8,10 +8,30 @@ import Websites from "@/pages/Websites";
 import WebsiteDetail from "@/pages/WebsiteDetail";
 import PageDetail from "@/pages/PageDetail";
 import SectionDetail from "@/pages/SectionDetail";
+import Settings from "@/pages/Settings";
+import Analytics from "@/pages/Analytics";
+import InstallationGuide from "@/pages/InstallationGuide";
+import AddOnServices from "@/pages/AddOnServices";
+import TestPage from "@/pages/TestPage";
+import DDSPage from "@/pages/DDSPage";
+import PDFPage from "@/pages/PDFPage";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 const PrivateRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  // Show loading state while authentication is being verified
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00CED1] mx-auto mb-2"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  
   return user ? children : <Navigate to="/login" />;
 };
 
@@ -63,6 +83,49 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route
+              path="/analytics"
+              element={
+                <PrivateRoute>
+                  <Analytics />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/add-on-services"
+              element={
+                <PrivateRoute>
+                  <AddOnServices />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <PrivateRoute>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/installation-guides"
+              element={
+                <PrivateRoute>
+                  <InstallationGuide />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/test"
+              element={
+                <PrivateRoute>
+                  <TestPage />
+                </PrivateRoute>
+              }
+            />
+            {/* Public pages with widget */}
+            <Route path="/dds" element={<DDSPage />} />
+            <Route path="/pdf" element={<PDFPage />} />
           </Routes>
         </BrowserRouter>
         <Toaster />

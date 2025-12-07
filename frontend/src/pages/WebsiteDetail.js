@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, FileText, Code, Copy, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Code, Copy, CheckCircle, Trash2, Edit } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -58,11 +58,33 @@ export default function WebsiteDetail() {
     }
   };
 
+  const handleDeletePage = async (pageId) => {
+    if (!window.confirm('Are you sure you want to delete this page?')) return;
+    try {
+      await axios.delete(`${API}/pages/${pageId}`);
+      toast.success('Page deleted');
+      fetchData();
+    } catch (error) {
+      toast.error('Failed to delete page');
+    }
+  };
+
   const copyEmbedCode = () => {
     navigator.clipboard.writeText(website.embed_code);
     setCopied(true);
     toast.success('Embed code copied!');
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDeleteWebsite = async () => {
+    if (!window.confirm('Are you sure you want to delete this website? This will also delete all associated pages.')) return;
+    try {
+      await axios.delete(`${API}/websites/${websiteId}`);
+      toast.success('Website deleted');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to delete website');
+    }
   };
 
   if (loading) {
@@ -75,121 +97,166 @@ export default function WebsiteDetail() {
     );
   }
 
+  const getStatusBadge = (status) => {
+    const statusConfig = {
+      'Active': 'bg-[#045D04] text-white',
+      'Inactive': 'bg-[#A7A9AD] text-black',
+      'Not Setup': 'bg-gray-50 text-gray-600 ring-1 ring-inset ring-gray-500/10'
+    };
+    return statusConfig[status] || statusConfig['Not Setup'];
+  };
+
+  const handleStatusChange = async (pageId, newStatus) => {
+    try {
+      await axios.patch(`${API}/pages/${pageId}/status`, { status: newStatus });
+      toast.success(`Status updated to ${newStatus}`);
+      // Refresh pages to show updated status
+      const response = await axios.get(`${API}/websites/${id}/pages`);
+      setPages(response.data);
+    } catch (error) {
+      toast.error('Failed to update status');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-8">
-        {/* Header */}
-        <Button
-          variant="ghost"
-          onClick={() => navigate('/')}
-          className="mb-6 text-gray-600 hover:text-gray-900"
-        >
+        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-gray-600 hover:text-gray-900">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Dashboard
+          Back
         </Button>
 
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="website-detail-title">{website.name}</h1>
-            <p className="text-gray-600" data-testid="website-detail-url">{website.url}</p>
-          </div>
-          <Dialog open={showDialog} onOpenChange={setShowDialog}>
-            <DialogTrigger asChild>
-              <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" data-testid="add-page-button">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Page
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="pointer-events-auto" aria-describedby="add-page-description">
-              <DialogHeader>
-                <DialogTitle>Add New Page</DialogTitle>
-              </DialogHeader>
-              <p id="add-page-description" className="sr-only">Add a new page to this website</p>
-              <form onSubmit={handleCreatePage} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="url">Page URL</Label>
-                  <Input
-                    id="url"
-                    type="url"
-                    placeholder="https://example.com/page"
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
-                    required
-                    data-testid="page-url-input"
-                  />
-                  <p className="text-xs text-gray-500">Content will be automatically scraped</p>
-                </div>
-                <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating} data-testid="create-page-button">
-                  {creating ? 'Creating...' : 'Create Page'}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {/* Embed Code */}
-        <div className="bg-white border border-gray-200 rounded-xl p-6 mb-8 shadow-sm">
-          <div className="flex items-center gap-2 mb-4">
-            <Code className="h-5 w-5 text-[#00CED1]" />
-            <h2 className="text-lg font-semibold text-gray-900">Widget Embed Code</h2>
-          </div>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 font-mono text-sm mb-4 overflow-x-auto" data-testid="embed-code">
-            {website.embed_code}
-          </div>
-          <Button onClick={copyEmbedCode} className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" data-testid="copy-embed-button">
-            {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
-            {copied ? 'Copied!' : 'Copy Embed Code'}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-bold text-gray-900">{website.name}</h1>
+          <Button 
+            variant="destructive" 
+            onClick={handleDeleteWebsite}
+            className="bg-[#981B1E] hover:bg-[#981b1d90]"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Website
           </Button>
         </div>
 
-        {/* Pages List */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Pages ({pages.length})</h2>
+        {/* Side-by-side Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mt-6">
+          {/* Left Side - Website Info Card */}
+          <div className="lg:col-span-1 bg-white rounded-lg shadow-md border p-4">
+            <div className="w-full h-48 overflow-hidden rounded-md flex justify-center items-center bg-gradient-to-r from-[#123a35] to-[#1f1f36] mb-4">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="h-24 w-24 text-white">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
+              </svg>
+            </div>
+            <p className="font-semibold text-gray-900 mb-1">{website.name}</p>
+            <p className="text-sm text-gray-600 mb-4 break-words">{website.url}</p>
+            <a 
+              href={website.url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="w-full mt-4 inline-block text-center rounded-md bg-black px-3.5 py-2.5 text-sm font-semibold text-white hover:bg-gray-700"
+            >
+              View Website
+            </a>
+
+            {/* Widget Installation Code */}
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="flex items-center gap-2 mb-3">
+                <Code className="h-4 w-4 text-[#00CED1]" />
+                <h3 className="text-sm font-semibold text-gray-900">Embed Code</h3>
+              </div>
+              <div className="bg-[#1e042a] rounded-lg p-3 mb-3 overflow-x-auto">
+                <pre className="text-[#00CED1] text-xs font-mono whitespace-pre-wrap break-all">
+                  <code>{website.embed_code}</code>
+                </pre>
+              </div>
+              <Button onClick={copyEmbedCode} className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
+                {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
+                {copied ? 'Copied!' : 'Copy Code'}
+              </Button>
+            </div>
+          </div>
+
+          {/* Right Side - Pages List */}
+          <div className="lg:col-span-3 bg-white rounded-lg shadow-lg border">
+            <div className="bg-[#1e042a] rounded-t-lg flex justify-between items-center px-6 py-4">
+              <h2 className="text-white font-semibold text-xl">Pages</h2>
+              <p className="text-white font-semibold">({pages.length} / 15 pages)</p>
+            </div>
+            
+            <div className="p-4">
+              <div className="flex justify-end mb-4">
+              <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                <DialogTrigger asChild>
+                  <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Page
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="pointer-events-auto" aria-describedby="add-page-description">
+                  <DialogHeader>
+                    <DialogTitle>Add New Page</DialogTitle>
+                  </DialogHeader>
+                  <p id="add-page-description" className="sr-only">Add a new page</p>
+                  <form onSubmit={handleCreatePage} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="url">Page URL</Label>
+                      <Input
+                        id="url"
+                        type="url"
+                        placeholder="https://example.com/page"
+                        value={url}
+                        onChange={(e) => setUrl(e.target.value)}
+                        required
+                      />
+                      <p className="text-xs text-gray-500">Content will be automatically scraped</p>
+                    </div>
+                    <Button type="submit" className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold" disabled={creating}>
+                      {creating ? 'Creating...' : 'Create Page'}
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+
           {pages.length === 0 ? (
-            <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">
-              <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">No pages yet</h3>
-              <p className="text-gray-600 mb-6">Add your first page to get started</p>
-              <Button onClick={() => setShowDialog(true)} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+            <div className="p-12 text-center">
+              <p className="text-gray-600 mb-4">You don&apos;t have any pages added for this website yet.</p>
+              <Button onClick={() => setShowDialog(true)} className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Your First Page
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4" data-testid="pages-list">
+            <div className="divide-y divide-[#ECEEEF]">
               {pages.map((page) => (
-                <div
+                <div 
                   key={page.id}
-                  onClick={() => navigate(`/pages/${page.id}`)}
-                  className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-lg hover:border-[#00CED1]/50 transition-all cursor-pointer"
-                  data-testid={`page-card-${page.id}`}
+                  className="p-4 flex flex-row justify-between items-center hover:bg-gray-50"
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900" data-testid={`page-url-${page.id}`}>
-                          {page.url}
-                        </h3>
-                        <span
-                          className={`px-3 py-1 rounded-full text-xs font-medium ${
-                            page.status === 'Active' ? 'bg-green-100 text-green-700' :
-                            page.status === 'Inactive' ? 'bg-gray-100 text-gray-700' :
-                            'bg-orange-100 text-orange-700'
-                          }`}
-                          data-testid={`page-status-${page.id}`}
-                        >
-                          {page.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        {page.sections_count} sections
-                      </p>
-                    </div>
+                  <div 
+                    className="w-7/12 break-words cursor-pointer"
+                    onClick={() => navigate(`/pages/${page.id}`)}
+                  >
+                    <p className="font-bold text-gray-900">{page.url}</p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <select
+                      value={page.status || 'Active'}
+                      onChange={(e) => handleStatusChange(page.id, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      className={`px-3 py-1 text-sm font-medium rounded-full border-0 cursor-pointer ${getStatusBadge(page.status || 'Active')}`}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                      <option value="Not Setup">Not Setup</option>
+                    </select>
                   </div>
                 </div>
               ))}
             </div>
           )}
+            </div>
+          </div>
         </div>
       </div>
     </DashboardLayout>

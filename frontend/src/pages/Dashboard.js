@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { Plus, Globe, FileText, Users, Code, Copy, CheckCircle } from 'lucide-react';
+import UserManagementDialog from '@/components/UserManagementDialog';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -28,16 +29,14 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const websitesRes = await axios.get(`${API}/websites`);
-      setWebsites(websitesRes.data);
+      // Fetch websites and stats in parallel
+      const [websitesRes, statsRes] = await Promise.all([
+        axios.get(`${API}/websites`),
+        axios.get(`${API}/stats`)
+      ]);
       
-      // Count total pages
-      let pageCount = 0;
-      for (const website of websitesRes.data) {
-        const pagesRes = await axios.get(`${API}/websites/${website.id}/pages`);
-        pageCount += pagesRes.data.length;
-      }
-      setTotalPages(pageCount);
+      setWebsites(websitesRes.data);
+      setTotalPages(statsRes.data.total_pages);
     } catch (error) {
       toast.error('Failed to load data');
     }
@@ -61,7 +60,7 @@ export default function Dashboard() {
   };
 
   const copyWidgetCode = () => {
-    const code = `<script src="${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'}/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
+    const code = `<script src="${process.env.REACT_APP_BACKEND_URL}/api/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
     navigator.clipboard.writeText(code);
     setCopied(true);
     toast.success('Widget code copied!');
@@ -79,7 +78,7 @@ export default function Dashboard() {
             </h1>
             <div className="flex items-center gap-3">
               <span className="text-gray-600">My Plan:</span>
-              <span className="px-3 py-1 bg-[#00CED1] text-black font-semibold rounded text-sm">
+              <span className="px-3 py-1 bg-[#A460FF] text-white font-semibold rounded text-sm">
                 PRO
               </span>
             </div>
@@ -123,7 +122,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           <Dialog open={showDialog} onOpenChange={setShowDialog}>
             <DialogTrigger asChild>
-              <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+              <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold h-12">
                 Add Website
               </Button>
             </DialogTrigger>
@@ -141,20 +140,18 @@ export default function Dashboard() {
                   <Label htmlFor="url">Website URL</Label>
                   <Input id="url" type="url" value={url} onChange={(e) => setUrl(e.target.value)} required />
                 </div>
-                <Button type="submit" className="w-full bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold" disabled={creating}>
+                <Button type="submit" className="w-full bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold" disabled={creating}>
                   {creating ? 'Creating...' : 'Create Website'}
                 </Button>
               </form>
             </DialogContent>
           </Dialog>
           
-          <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
+          <Button className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold h-12">
             Add Page
           </Button>
           
-          <Button className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold h-12">
-            Manage Users
-          </Button>
+          <UserManagementDialog />
         </div>
 
         {/* Add-On Services */}
@@ -186,7 +183,7 @@ export default function Dashboard() {
           <div className="bg-[#0a0e27] rounded-lg p-4 mb-4 overflow-x-auto">
             <pre className="text-[#00CED1] text-sm font-mono">
               <code>{`<script
-  src="${process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001'}/widget.js"
+  src="${process.env.REACT_APP_BACKEND_URL}/api/widget.js"
   data-website-id="YOUR_WEBSITE_ID"
   id="pivot-widget"
   async
@@ -194,21 +191,16 @@ export default function Dashboard() {
             </pre>
           </div>
           <div className="flex gap-4">
-            <Button onClick={copyWidgetCode} className="bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold">
+            <Button onClick={copyWidgetCode} className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold">
               {copied ? <CheckCircle className="h-4 w-4 mr-2" /> : <Copy className="h-4 w-4 mr-2" />}
               {copied ? 'Copied!' : 'Copy Installation Code'}
             </Button>
-            <Button variant="outline">
+            <Button 
+              onClick={() => window.open('https://testing.gopivot.me/installation-guides', '_blank')}
+              className="bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold"
+            >
               Show Instructions
             </Button>
-          </div>
-          <p className="text-xs text-gray-500 mt-4">
-            <strong>Shoppers:</strong> Find step-by-step installation guides for different platforms here.
-          </p>
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <Link to="/installation-guides" className="text-sm text-[#00CED1] hover:underline">
-              Installation Guides →
-            </Link>
           </div>
         </div>
       </div>

@@ -53,36 +53,10 @@ export default function Register() {
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600 rounded-full filter blur-3xl"></div>
         </div>
         <div className="relative z-10 text-center">
-          <div className="mb-8">
-            <h1 className="text-6xl font-bold text-white mb-4">
-              PI<span className="text-[#00CED1]">V</span>OT
-            </h1>
-            <p className="text-lg text-gray-300">Powered by <span className="text-[#00CED1]">dozanu</span></p>
+          <div className="flex flex-col items-center">
+            <img src="/zigzag_logo.svg" alt="PIVOT Logo" className="h-48 w-auto mb-4" />
+            <p className="text-lg text-gray-300">Language Access Technology</p>
           </div>
-          <div className="flex items-center justify-center gap-6 mt-12">
-            <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#00CED1" strokeWidth="2" width="32" height="32">
-                <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/>
-                <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/>
-                <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
-                <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
-              </svg>
-            </div>
-            <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#00CED1" strokeWidth="2" width="32" height="32">
-                <path d="M17 6.1H3"/>
-                <path d="M21 12.1H3"/>
-                <path d="M15.1 18H3"/>
-              </svg>
-            </div>
-            <div className="h-16 w-16 border-2 border-[#00CED1] rounded-full flex items-center justify-center backdrop-blur-sm bg-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#00CED1" strokeWidth="2" width="32" height="32">
-                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-              </svg>
-            </div>
-          </div>
-          <p className="text-gray-400 mt-6 text-sm">Language Access Technology</p>
         </div>
       </div>
 
@@ -184,7 +158,7 @@ export default function Register() {
 
             <Button
               type="submit"
-              className="w-full h-12 bg-[#00CED1] hover:bg-[#00CED1]/90 text-black font-semibold text-base"
+              className="w-full h-12 bg-[#21D4B4] hover:bg-[#91EED2] text-black font-semibold text-base"
               disabled={loading}
               data-testid="register-submit-button"
             >
