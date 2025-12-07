@@ -877,11 +877,20 @@
     // Build content based on enabled modalities
     let contentHTML = '';
     
+    // Get language flags
+    const videoLangFlag = SIGN_LANGUAGES.find(l => l.code === selectedLanguages.video)?.flag || '🇺🇸';
+    const textLangFlag = SPOKEN_LANGUAGES.find(l => l.code === selectedLanguages.text)?.flag || '🇺🇸';
+    const audioLangFlag = SPOKEN_LANGUAGES.find(l => l.code === selectedLanguages.audio)?.flag || '🇺🇸';
+    
     // Video modality
     if (enabledModalities.video) {
       if (section.videos && section.videos.length > 0) {
         contentHTML += `
           <div class="pivot-video-container">
+            <div style="position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.7); padding: 6px 10px; border-radius: 20px; display: flex; align-items: center; gap: 4px; z-index: 10;">
+              <span style="font-size: 18px;">${videoLangFlag}</span>
+              <span style="color: white; font-size: 11px; font-weight: 600;">ASL</span>
+            </div>
             <video class="pivot-video-player" id="pivot-video" controls controlsList="nodownload" disablePictureInPicture>
               <source src="${section.videos[0].video_url}" type="video/mp4">
             </video>
@@ -903,7 +912,11 @@
     // Text modality
     if (enabledModalities.text) {
       contentHTML += `
-        <div class="pivot-text-content" id="pivot-text-content">
+        <div class="pivot-text-content" id="pivot-text-content" style="position: relative;">
+          <div style="position: absolute; top: -6px; left: 8px; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; z-index: 10;">
+            <span style="font-size: 16px;">${textLangFlag}</span>
+            <span style="color: white; font-size: 10px; font-weight: 600;">${selectedLanguages.text}</span>
+          </div>
           <p id="pivot-text-paragraph">${section.text_content || 'No text content available'}</p>
         </div>
       `;
@@ -912,8 +925,12 @@
     // Audio modality
     if (enabledModalities.audio && section.audios && section.audios.length > 0) {
       contentHTML += `
-        <div class="pivot-audio-player">
-          <audio id="pivot-audio" controls controlsList="nodownload">
+        <div class="pivot-audio-player" style="position: relative; padding-top: 8px;">
+          <div style="position: absolute; top: 0; left: 8px; background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; z-index: 10;">
+            <span style="font-size: 16px;">${audioLangFlag}</span>
+            <span style="color: white; font-size: 10px; font-weight: 600;">${selectedLanguages.audio}</span>
+          </div>
+          <audio id="pivot-audio" controls controlsList="nodownload" style="margin-top: 16px;">
             <source src="${section.audios[0].audio_url}" type="audio/mpeg">
           </audio>
         </div>
