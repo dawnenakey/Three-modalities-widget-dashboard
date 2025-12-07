@@ -1424,6 +1424,128 @@ class PIVOTAPITester:
             
         return all_steps_passed
 
+    def test_r2_bucket_name_verification(self):
+        """Test which R2 bucket name is actually being used in the running backend"""
+        print("🪣 R2 BUCKET NAME VERIFICATION TEST")
+        print("Testing which R2 bucket name is actually being used: pivot-assets vs pivot-media")
+        print("User reports bucket keeps reverting to 'pivot-media' despite setting 'pivot-assets'")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login as katherine+admin@dozanu.com / pivot2025
+        print("\n🔐 Step 1: Login as katherine+admin@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "katherine+admin@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Katherine login failed, stopping test")
+            return False
+        
+        self.token = response['access_token']
+        self.user_id = response['user']['id']
+        print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Find a section ID
+        print("\n🔍 Step 2: Find a section ID")
+        print("-" * 50)
+        
+        # Get websites
+        success, websites = self.run_test("Get Websites", "GET", "websites", 200)
+        if not success or not websites:
+            print("❌ No websites found")
+            return False
+        
+        website_id = websites[0]['id']
+        print(f"✅ Using website ID: {website_id}")
+        
+        # Get pages
+        success, pages = self.run_test("Get Pages", "GET", f"websites/{website_id}/pages", 200)
+        if not success or not pages:
+            print("❌ No pages found")
+            return False
+        
+        page_id = pages[0]['id']
+        print(f"✅ Using page ID: {page_id}")
+        
+        # Get sections
+        success, sections = self.run_test("Get Sections", "GET", f"pages/{page_id}/sections", 200)
+        if not success or not sections:
+            print("❌ No sections found")
+            return False
+        
+        section_id = sections[0]['id']
+        print(f"✅ Using section ID: {section_id}")
+
+        # Step 3: POST to /api/sections/{section_id}/video/upload-url
+        print("\n📤 Step 3: POST to /api/sections/{section_id}/video/upload-url")
+        print("-" * 50)
+        
+        upload_request_data = {
+            "filename": "test.mp4",
+            "content_type": "video/mp4",
+            "file_size": 1000000
+        }
+        
+        success, upload_response = self.run_test(
+            "Generate Video Upload URL", 
+            "POST", 
+            f"sections/{section_id}/video/upload-url", 
+            200, 
+            upload_request_data
+        )
+        
+        if not success:
+            print("❌ Failed to generate upload URL")
+            return False
+
+        # Step 4: Extract bucket name from upload_url
+        print("\n🪣 Step 4: Extract bucket name from upload_url")
+        print("-" * 50)
+        
+        upload_url = upload_response.get('upload_url')
+        if not upload_url:
+            print("❌ No upload_url in response")
+            return False
+        
+        print(f"Upload URL: {upload_url}")
+        
+        # Extract bucket name from URL
+        # Expected format: https://XXX.r2.cloudflarestorage.com/BUCKET_NAME/...
+        import re
+        
+        # Pattern to match R2 URL and extract bucket name
+        pattern = r'https://[^/]+\.r2\.cloudflarestorage\.com/([^/]+)'
+        match = re.search(pattern, upload_url)
+        
+        if match:
+            bucket_name = match.group(1)
+            print(f"✅ Extracted bucket name: {bucket_name}")
+            
+            # Check if it's pivot-assets or pivot-media
+            if bucket_name == "pivot-assets":
+                self.log_test("R2 Bucket Name Check", True, f"Bucket name is 'pivot-assets' (CORRECT)")
+                print("✅ RESULT: Bucket name is 'pivot-assets' - matches deployment settings")
+                return True
+            elif bucket_name == "pivot-media":
+                self.log_test("R2 Bucket Name Check", False, f"Bucket name is 'pivot-media' (INCORRECT - should be pivot-assets)")
+                print("❌ RESULT: Bucket name is 'pivot-media' - does NOT match deployment settings")
+                print("🚨 ISSUE CONFIRMED: Bucket is reverting to 'pivot-media' despite being set to 'pivot-assets'")
+                return False
+            else:
+                self.log_test("R2 Bucket Name Check", False, f"Unexpected bucket name: '{bucket_name}'")
+                print(f"❓ RESULT: Unexpected bucket name '{bucket_name}' - neither pivot-assets nor pivot-media")
+                return False
+        else:
+            print("❌ Could not extract bucket name from URL")
+            print(f"URL format: {upload_url}")
+            self.log_test("R2 Bucket Name Extraction", False, f"Could not parse bucket name from URL: {upload_url}")
+            return False
+
     def test_r2_presigned_url_generation_fix(self):
         """Test R2 presigned URL generation after fixing boto3 config to resolve MalformedXML error"""
         print("🔧 R2 PRESIGNED URL GENERATION FIX TEST")
