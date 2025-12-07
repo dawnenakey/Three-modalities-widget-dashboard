@@ -1611,8 +1611,10 @@ def main():
     tester = PIVOTAPITester(base_url=backend_url)
     
     try:
-        # Run the deployment ready tests as specified in the review request
-        success = tester.run_deployment_ready_tests()
+        # Run the specific white page debug test as requested in the review
+        print("🎯 RUNNING WHITE PAGE AFTER VIDEO UPLOAD DEBUG TEST")
+        print("=" * 80)
+        success = tester.test_white_page_after_video_upload_debug()
         tester.print_summary()
         
         # Save detailed results
