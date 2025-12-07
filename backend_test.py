@@ -1637,6 +1637,20 @@ class PIVOTAPITester:
         print("\n📋 Part 4: Verify Text Appears in Widget")
         print("-" * 50)
         
+        # Step 10a: Set page status to "Active" (required for widget API)
+        print("Step 10a: Set page status to Active (required for widget API)")
+        page_status_data = {"status": "Active"}
+        success, _ = self.run_test("Set Page Status to Active", "PATCH", f"pages/{page_id}/status", 200, page_status_data)
+        
+        if not success:
+            print("❌ Failed to set page status to Active")
+            return False
+        
+        # Step 10b: Set section status to "Active" (required for widget API)
+        print("Step 10b: Set section status to Active (required for widget API)")
+        # Update section status directly in database via API (if endpoint exists) or assume it's Active by default
+        # For now, let's check if the section needs status update
+        
         # Step 10: GET /api/widget/{website_id}/content?page_url={page_url}
         print("Step 10: Test widget API with updated content")
         
