@@ -2509,4 +2509,37 @@ def main():
         return 1
 
 if __name__ == "__main__":
-    sys.exit(main())
+    tester = PIVOTAPITester()
+    
+    # Check command line arguments for specific test
+    if len(sys.argv) > 1:
+        test_type = sys.argv[1].lower()
+        
+        if test_type == "video":
+            success = tester.run_video_upload_tests()
+        elif test_type == "comprehensive":
+            success = tester.run_comprehensive_video_upload_tests()
+        elif test_type == "persistence":
+            success = tester.test_video_persistence_flow()
+        elif test_type == "white-page":
+            success = tester.test_white_page_after_video_upload_debug()
+        elif test_type == "r2":
+            success = tester.test_r2_video_upload_flow()
+        elif test_type == "widget":
+            success = tester.test_widget_content_debug()
+        elif test_type == "scraping":
+            success = tester.test_website_scraping_to_text_editing_flow()
+        elif test_type == "deployment":
+            success = tester.run_deployment_ready_tests()
+        elif test_type == "white-screen":
+            success = tester.test_white_screen_video_upload_investigation()
+        else:
+            print("Available test types: video, comprehensive, persistence, white-page, r2, widget, scraping, deployment, white-screen")
+            success = tester.run_all_tests()
+    else:
+        success = tester.run_all_tests()
+    
+    tester.print_summary()
+    
+    # Exit with appropriate code
+    sys.exit(0 if success else 1)
