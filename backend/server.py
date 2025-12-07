@@ -16,6 +16,7 @@ import aiofiles
 from bs4 import BeautifulSoup
 import requests
 from emergentintegrations.llm.openai import OpenAITextToSpeech
+from r2_client import r2_client
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
