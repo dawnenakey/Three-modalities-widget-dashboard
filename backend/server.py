@@ -841,13 +841,13 @@ async def get_audio_upload_url(
         raise HTTPException(status_code=403, detail="Access denied")
     
     file_id = str(uuid.uuid4())
-    file_ext = filename.split('.')[-1] if '.' in filename else 'mp3'
+    file_ext = request.filename.split('.')[-1] if '.' in request.filename else 'mp3'
     file_key = f"audios/{file_id}.{file_ext}"
     
     try:
         upload_data = r2_client.generate_presigned_upload_url(
             file_key=file_key,
-            content_type=content_type,
+            content_type=request.content_type,
             expires_in=3600
         )
         
