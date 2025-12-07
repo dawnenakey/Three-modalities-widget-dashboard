@@ -3,157 +3,165 @@
 **PRODUCT REQUIREMENTS:**
 1.  **Dashboard:** Manage websites, pages, and sections. Support user plans, manual section editing, text correction, user authentication and invitations, and display usage analytics.
 2.  **Widget:** An embeddable, floating side-panel widget that detects the current page URL to display the corresponding ASL video, audio player, and text transcript simultaneously, with section highlighting synced to media playback.
-3.  **Admin/Demo Setup:** Create three admin accounts with shared access to two pre-populated demo websites for demonstration purposes.
-4.  **UI/UX Updates:** Implement a series of UI changes, including a new logo, an Add-On Services page, updated colors, and link styles.
-5.  **Feature Enhancements:** Add manual page status control and fix various bugs related to video uploads and widget functionality.
+3.  **Admin/Demo Setup:** Create admin accounts with shared access to pre-populated demo websites.
+4.  **UI/UX Updates:** Implement a series of UI changes, including a new logo, updated colors, and specific component designs based on Figma specifications.
+5.  **Feature Enhancements:** Add manual page status control, Delete Page functionality, and fix various bugs related to video uploads and widget functionality.
+6.  **Scalable Media Uploads:** Implement a permanent, scalable solution for clients to upload large video and audio files.
 
 **User's preferred language**: English
 
 **what currently exists?**
-A full-stack application (FastAPI, React, MongoDB) with a nearly complete UI. The dashboard supports user auth, website/page/section management, and manual content editing. A large number of UI/UX updates requested by the user during this session have been implemented, including a new logo, an Add-On Services page, and a user management dialog.
+A full-stack application (FastAPI, React, MongoDB) is deployed and accessible. A critical architectural change was made to implement direct-to-Cloudflare R2 uploads for video and audio files using presigned URLs. This new system is implemented on both the frontend () and backend (, ).
 
-Critical backend work was completed, including:
-*   Patching a major security vulnerability by adding ownership/collaborator checks to all media-related API endpoints.
-*   Implementing a collaborator system to allow multiple admin users to access shared websites.
-*   Fixing numerous hardcoded URLs and incorrect embed code generation logic.
-*   Fixing a critical bug in  that prevented it from calling the correct API host.
-*   Adding a feature for manual page status control (/).
+The embeddable widget's UI has been significantly overhauled to match the user's Figma specifications, including an instructional video flow and dynamic height adjustments for different views.
 
-However, there is a fundamental disconnect: all these changes exist only in the agent's local development environment. The live URL, , is a separate deployment that has not been updated, causing significant confusion for the user.
+However, the user is facing a critical blocker on the deployed production environment: they are unable to add sections to a page, receiving a Failed to add section (422 Unprocessable Content) error. This prevents them from uploading media and testing the end-to-end flow.
 
 **Last working item**:
-*   **Last item agent was working on:** Diagnosing why the widget shows Unable to load content on the user's live WordPress test page (). The agent has confirmed that this is due to a URL mismatch.
-*   **Status:** BLOCKED
-*   **Agent Testing Done:** Y
-*   **Which testing method agent to use?** Manual testing by curl. The agent confirmed via  that the API returns an empty list for the URL the widget is on, because that specific URL () does not exist in the database for that website. The database has  (without pivot-).
-*   **User Testing Done:** Y
+- Last item agent was working: Debugging a critical Failed to add section (422 Unprocessable Content) error reported by the user on the deployed production environment. The agent had just located the relevant backend endpoint () in  to investigate the Pydantic validation failure.
+- Status: IN PROGRESS
+- Agent Testing Done: N
+- Which testing method agent to use? backend testing agent. The agent should craft a  or use a Python script to send a POST request to the section creation endpoint, mimicking the frontend's payload, to reproduce the 422 validation error and inspect the backend logs for the exact Pydantic error message.
+- User Testing Done: N
 
 **All Pending/In progress Issue list**:
-*   **P0: Widget shows Unable to load content due to URL mismatch.** This is the primary blocker preventing any further progress on widget testing.
-*   **P1: Recurring Environment Mismatch & Deployment issue.** The user's live site () is running old code. All agent's fixes are local and will not be visible until the user deploys the environment. This is the root cause of most of the session's confusion.
-*   **P2: Admin demo websites not created on production.** The script to create demo websites for the new admin accounts failed with a 500 Internal Server Error when calling the production API.
-*   **P3: Widget button style does not match Figma design.** The user provided a new pill image for the widget button that has not been implemented.
-*   **P4: No Delete Page functionality.** The user noted they are unable to delete pages from the dashboard.
-
-**Issues Detail:**
-*   **Issue 1: Widget shows Unable to load content due to URL mismatch**
-    *   **Attempted fixes:** The agent has repeatedly tested the API, identified the URL mismatch, and explained it to the user.
-    *   **Next debug checklist:**
-        1.  Re-explain to the user that the URLs must match exactly.
-        2.  Guide the user to either:
-            a.  **Option A (Recommended):** In the PIVOT dashboard, add a new page with the exact URL from WordPress: .
-            b.  **Option B:** In WordPress, change the page's permalink/URL from  to  to match what is already in the dashboard.
-        3.  After the URLs match, guide the user to upload video/audio content to the sections of the correct page.
-    *   **Why fix this issue and what will be achieved with the fix?** This is the final step to make the widget functional on the user's test site.
-    *   **Status:** BLOCKED (on user action)
-    *   **Is recurring issue?** Y
-    *   **Should Test frontend/backend/both after fix?** Both (via user testing on their live site).
-    *   **Blocked on other issue:** None.
-
-*   **Issue 2: Recurring Environment Mismatch & Deployment issue**
-    *   **Attempted fixes:** The agent has explained the concept of local vs. deployed environments multiple times. The agent also ran the  and fixed the hardcoded URLs it found.
-    *   **Next debug checklist:** This is not an issue the agent can fix with code. The agent must remind the user that they **must click Deploy** for any changes to be reflected on .
-    *   **Why fix this issue and what will be achieved with the fix?** Resolving this will eliminate the primary source of confusion and wasted time, allowing for effective testing of new features.
-    *   **Status:** BLOCKED (on user deployment)
-    *   **Is recurring issue?** Y
-    *   **Should Test frontend/backend/both after fix?** Both.
-    *   **Blocked on other issue:** None.
+-   **Issue 1: Cannot Add Sections in Production (P0 - CRITICAL BLOCKER)**
+    -   **Description:** When the user clicks Add Section in the dashboard on the deployed , the frontend shows a Failed to add section toast notification, and the browser's network tab shows a  request to  failing with a 422 Unprocessable Content error. This blocks all content creation and media uploads.
+    -   **Attempted fixes:** The agent has confirmed the R2 upload implementation and other related fixes were done, but the section creation itself is failing before any upload can be initiated.
+    -   **Next debug checklist:**
+        1.  Examine the  endpoint in .
+        2.  Inspect the  Pydantic model to see what fields are required.
+        3.  Compare the model with the payload being sent from the  function in .
+        4.  It's likely the frontend is not sending a required field, or sending it with the wrong data type.
+        5.  Reproduce the error with  to get the specific Pydantic validation error from the backend response body.
+    -   **Why fix this issue and what will be achieved with the fix?** This is a critical blocker. Fixing it will allow the user and their clients to create content, upload videos/audio, and use the core functionality of the application.
+    -   **Status:** IN PROGRESS
+    -   **Is recurring issue?** N
+    -   **Should Test frontend/backend/both after fix?** Both.
+    -   **Blocked on other issue:** None.
 
 **In progress Task List**:
-*   None. All work is captured in the issue list.
+*   None.
 
 **Upcoming and Future Tasks**
-**Upcoming Tasks:**
-*   **P0: Implement AWS Translate Integration:** This was discussed in detail. The agent should confirm AWS credentials with the user and then proceed with the integration.
-*   **P1: Implement widget button redesign:** Update the CSS in  to use the new pill-shaped image provided by the user ().
-*   **P2: Add Delete Page functionality:** This requires a new backend  endpoint and a delete button on the frontend  page.
+**Upcoming Tasks (from Figma Redesign):**
+*   **P1: Implement Language Selection UI:** Add Available Language Selections dropdowns for ASL, Audio, and Text.
+*   **P2: Implement Settings View:** Update the settings view to match .
+*   **P3: Implement Persistent User Preferences:** Store the user's modality and language selections for the current session.
 
 **Future Tasks:**
-*   **Build out Analytics.js page:** The widget needs to be updated to track events (widget opens, modality usage), and the backend needs endpoints to store and aggregate this data.
-*   **Implement Billing/Subscription flow:** Create the invoice/billing page for purchasing more pages, likely requiring a Stripe integration.
-*   **UI Polish:** Implement drag-and-drop file uploads and video thumbnail generation.
+*   **P2: Add Delete Page functionality:** Requires a new backend  endpoint and a delete button on the  page.
+*   **P3: Build out Analytics.js page:** The widget needs to be updated to track events, and the backend needs endpoints to store and aggregate this data.
+*   **P3: Implement Billing/Subscription flow:** Create the invoice/billing page for purchasing more pages.
 
 **Completed work in this session**
-- **Critical Security Fix:** Patched a major vulnerability by adding user ownership/collaborator verification to all media upload and retrieval endpoints.
-- **Admin & Collaborator System:**
-    - Created three admin accounts (, , ).
-    - Implemented a collaborator model on the  collection and updated API endpoints to allow shared access to websites.
-- **UI/UX Overhaul:**
-    - Replaced the logo with the new PIVOT powered by dozanu white version.
-    - Created and integrated the  page.
-    - Updated the Pro plan highlight color to purple ().
-    - Added a purchase more pages link to the  page.
-- **Feature Implementation:**
-    - Added a manual status dropdown (/) on the  page to control page status.
-    - Created a UI placeholder for the  page and a basic backend endpoint.
-    - Created and integrated a  component.
-- **Bug Fixes & Deployment Prep:**
-    - **Fixed critical widget bug:** Corrected  to call the proper backend API domain instead of the host page's domain.
-    - Fixed all hardcoded emergent.host URLs in the frontend codebase, replacing them with dynamic environment variables.
-    - Added robust  handling for video and audio elements in  to prevent broken media icons.
-    - Created cleanup scripts () to resolve data consistency issues with uploaded files.
+- **Permanent Media Upload Solution:** Implemented a scalable, production-ready solution for clients to upload media directly to Cloudflare R2 using presigned URLs. This supports large files (up to 1GB, configurable) and removes the backend as a bottleneck.
+- **Widget UI/UX Overhaul:**
+    - Implemented the instructional video flow on the widget's first open.
+    - Refined widget dimensions to dynamically match user's multi-view specifications (Instructional, Settings, Getting Started, Language).
+- **Critical Production Bug Fixes:**
+    - Resolved a  validation error () that caused the Create Website API to fail with a 500 error.
+    - Fixed a bug in the widget content API where it was looking for a  field instead of , causing the No content available error.
+    - Identified and fixed  configuration that was preventing  files from being deployed, which was the root cause of persistent authentication and database connection failures in production.
+    - Diagnosed that an old, buggy version of  was cached on R2 and guided the user to upload the correct, updated file.
+- **Dashboard & Data Fixes:**
+    - Updated the dashboard logo to .
+    - Corrected the embed code snippet in the dashboard to use the correct production URL.
+    - Re-created admin users and demo websites after a suspected database reset/connection issue.
+    - Granted super_admin role to .
+
+**Earlier issues found/mentioned but not fixed**
+-   **Issue 1: Recurring  error during script execution**
+    -   **Debug checklist:** When running helper scripts like , an  occurs. This points to a dependency version conflict, likely between  and .
+    -   **Why to solve this issue and what will be achieved with this?** While the scripts seem to complete their tasks, this error indicates an unstable dependency environment. Fixing it will prevent potential future issues with authentication.
+    -   **Should Test frontend/backend/both after fix:** Backend.
+    -   **Is recurring issue?** Y
+
+**Known issue recurrence from previous fork**
+- None.
 
 **Code Architecture**
 
 
+**Key Technical Concepts**
+*   **Direct-to-Cloudflare R2 media uploads via presigned URLs:** A 3-step process where the frontend requests a temporary, secure upload URL from the backend, uploads the file directly to R2, and then confirms the upload with the backend. This is the new, permanent solution for media uploads.
+*   **External CDN for Static Assets:** All static assets, including the core  script, are served from Cloudflare R2.
+*   **Dynamic Widget UI:** The widget's CSS and JS were updated to dynamically change its height and layout based on the current view (instructional video, settings, etc.).
+
 **key DB schema**
-*   **users:**  (added )
-*   **websites:**  (added )
-*   **pages:**  (added )
-*   **sections:** 
-*   **videos:** 
-*   **audios:** 
+*   No changes in this session.
+
+**changes in tech stack**
+*   None.  was already in .
 
 **All files of reference**
-*   : Critical file. **Modified** to fix a major API host bug. Needs further modification for the new button style.
-*   : Critical file. **Modified** to add security checks, collaborator logic, status updates, and new endpoints.
-*   : **Modified** to add the manual status dropdown.
-*   : **Modified** to update logo and add Add-On Services to navigation.
-*   : **New** page for addon services.
-*   : **New** component for user invites.
-*   , : **Modified** to fix hardcoded old embed code URLs.
+*   : Major changes to add R2 presigned URL endpoints and fix bugs in the website creation and widget content APIs.
+*   : Completely refactored  and  to use the new direct-to-R2 flow.
+*   : New file containing the Boto3 logic to interact with Cloudflare R2.
+*   : Updated with R2 credentials.
+*   : Heavily modified with new features and bug fixes. The user must upload this file to R2 manually.
+*   : Modified to allow  files to be included in deployments.
+*   : New documentation file explaining the R2 upload architecture.
+
+**Areas that need refactoring**:
+*   None.
+
+**key api endpoints**
+*   : **(NEW)** Generates a presigned URL for direct video upload to R2.
+*   : **(NEW)** Confirms the R2 upload and saves video details to the DB.
+*   : **(NEW)** Generates a presigned URL for direct audio upload to R2.
+*   : **(NEW)** Confirms the R2 upload and saves audio details to the DB.
+*   : **(FIXED)** Patched a Pydantic validation bug.
+*   : **(FIXED)** Patched a bug where it was looking for the wrong field name ().
+*   : **(FAILING)** This is the endpoint causing the user's 422 error.
 
 **Critical Info for New Agent**
-*   **ENVIRONMENT MISMATCH IS THE #1 PROBLEM:** Your local environment is completely separate from the user's live site at . **NOTHING you build or fix will be visible to the user until they DEPLOY the environment.** You must constantly remind the user of this fact. Do not waste time debugging issues on the live site that you have already fixed locally.
-*   **WIDGET CONTENT LOADING:** The widget's functionality depends on an **EXACT** URL match between the page it's embedded on () and the Page URL stored in the dashboard. The current blocker is a mismatch between  (on WordPress) and  (in the dashboard). You must guide the user to resolve this.
-*   **ACCOUNT CONFUSION:** The user frequently switches between  and . Be aware that these are separate accounts with different websites and content.
+*   **Production Blocker:** The user is blocked by a 422 error when adding sections on . Your immediate priority is to debug and fix this. The error is a backend Pydantic validation failure.
+*   **R2 is the Source of Truth for Media:** All video and audio uploads now go directly to Cloudflare R2. The frontend code in  handles this. The old method of uploading through the backend server is deprecated.
+*   ** Manual Upload:** The user is responsible for uploading the latest  to their R2 bucket for changes to be reflected in production. The current version on R2 should be the correct one (39KB), but be aware this is a manual step for the user.
+*   **Deployment vs. Local:** Be very careful to distinguish between local testing and the deployed environment. The root cause of many previous issues was that the deployed environment was not receiving  file updates. This has been fixed, but always verify issues on production.
+
+**documents created in this job**
+*   : Detailed documentation on the new direct-to-R2 upload architecture.
+*   : Helper script to create the demo website with the correct hardcoded ID.
+*   : One-off script to create a website for the user.
+*   : One-off script to reset a user's password.
 
 **Last 10 User Messages and any pending user messages**
-1.  **User:** Reports login issues for admin accounts. (Resolved: Agent identified user was trying to log into a different database and created the accounts on the production DB).
-2.  **User:** Asks if demo content is visible in the admin account. (In Progress: Agent confirmed demo content is local and API calls to create it on production are failing).
-3.  **User:** Asks if the embed code will show emergent. (Resolved: Agent confirmed all local code is fixed, but it won't reflect on the live site until deployed).
-4.  **User:** Reports the embed code in the dashboard *still* shows the old emergent URL. (Resolved: Agent found hardcoded text in the frontend and fixed it locally, explained deployment is needed).
-5.  **User:** Asks how to purge Cloudflare cache. (Resolved: Agent explained the cache would expire in 5 mins and that deployment is the real solution).
-6.  **User:** Reports  still shows Not Setup even with content. (Resolved: Agent fixed status calculation and added a manual status dropdown locally).
-7.  **User:** Asks if deployment is needed. (Resolved: Agent confirmed YES, deployment is mandatory for any changes to go live).
-8.  **User:** Reports the test page is blank and the dashboard still shows the wrong embed code. (Resolved: Agent explained this is expected because of the deployment issue and provided the correct manual embed code as a workaround).
-9.  **User:** Reports the widget shows Unable to load content after deploying. Asks for the button to match the Figma design. (In Progress: This is the current main issue).
-10. **User:** Reports they cannot delete a page, confirming the current website/page setup. (Acknowledged: This is now a pending feature request).
-11. **Pending:** The user is confused why the widget on  says Unable to load content. This is the current blocker.
+1.  **User:** Asks if video uploads from the dashboard will now automatically go to R2 and play on the widget. (Status: Agent explained this is a two-part process and the frontend needs to be updated).
+2.  **User:** Agrees to implement the frontend part (Option B) for direct R2 uploads. (Status: COMPLETE, agent implemented it).
+3.  **User:** Asks about R2 storage limits and costs for their client load. (Status: COMPLETE, agent provided a detailed breakdown).
+4.  **User:** Reports that after deploying, they are getting an error when trying to add a section again. (Status: PENDING - THIS IS THE CURRENT BLOCKER).
+5.  **Agent:** Asks for details about the error.
+6.  **User:** Clarifies it's the same video upload issue as before, and they are trying to use the new R2 flow. (Status: User provided a screenshot showing Failed to add section 422 error).
+7.  **Agent:** Identifies the error as a 422 Unprocessable Content when creating a section, not during the upload itself.
+8.  **Agent:** Starts debugging the  backend endpoint.
+9.  **User:** (Implicitly waiting for a fix for the Failed to add section 422 error).
 
 **Project Health Check:**
-*   **Broken:**
-    *   Widget content loading on the live site due to the URL mismatch.
-    *   Website creation on the production environment () fails with a 500 Internal Server Error.
-*   **Mocked:**
-    *   The  page is a UI placeholder with no real event tracking.
-    *   The purchase more pages link leads nowhere.
+*   **Broken:** The core feature of adding new content (sections) is broken in production, which blocks media uploads.
+*   **Mocked:** The  page is still a UI placeholder.
 
 **3rd Party Integrations**
-*   **MongoDB Atlas:** Fully integrated for database storage.
-*   **OpenAI TTS:** Integrated via  for AI-powered audio generation.
+*   **MongoDB Atlas:** Primary database.
+*   **OpenAI TTS:** Integrated for text-to-speech generation.
+*   **Cloudflare R2:** Used for two purposes:
+    1.  Hosting static assets (e.g., , images).
+    2.  **(NEW)** Storing all user-uploaded media (videos, audio) via direct presigned URL uploads.
 
 **Testing status**
-*   **Testing agent used after significant changes:** YES (to diagnose video upload issue).
-*   **Troubleshoot agent used after agent stuck in loop:** YES (to diagnose deployment configuration issue).
-*   **Test files created:**
-    *   
-    *   
-    *   
-    *   
-    *   
-*   **Known regressions:** None.
+*   **Testing agent used after significant changes:** YES, it helped identify several issues before a final summary was provided.
+*   **Troubleshoot agent used after agent stuck in loop:** YES, it helped identify a JWT authentication issue.
+*   **Test files created:** , .
+*   **Known regressions:** The ability to add sections is currently broken in production.
+
+**Credentials to test flow:**
+*   **Dashboard Login (Admin):**
+    *   Email: 
+    *   Password: 
+*   **Dashboard Login (Super Admin):**
+    *   Email: 
+    *   Password: 
 
 **What agent forgot to execute**
-*   The agent has not yet implemented the new widget button design provided by the user ().
-*   The agent did not add the Delete Page functionality the user requested.</analysis>
+*   The recurring  error that appears when running Python helper scripts has not been fixed.</analysis>
