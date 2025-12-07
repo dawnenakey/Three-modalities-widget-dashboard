@@ -871,8 +871,8 @@
       return;
     }
     
-    // Apply content-view class
-    modal.className = 'pivot-widget-modal open content-view';
+    // Apply dynamic height based on number of active modalities
+    modal.className = `pivot-widget-modal open content-view content-view-${activeCount}`;
     
     // Build content based on enabled modalities
     let contentHTML = '';
