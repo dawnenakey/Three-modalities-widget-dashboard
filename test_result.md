@@ -227,6 +227,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "Video retrieval API working correctly. GET /api/sections/{section_id}/videos returns 200 with uploaded videos in response. Database consistency verified - uploaded videos appear in list immediately."
+        - working: true
+          agent: "testing"
+          comment: "WHITE SCREEN INVESTIGATION: Video retrieval API fully functional. GET /api/sections/{section_id}/videos returns 200 OK with proper video structure. All required fields present in response. Immediate retrieval after upload working correctly. API not causing white screen issue."
 
   - task: "Video Playback API"
     implemented: true
