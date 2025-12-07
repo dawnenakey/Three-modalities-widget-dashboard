@@ -201,15 +201,11 @@ export default function SectionDetail() {
         file_size: videoFile.size
       });
       
-      // Step 2: Upload directly to R2
-      const r2FormData = new FormData();
-      Object.keys(uploadData.fields).forEach(key => {
-        r2FormData.append(key, uploadData.fields[key]);
-      });
-      r2FormData.append('file', videoFile);
-      
-      await axios.post(uploadData.upload_url, r2FormData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      // Step 2: Upload directly to R2 using PUT (R2 doesn't support POST)
+      await axios.put(uploadData.upload_url, videoFile, {
+        headers: { 
+          'Content-Type': videoFile.type || 'video/mp4'
+        },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
