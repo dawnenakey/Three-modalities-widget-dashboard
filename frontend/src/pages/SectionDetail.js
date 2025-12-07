@@ -279,16 +279,18 @@ export default function SectionDetail() {
         language: language
       });
       
-      toast.success('Audio uploaded successfully!', { id: 'audio-upload' });
+      toast.success('Audio uploaded successfully! Refreshing...', { id: 'audio-upload' });
       e.target.reset();
       
-      // Refresh data after successful upload
-      try {
-        await fetchData();
-      } catch (refreshError) {
-        console.error('Failed to refresh after upload:', refreshError);
-        toast.info('Audio uploaded! Please refresh the page to see it.');
-      }
+      // Refresh data after successful upload with a small delay
+      setTimeout(async () => {
+        try {
+          await fetchData();
+        } catch (refreshError) {
+          console.error('Failed to refresh after upload:', refreshError);
+          toast.info('Audio uploaded! Please refresh the page manually to see it.');
+        }
+      }, 1000); // Give the backend a moment to finish processing
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.detail || 'Failed to upload audio', { id: 'audio-upload' });
