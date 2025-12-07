@@ -25,7 +25,14 @@ export const AuthProvider = ({ children }) => {
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user:', error);
-      logout();
+      // Only logout on 401 (unauthorized), not on network errors
+      if (error.response?.status === 401) {
+        logout();
+      } else {
+        // For other errors (network, 500, etc), keep the user logged in
+        console.warn('Temporary error fetching user, keeping session active');
+        setUser({ email: 'Loading...', name: 'Loading...' }); // Placeholder
+      }
     } finally {
       setLoading(false);
     }
