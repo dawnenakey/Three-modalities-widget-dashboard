@@ -9,44 +9,44 @@
     {
       "test": "Login with katherine+admin@dozanu.com",
       "success": true,
-      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1N2RmMDkxMi00MGU4LTRiMjAtOWQzOS01OTg0NWI5Mjc4NTkiLCJleHAiOjE3NjUyMDIxNzZ9.vtkHtXwNJdWBgj3ICtRBAP8v1a0G41DQE5ujIvxwl7U\",\n  \"token_ty...",
-      "timestamp": "2025-12-07T13:56:16.847753"
+      "details": "Status: 200, Response: {\n  \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1N2RmMDkxMi00MGU4LTRiMjAtOWQzOS01OTg0NWI5Mjc4NTkiLCJleHAiOjE3NjUyMDQyNDN9._OykMNqbu2rmAhb79Aa809zZxt_b_fLAaoRJngv_0Sk\",\n  \"token_ty...",
+      "timestamp": "2025-12-07T14:30:43.155381"
     },
     {
       "test": "Get All Websites",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"704d0c1e-7fb7-4f0c-928a-afa3200ae486\",\n    \"owner_id\": \"57df0912-40e8-4b20-9d39-59845b927859\",\n    \"name\": \"Testing GoPivot\",\n    \"url\": \"https://testing.gopivot.me/\",\n    \"embed_code...",
-      "timestamp": "2025-12-07T13:56:17.119034"
+      "timestamp": "2025-12-07T14:30:43.422269"
     },
     {
       "test": "Get All Pages for Website",
       "success": true,
-      "details": "Status: 200, Response: [\n  {\n    \"id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n    \"website_id\": \"704d0c1e-7fb7-4f0c-928a-afa3200ae486\",\n    \"url\": \"https://testing.gopivot.me/pdf\",\n    \"status\": \"Not Setup\",\n    \"sections_...",
-      "timestamp": "2025-12-07T13:56:17.532366"
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n    \"website_id\": \"704d0c1e-7fb7-4f0c-928a-afa3200ae486\",\n    \"url\": \"https://testing.gopivot.me/pdf\",\n    \"status\": \"Active\",\n    \"sections_cou...",
+      "timestamp": "2025-12-07T14:30:43.615521"
     },
     {
       "test": "Get All Sections for Page",
       "success": true,
       "details": "Status: 200, Response: [\n  {\n    \"id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n    \"page_id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n    \"selected_text\": \"Testing\",\n    \"position_order\": 1,\n    \"status\": \"Not Setup\",\n    \"...",
-      "timestamp": "2025-12-07T13:56:17.662720"
+      "timestamp": "2025-12-07T14:30:43.813022"
     },
     {
       "test": "GET Section 1 Details",
       "success": true,
       "details": "Status: 200, Response: {\n  \"id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n  \"page_id\": \"c659abbb-6ea3-43cd-a5c3-7f7b1f86e1fa\",\n  \"selected_text\": \"Testing\",\n  \"position_order\": 1,\n  \"status\": \"Not Setup\",\n  \"videos_count\": 0...",
-      "timestamp": "2025-12-07T13:56:17.794914"
+      "timestamp": "2025-12-07T14:30:44.063283"
     },
     {
       "test": "GET Section 1 Videos",
       "success": true,
       "details": "Status: 200, Response: []...",
-      "timestamp": "2025-12-07T13:56:17.939060"
+      "timestamp": "2025-12-07T14:30:44.200239"
     },
     {
       "test": "GET Section 1 Audio",
       "success": true,
-      "details": "Status: 200, Response: []...",
-      "timestamp": "2025-12-07T13:56:18.108164"
+      "details": "Status: 200, Response: [\n  {\n    \"id\": \"9e643472-0730-4763-ba6e-3929ecf3d694\",\n    \"section_id\": \"62ed07e0-5d22-4acc-9acd-67969def6014\",\n    \"language\": \"English\",\n    \"audio_url\": \"/api/uploads/audio/68f482aa-65c4-4cc7-ba4...",
+      "timestamp": "2025-12-07T14:30:44.440919"
     }
   ]
 }
