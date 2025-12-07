@@ -260,15 +260,11 @@ export default function SectionDetail() {
         content_type: audioFile.type || 'audio/mpeg'
       });
       
-      // Step 2: Upload directly to R2
-      const r2FormData = new FormData();
-      Object.keys(uploadData.fields).forEach(key => {
-        r2FormData.append(key, uploadData.fields[key]);
-      });
-      r2FormData.append('file', audioFile);
-      
-      await axios.post(uploadData.upload_url, r2FormData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      // Step 2: Upload directly to R2 using PUT (R2 doesn't support POST)
+      await axios.put(uploadData.upload_url, audioFile, {
+        headers: { 
+          'Content-Type': audioFile.type || 'audio/mpeg'
+        },
         onUploadProgress: (progressEvent) => {
           const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
           toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
