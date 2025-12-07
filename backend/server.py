@@ -1003,6 +1003,74 @@ async def delete_audio(audio_id: str, current_user: dict = Depends(get_current_u
     
     return {"message": "Audio deleted successfully"}
 
+
+# Text Translation API
+@api_router.post("/sections/{section_id}/translations", response_model=TextTranslation)
+async def create_text_translation(
+    section_id: str,
+    language: str = Form(...),
+    language_code: str = Form(...),
+    text_content: str = Form(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a text translation for a section"""
+    # Verify section exists and user has access
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Create translation
+    translation = TextTranslation(
+        section_id=section_id,
+        language=language,
+        language_code=language_code,
+        text_content=text_content
+    )
+    
+    translation_dict = translation.model_dump()
+    translation_dict['created_at'] = translation_dict['created_at'].isoformat()
+    await db.text_translations.insert_one(translation_dict)
+    
+    return translation
+
+@api_router.get("/sections/{section_id}/translations", response_model=List[TextTranslation])
+async def get_text_translations(section_id: str):
+    """Get all text translations for a section"""
+    translations = await db.text_translations.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
+    return translations
+
+@api_router.delete("/translations/{translation_id}")
+async def delete_text_translation(translation_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a text translation"""
+    # Find the translation
+    translation = await db.text_translations.find_one({"id": translation_id}, {"_id": 0})
+    if not translation:
+        raise HTTPException(status_code=404, detail="Translation not found")
+    
+    # Security: Verify translation belongs to current user
+    section = await db.sections.find_one({"id": translation['section_id']}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Delete from database
+    await db.text_translations.delete_one({"id": translation_id})
+    
+    return {"message": "Translation deleted successfully"}
+
 # Widget API (Public)
 @api_router.get("/widget/{website_id}/content")
 async def get_widget_content(website_id: str, page_url: str):
