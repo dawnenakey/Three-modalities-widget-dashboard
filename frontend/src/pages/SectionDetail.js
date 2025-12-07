@@ -336,10 +336,30 @@ export default function SectionDetail() {
   return (
     <DashboardLayout>
       <div className="p-8">
-        <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6 text-gray-600 hover:text-gray-900">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Sections
-        </Button>
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" onClick={() => navigate(-1)} className="text-gray-600 hover:text-gray-900">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Sections
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={async () => {
+              if (window.confirm('Are you sure you want to delete this section? This will also delete all videos and audio files associated with it.')) {
+                try {
+                  await axios.delete(`${API}/sections/${sectionId}`);
+                  toast.success('Section deleted successfully!');
+                  navigate(-1);
+                } catch (error) {
+                  console.error('Delete section error:', error);
+                  toast.error('Failed to delete section');
+                }
+              }
+            }}
+            size="sm"
+          >
+            Delete Section
+          </Button>
+        </div>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Section Settings</h1>
 
