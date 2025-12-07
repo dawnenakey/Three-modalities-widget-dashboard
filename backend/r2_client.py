@@ -26,12 +26,16 @@ class R2Client:
             return
         
         # Configure S3 client for R2
+        # Use path-style addressing for R2 compatibility
         self.client = boto3.client(
             's3',
             endpoint_url=f'https://{self.account_id}.r2.cloudflarestorage.com',
             aws_access_key_id=self.access_key,
             aws_secret_access_key=self.secret_key,
-            config=Config(signature_version='s3v4'),
+            config=Config(
+                signature_version='s3v4',
+                s3={'addressing_style': 'path'}
+            ),
             region_name='auto'
         )
     
