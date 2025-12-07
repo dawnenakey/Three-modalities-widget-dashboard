@@ -444,9 +444,11 @@ export default function SectionDetail() {
               {videos.length === 0 ? (
                 <p className="text-sm text-gray-500 py-4 text-center">No videos uploaded yet</p>
               ) : (
-                videos.map((video) => (
-                  <VideoPlayer key={video.id} video={video} />
-                ))
+                <div className="space-y-3">
+                  {videos.map((video) => (
+                    <VideoPlayer key={video.id} video={video} onDelete={handleDeleteVideo} />
+                  ))}
+                </div>
               )}
             </div>
           </div>
