@@ -666,14 +666,14 @@ async def get_video_upload_url(
     
     # Generate unique file key
     file_id = str(uuid.uuid4())
-    file_ext = filename.split('.')[-1] if '.' in filename else 'mp4'
+    file_ext = request.filename.split('.')[-1] if '.' in request.filename else 'mp4'
     file_key = f"videos/{file_id}.{file_ext}"
     
     # Generate presigned upload URL
     try:
         upload_data = r2_client.generate_presigned_upload_url(
             file_key=file_key,
-            content_type=content_type,
+            content_type=request.content_type,
             expires_in=3600  # 1 hour to complete upload
         )
         
