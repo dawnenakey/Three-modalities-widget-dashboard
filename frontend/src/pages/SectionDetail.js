@@ -188,10 +188,18 @@ export default function SectionDetail() {
     
     setUploading(true);
     try {
-      // Step 1: Get presigned upload URL from backend
+      // Step 1: Check file size (500MB max)
+      const MAX_SIZE = 500 * 1024 * 1024; // 500MB
+      if (videoFile.size > MAX_SIZE) {
+        toast.error(`File too large! Maximum size is 500MB. Your file is ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`);
+        return;
+      }
+      
+      // Step 2: Get presigned upload URL from backend
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/video/upload-url`, {
         filename: videoFile.name,
-        content_type: videoFile.type || 'video/mp4'
+        content_type: videoFile.type || 'video/mp4',
+        file_size: videoFile.size
       });
       
       // Step 2: Upload directly to R2
