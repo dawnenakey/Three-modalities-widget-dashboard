@@ -366,14 +366,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "User Authentication API"
-    - "Video Upload API"
-    - "Video Retrieval API"
-    - "Video Playback API"
-    - "Collaborator Access Control"
-    - "Video Upload Error Handling"
+    - "Website Management API"
+    - "Audio Upload API"
   stuck_tasks: []
-  test_all: true
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
