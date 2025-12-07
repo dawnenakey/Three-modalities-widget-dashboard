@@ -173,7 +173,14 @@ export default function SectionDetail() {
       
       toast.success('Video uploaded successfully!', { id: 'video-upload' });
       e.target.reset();
-      fetchData();
+      
+      // Refresh data after successful upload
+      try {
+        await fetchData();
+      } catch (refreshError) {
+        console.error('Failed to refresh after upload:', refreshError);
+        toast.info('Video uploaded! Please refresh the page to see it.');
+      }
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.detail || 'Failed to upload video', { id: 'video-upload' });
