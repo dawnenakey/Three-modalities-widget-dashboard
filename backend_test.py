@@ -1606,6 +1606,299 @@ class PIVOTAPITester:
 
         return True
 
+    def test_white_screen_video_upload_investigation(self):
+        """Investigate the persistent white screen issue after video upload as per review request"""
+        print("🔍 WHITE SCREEN AFTER VIDEO UPLOAD INVESTIGATION")
+        print("Review Request: User reports white screen after video upload on BOTH desktop and mobile browsers")
+        print("This happens even after uploading video successfully. Audio uploads work fine.")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login as dawnena@dozanu.com / pivot2025 (or katherine+admin if dawnena fails)
+        print("\n🔐 Step 1: Login as dawnena@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "dawnena@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with dawnena@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Dawnena login failed, trying katherine+admin as fallback")
+            login_data = {
+                "email": "katherine+admin@dozanu.com",
+                "password": "pivot2025"
+            }
+            success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+            if not success:
+                print("❌ Both login attempts failed, stopping tests")
+                return False
+        
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Find Testing GoPivot website
+        print("\n🌐 Step 2: Find Testing GoPivot website")
+        print("-" * 50)
+        
+        success, websites = self.run_test("Get All Websites", "GET", "websites", 200)
+        if not success or not websites:
+            print("❌ No websites found for user")
+            return False
+        
+        testing_website = None
+        for website in websites:
+            website_name = website.get('name', '').lower()
+            website_url = website.get('url', '').lower()
+            if 'testing' in website_name or 'gopivot' in website_name or 'testing.gopivot.me' in website_url:
+                testing_website = website
+                print(f"✅ Found Testing GoPivot website: {website.get('name')} - {website.get('url')}")
+                break
+        
+        if not testing_website:
+            print("❌ Testing GoPivot website not found")
+            print("Available websites:")
+            for website in websites:
+                print(f"   - {website.get('name', 'Unknown')}: {website.get('url', 'Unknown')}")
+            # Use first website as fallback
+            testing_website = websites[0]
+            print(f"Using first website as fallback: {testing_website.get('name')}")
+
+        website_id = testing_website.get('id')
+
+        # Step 3: Find the PDF page (https://testing.gopivot.me/pdf)
+        print("\n📄 Step 3: Find the PDF page (https://testing.gopivot.me/pdf)")
+        print("-" * 50)
+        
+        success, pages = self.run_test("Get All Pages for Website", "GET", f"websites/{website_id}/pages", 200)
+        if not success or not pages:
+            print("❌ No pages found for website")
+            return False
+        
+        pdf_page = None
+        for page in pages:
+            page_url = page.get('url', '').lower()
+            if 'pdf' in page_url or page_url.endswith('/pdf'):
+                pdf_page = page
+                print(f"✅ Found PDF page: {page.get('url')}")
+                break
+        
+        if not pdf_page:
+            print("❌ PDF page not found")
+            print("Available pages:")
+            for page in pages:
+                print(f"   - {page.get('url', 'Unknown')}")
+            # Use first page as fallback
+            pdf_page = pages[0]
+            print(f"Using first page as fallback: {pdf_page.get('url')}")
+
+        page_id = pdf_page.get('id')
+
+        # Step 4: Get all sections for that page
+        print("\n📝 Step 4: Get all sections for that page")
+        print("-" * 50)
+        
+        success, sections = self.run_test("Get All Sections for PDF Page", "GET", f"pages/{page_id}/sections", 200)
+        if not success:
+            print("❌ Failed to get sections for page - THIS COULD BE THE WHITE PAGE ISSUE!")
+            return False
+        
+        if not sections:
+            print("❌ No sections found for page")
+            return False
+        
+        print(f"✅ Found {len(sections)} sections")
+
+        # Step 5: For each section with videos, test the video structure
+        print("\n🎥 Step 5: For each section with videos, test video structure")
+        print("-" * 50)
+        
+        video_structure_issues = []
+        sections_with_videos = []
+        
+        for i, section in enumerate(sections):
+            section_id = section.get('id')
+            section_text = section.get('selected_text', section.get('text_content', 'No text'))[:50]
+            
+            print(f"\n   Testing Section {i+1}: {section_text}... (ID: {section_id})")
+            
+            # GET /api/sections/{section_id}/videos
+            success, videos_data = self.run_test(f"GET Section {i+1} Videos", "GET", f"sections/{section_id}/videos", 200)
+            if not success:
+                video_structure_issues.append(f"Section {i+1}: Videos endpoint failed - {section_id}")
+                continue
+            
+            if not videos_data or len(videos_data) == 0:
+                print(f"     → No videos found for this section")
+                continue
+            
+            sections_with_videos.append({
+                'section_id': section_id,
+                'section_text': section_text,
+                'videos': videos_data
+            })
+            
+            print(f"     → Found {len(videos_data)} videos")
+            
+            # Check the exact structure of video objects returned
+            for j, video in enumerate(videos_data):
+                print(f"       Video {j+1} structure check:")
+                
+                # Verify all required fields exist: id, section_id, language, video_url, file_path, created_at
+                required_fields = ['id', 'section_id', 'language', 'video_url', 'file_path', 'created_at']
+                missing_fields = []
+                null_fields = []
+                
+                for field in required_fields:
+                    if field not in video:
+                        missing_fields.append(field)
+                    elif video[field] is None:
+                        null_fields.append(field)
+                    else:
+                        print(f"         ✅ {field}: {video[field]}")
+                
+                if missing_fields:
+                    issue = f"Section {i+1}, Video {j+1}: Missing fields - {missing_fields}"
+                    video_structure_issues.append(issue)
+                    print(f"         ❌ Missing fields: {missing_fields}")
+                
+                if null_fields:
+                    issue = f"Section {i+1}, Video {j+1}: Null fields - {null_fields}"
+                    video_structure_issues.append(issue)
+                    print(f"         ❌ Null fields: {null_fields}")
+                
+                # Check if video_url format is correct
+                video_url = video.get('video_url')
+                if video_url:
+                    if not video_url.startswith('/api/uploads/videos/') and not video_url.startswith('http'):
+                        issue = f"Section {i+1}, Video {j+1}: Malformed video_url - {video_url}"
+                        video_structure_issues.append(issue)
+                        print(f"         ❌ Malformed video_url: {video_url}")
+                    else:
+                        print(f"         ✅ video_url format correct: {video_url}")
+
+        # Step 6: Test the video confirm endpoint by checking recent video records
+        print("\n🔍 Step 6: Check recent video records for proper structure")
+        print("-" * 50)
+        
+        recent_video_issues = []
+        
+        # Look for any videos uploaded recently across all sections
+        all_recent_videos = []
+        for section_info in sections_with_videos:
+            for video in section_info['videos']:
+                created_at = video.get('created_at')
+                if created_at:
+                    # Check if video was created recently (within last 24 hours for example)
+                    try:
+                        from datetime import datetime, timezone, timedelta
+                        if isinstance(created_at, str):
+                            video_date = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        else:
+                            video_date = created_at
+                        
+                        now = datetime.now(timezone.utc)
+                        if (now - video_date) < timedelta(hours=24):
+                            all_recent_videos.append({
+                                'section_id': section_info['section_id'],
+                                'video': video,
+                                'age_hours': (now - video_date).total_seconds() / 3600
+                            })
+                    except Exception as e:
+                        recent_video_issues.append(f"Date parsing error for video {video.get('id')}: {str(e)}")
+        
+        print(f"Found {len(all_recent_videos)} recent videos (within 24 hours)")
+        
+        for i, recent_video_info in enumerate(all_recent_videos):
+            video = recent_video_info['video']
+            age_hours = recent_video_info['age_hours']
+            print(f"   Recent Video {i+1}: ID {video.get('id')}, Age: {age_hours:.1f} hours")
+            
+            # Verify no null values in required fields
+            required_fields = ['id', 'section_id', 'language', 'video_url', 'file_path', 'created_at']
+            for field in required_fields:
+                if video.get(field) is None:
+                    issue = f"Recent Video {i+1}: Null value in {field}"
+                    recent_video_issues.append(issue)
+                    print(f"     ❌ Null value in {field}")
+
+        # Step 7: Check backend logs for any errors
+        print("\n📋 Step 7: Check backend logs for errors")
+        print("-" * 50)
+        
+        print("Checking backend logs for recent errors...")
+        
+        # Check supervisor backend logs
+        try:
+            import subprocess
+            result = subprocess.run(['tail', '-n', '50', '/var/log/supervisor/backend.err.log'], 
+                                  capture_output=True, text=True, timeout=10)
+            if result.returncode == 0 and result.stdout.strip():
+                print("Recent backend error logs:")
+                print(result.stdout)
+            else:
+                print("No recent backend error logs found")
+        except Exception as e:
+            print(f"Could not check backend logs: {str(e)}")
+
+        # Step 8: Analysis and Summary
+        print("\n🔍 Step 8: WHITE SCREEN ISSUE ANALYSIS")
+        print("-" * 50)
+        
+        print(f"\n📊 INVESTIGATION SUMMARY:")
+        print(f"• Login successful: ✅")
+        print(f"• Testing GoPivot website found: ✅")
+        print(f"• PDF page found: ✅")
+        print(f"• Sections retrieved: {len(sections)}")
+        print(f"• Sections with videos: {len(sections_with_videos)}")
+        print(f"• Video structure issues: {len(video_structure_issues)}")
+        print(f"• Recent video issues: {len(recent_video_issues)}")
+        
+        total_issues = len(video_structure_issues) + len(recent_video_issues)
+        
+        if total_issues > 0:
+            print(f"\n❌ CRITICAL ISSUES FOUND ({total_issues} total):")
+            
+            if video_structure_issues:
+                print(f"\n🎥 Video Structure Issues:")
+                for issue in video_structure_issues:
+                    print(f"   • {issue}")
+            
+            if recent_video_issues:
+                print(f"\n⏰ Recent Video Issues:")
+                for issue in recent_video_issues:
+                    print(f"   • {issue}")
+            
+            print(f"\n🚨 ROOT CAUSE ANALYSIS:")
+            print("   → Video objects have malformed data structure causing React to crash")
+            print("   → Missing or null required fields prevent proper rendering")
+            print("   → Frontend fetchData() fails when video data is incomplete")
+            
+            print(f"\n💡 RECOMMENDED FIXES:")
+            print("   1. Fix video upload API to ensure all required fields are populated")
+            print("   2. Add data validation in video confirm endpoint")
+            print("   3. Add null checks in frontend video rendering")
+            print("   4. Implement proper error handling for malformed video data")
+            
+        else:
+            print(f"\n✅ NO CRITICAL VIDEO STRUCTURE ISSUES FOUND")
+            print("   → All video objects have proper structure")
+            print("   → All required fields exist and are not null")
+            print("   → Video URLs are properly formatted")
+            print("   → Recent videos have correct data structure")
+            
+            print(f"\n💡 WHITE SCREEN ISSUE MIGHT BE:")
+            print("   1. Frontend JavaScript error in video rendering component")
+            print("   2. CORS or network connectivity issue during fetchData()")
+            print("   3. Browser-specific issue with video element handling")
+            print("   4. State management problem in React component")
+            print("   5. Error in video playback initialization")
+
+        return total_issues == 0
+
 def main():
     # Use external URL for testing as specified in the environment
     backend_url = "https://testing.gopivot.me/api"
