@@ -51,7 +51,7 @@ Add to `/app/backend/.env`:
 R2_ACCOUNT_ID=your_account_id_here
 R2_ACCESS_KEY_ID=your_r2_access_key_here
 R2_SECRET_ACCESS_KEY=your_r2_secret_key_here
-R2_BUCKET_NAME=pivot-media
+R2_BUCKET_NAME=pivot-assets
 R2_PUBLIC_URL=https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev
 ```
 
