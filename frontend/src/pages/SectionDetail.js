@@ -194,7 +194,7 @@ export default function SectionDetail() {
     setUploading(true);
     try {
       
-      // Step 2: Get presigned upload URL from backend
+      // Step 1: Get presigned upload URL from backend
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/video/upload-url`, {
         filename: videoFile.name,
         content_type: videoFile.type || 'video/mp4',
