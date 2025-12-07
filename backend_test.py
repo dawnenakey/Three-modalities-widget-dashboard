@@ -2528,6 +2528,7 @@ def main():
     except Exception as e:
         print(f"❌ Test suite failed with error: {str(e)}")
         return 1
+
     def test_fetchdata_endpoints_after_video_upload(self):
         """Test the specific endpoints that fetchData() calls after video upload - as per review request"""
         print("🔍 FETCHDATA ENDPOINTS TEST AFTER VIDEO UPLOAD")
