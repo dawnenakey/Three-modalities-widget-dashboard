@@ -161,6 +161,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "DEPLOYMENT READY TEST: Section management fully functional. Section creation (POST /api/pages/{id}/sections), listing (GET /api/pages/{id}/sections), and updates (PATCH /api/sections/{id}) all return 200 OK."
+        - working: true
+          agent: "testing"
+          comment: "ADD SECTION FIX VERIFIED: Fixed critical bug where frontend sent 'text_content' but backend expected 'selected_text'. Section creation (POST /api/pages/{page_id}/sections) now works correctly with proper payload format. Tested full flow: login -> get page_id -> create section -> verify creation. All tests passed with 200/201 response codes. Data persistence verified in database."
 
   - task: "Video Upload API"
     implemented: true
