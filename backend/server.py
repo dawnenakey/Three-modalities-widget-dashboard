@@ -158,6 +158,7 @@ class Audio(BaseModel):
 class UploadUrlRequest(BaseModel):
     filename: str
     content_type: str = "video/mp4"
+    file_size: int = 0  # File size in bytes (optional, for validation)
 
 class ConfirmUploadRequest(BaseModel):
     file_key: str
