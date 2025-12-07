@@ -1131,6 +1131,302 @@ class PIVOTAPITester:
 
         return len(failed_endpoints) == 0
 
+    def test_r2_video_upload_flow(self):
+        """Test the complete R2 video upload flow after fixing R2 credentials"""
+        print("🎥 R2 VIDEO UPLOAD FLOW TEST")
+        print("Testing complete 3-step video upload flow after fixing R2 credentials")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login as katherine+admin@dozanu.com / pivot2025
+        print("\n🔐 Step 1: Login as katherine+admin@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "katherine+admin@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Katherine login failed, trying fallback users")
+            # Try dawnena as fallback
+            login_data = {
+                "email": "dawnena@dozanu.com", 
+                "password": "pivot2025"
+            }
+            success, response = self.run_test("Login with dawnena@dozanu.com (fallback)", "POST", "auth/login", 200, login_data)
+            if not success:
+                # Try demo user as last resort
+                if not self.test_demo_user_login():
+                    print("❌ All login attempts failed, stopping tests")
+                    return False
+        
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Find Testing GoPivot website
+        print("\n🌐 Step 2: Find Testing GoPivot website")
+        print("-" * 50)
+        
+        success, websites = self.run_test("Get All Websites", "GET", "websites", 200)
+        if not success or not websites:
+            print("❌ No websites found for user")
+            return False
+        
+        testing_website = None
+        for website in websites:
+            website_name = website.get('name', '').lower()
+            if 'testing' in website_name and 'gopivot' in website_name:
+                testing_website = website
+                break
+        
+        if not testing_website:
+            print("❌ Testing GoPivot website not found")
+            print("Available websites:")
+            for website in websites:
+                print(f"   - {website.get('name', 'Unknown')}")
+            # Use first website as fallback
+            testing_website = websites[0]
+            print(f"Using first website as fallback: {testing_website.get('name', 'Unknown')}")
+
+        website_id = testing_website.get('id')
+        print(f"✅ Using website: {testing_website.get('name', 'Unknown')} (ID: {website_id})")
+
+        # Step 3: Get a page with sections
+        print("\n📄 Step 3: Get a page with sections")
+        print("-" * 50)
+        
+        success, pages = self.run_test("Get Pages for Website", "GET", f"websites/{website_id}/pages", 200)
+        if not success or not pages:
+            print("❌ No pages found for website")
+            return False
+        
+        # Find a page with sections
+        target_page = None
+        for page in pages:
+            page_id = page.get('id')
+            success, sections = self.run_test(f"Check Sections for Page {page.get('url', 'Unknown')}", "GET", f"pages/{page_id}/sections", 200)
+            if success and sections:
+                target_page = page
+                break
+        
+        if not target_page:
+            print("❌ No pages with sections found")
+            return False
+        
+        page_id = target_page.get('id')
+        print(f"✅ Using page: {target_page.get('url', 'Unknown')} (ID: {page_id})")
+
+        # Step 4: Select a section
+        print("\n📝 Step 4: Select a section")
+        print("-" * 50)
+        
+        success, sections = self.run_test("Get Sections for Selected Page", "GET", f"pages/{page_id}/sections", 200)
+        if not success or not sections:
+            print("❌ No sections found for page")
+            return False
+        
+        section = sections[0]  # Use first section
+        section_id = section.get('id')
+        section_text = section.get('selected_text', 'No text')[:50]
+        print(f"✅ Using section: {section_text}... (ID: {section_id})")
+
+        # Step 5: Test the complete 3-step video upload flow
+        print("\n🎬 Step 5: Test complete 3-step video upload flow")
+        print("-" * 50)
+        
+        # STEP 1: POST /api/sections/{section_id}/video/upload-url
+        print("\n   Step 5.1: Generate presigned upload URL")
+        filename = "test_video_r2.mp4"
+        content_type = "video/mp4"
+        
+        upload_url_data = {
+            "filename": filename,
+            "content_type": content_type
+        }
+        
+        success, upload_response = self.run_test(
+            "Generate Presigned Upload URL", 
+            "POST", 
+            f"sections/{section_id}/video/upload-url?filename={filename}&content_type={content_type}", 
+            200
+        )
+        
+        if not success:
+            print("❌ Failed to generate presigned upload URL")
+            return False
+        
+        # Verify response contains required fields
+        required_fields = ['upload_url', 'fields', 'public_url', 'file_key']
+        missing_fields = [field for field in required_fields if field not in upload_response]
+        
+        if missing_fields:
+            self.log_test("Upload URL Response Fields", False, f"Missing fields: {missing_fields}")
+            return False
+        else:
+            self.log_test("Upload URL Response Fields", True, f"All required fields present: {required_fields}")
+        
+        upload_url = upload_response.get('upload_url')
+        fields = upload_response.get('fields')
+        public_url = upload_response.get('public_url')
+        file_key = upload_response.get('file_key')
+        
+        print(f"     ✅ Upload URL generated: {upload_url[:50]}...")
+        print(f"     ✅ Public URL: {public_url}")
+        print(f"     ✅ File key: {file_key}")
+        
+        # Verify no R2 credential errors
+        if 'R2 credentials not configured' in str(upload_response):
+            self.log_test("R2 Credentials Check", False, "R2 credentials not configured error found")
+            return False
+        else:
+            self.log_test("R2 Credentials Check", True, "No R2 credential errors detected")
+
+        # STEP 2: Simulate uploading to the presigned URL (verify URL structure)
+        print("\n   Step 5.2: Verify presigned URL structure")
+        
+        # Check if upload_url is properly formatted
+        url_valid = upload_url and upload_url.startswith('https://')
+        self.log_test("Presigned URL Format", url_valid, f"URL format valid: {url_valid}")
+        
+        # Check if public_url is properly formatted
+        public_url_valid = public_url and public_url.startswith('https://')
+        self.log_test("Public URL Format", public_url_valid, f"Public URL format valid: {public_url_valid}")
+        
+        # Note: We're not actually uploading to R2 in this test, just verifying the URL structure
+        print("     ✅ Presigned URL structure verified (actual upload simulation skipped)")
+
+        # STEP 3: POST /api/sections/{section_id}/video/confirm
+        print("\n   Step 5.3: Confirm video upload")
+        
+        confirm_data = {
+            "file_key": file_key,
+            "public_url": public_url,
+            "language": "ASL (American Sign Language)"
+        }
+        
+        success, video_response = self.run_test(
+            "Confirm Video Upload", 
+            "POST", 
+            f"sections/{section_id}/video/confirm", 
+            200,
+            confirm_data
+        )
+        
+        if not success:
+            print("❌ Failed to confirm video upload")
+            return False
+        
+        # Verify video record is created with all required fields
+        required_video_fields = ['id', 'section_id', 'language', 'video_url', 'file_path', 'created_at']
+        missing_video_fields = [field for field in required_video_fields if field not in video_response]
+        
+        if missing_video_fields:
+            self.log_test("Video Record Fields", False, f"Missing fields: {missing_video_fields}")
+            return False
+        else:
+            self.log_test("Video Record Fields", True, f"All required fields present: {required_video_fields}")
+        
+        video_id = video_response.get('id')
+        video_url = video_response.get('video_url')
+        
+        print(f"     ✅ Video record created: ID {video_id}")
+        print(f"     ✅ Video URL: {video_url}")
+
+        # Step 6: Test GET /api/sections/{section_id}/videos
+        print("\n📋 Step 6: Verify video appears in list")
+        print("-" * 50)
+        
+        success, videos_list = self.run_test("Get Videos List", "GET", f"sections/{section_id}/videos", 200)
+        if not success:
+            print("❌ Failed to get videos list")
+            return False
+        
+        # Verify the new video appears in the list
+        video_found = False
+        if videos_list:
+            for video in videos_list:
+                if video.get('id') == video_id:
+                    video_found = True
+                    break
+        
+        if video_found:
+            self.log_test("Video Found in List", True, f"Video ID {video_id} found in videos list")
+        else:
+            self.log_test("Video Found in List", False, f"Video ID {video_id} NOT found in videos list")
+        
+        # Verify all fields are populated correctly
+        if video_found:
+            found_video = next(video for video in videos_list if video.get('id') == video_id)
+            fields_correct = all(field in found_video for field in required_video_fields)
+            self.log_test("Video Fields Populated", fields_correct, f"All fields populated correctly: {fields_correct}")
+
+        # Step 7: Check backend logs for R2 errors
+        print("\n📊 Step 7: Check backend logs for R2 errors")
+        print("-" * 50)
+        
+        try:
+            import subprocess
+            result = subprocess.run(['tail', '-n', '50', '/var/log/supervisor/backend.err.log'], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                log_content = result.stdout
+                r2_errors = []
+                
+                # Check for R2-related errors
+                error_patterns = [
+                    'R2 credentials not configured',
+                    'Failed to generate upload URL',
+                    'R2 client error',
+                    'boto3',
+                    'botocore'
+                ]
+                
+                for line in log_content.split('\n'):
+                    for pattern in error_patterns:
+                        if pattern.lower() in line.lower():
+                            r2_errors.append(line.strip())
+                
+                if r2_errors:
+                    self.log_test("Backend R2 Errors", False, f"R2 errors found: {len(r2_errors)} errors")
+                    print("     R2 Errors found:")
+                    for error in r2_errors[-5:]:  # Show last 5 errors
+                        print(f"       - {error}")
+                else:
+                    self.log_test("Backend R2 Errors", True, "No R2 errors found in recent logs")
+            else:
+                self.log_test("Backend Log Check", False, "Could not read backend logs")
+                
+        except Exception as e:
+            self.log_test("Backend Log Check", False, f"Exception reading logs: {str(e)}")
+
+        # Summary
+        print("\n📊 R2 VIDEO UPLOAD FLOW TEST SUMMARY")
+        print("-" * 50)
+        
+        all_steps_passed = (
+            success and  # Last API call succeeded
+            upload_response and 'upload_url' in upload_response and  # Step 1 passed
+            video_response and 'id' in video_response and  # Step 3 passed
+            video_found  # Step 6 passed
+        )
+        
+        if all_steps_passed:
+            print("✅ ALL STEPS PASSED - R2 video upload flow working correctly")
+            print("   - Presigned URL generation: ✅")
+            print("   - Video confirmation: ✅") 
+            print("   - Database record creation: ✅")
+            print("   - Video retrieval: ✅")
+            print("   - No R2 credential errors: ✅")
+        else:
+            print("❌ SOME STEPS FAILED - R2 video upload flow has issues")
+            
+        return all_steps_passed
+
     def test_widget_content_debug(self):
         """Debug widget content API to identify why it's showing 'no content'"""
         print("🔍 WIDGET CONTENT API DEBUG TEST")
