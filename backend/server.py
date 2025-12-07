@@ -882,9 +882,9 @@ async def confirm_audio_upload(
     
     audio_obj = Audio(
         section_id=section_id,
-        language=language,
-        audio_url=public_url,
-        file_path=file_key
+        language=request.language,
+        audio_url=request.public_url,
+        file_path=request.file_key
     )
     audio_dict = audio_obj.model_dump()
     audio_dict['created_at'] = audio_dict['created_at'].isoformat()
