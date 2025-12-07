@@ -108,20 +108,21 @@ class WhiteScreenDebugTester:
         print("\n🔐 Step 1: Login as katherine+admin@dozanu.com / pivot2025")
         print("-" * 50)
         
+        # Try dawnena first as we know this user has the problematic data
         login_data = {
-            "email": "katherine+admin@dozanu.com",
+            "email": "dawnena@dozanu.com", 
             "password": "pivot2025"
         }
         
-        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        success, response = self.run_test("Login with dawnena@dozanu.com", "POST", "auth/login", 200, login_data)
         if not success or 'access_token' not in response:
-            print("❌ Katherine login failed, trying fallback users")
-            # Try dawnena as fallback
+            print("❌ Dawnena login failed, trying katherine+admin")
+            # Try katherine as fallback
             login_data = {
-                "email": "dawnena@dozanu.com", 
+                "email": "katherine+admin@dozanu.com",
                 "password": "pivot2025"
             }
-            success, response = self.run_test("Login with dawnena@dozanu.com (fallback)", "POST", "auth/login", 200, login_data)
+            success, response = self.run_test("Login with katherine+admin@dozanu.com (fallback)", "POST", "auth/login", 200, login_data)
             if not success:
                 # Try demo user as last resort
                 login_data = {
