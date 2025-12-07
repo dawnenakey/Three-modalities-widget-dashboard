@@ -111,8 +111,7 @@ export default function WebsiteDetail() {
       await axios.patch(`${API}/pages/${pageId}/status`, { status: newStatus });
       toast.success(`Status updated to ${newStatus}`);
       // Refresh pages to show updated status
-      const response = await axios.get(`${API}/websites/${id}/pages`);
-      setPages(response.data);
+      fetchData();
     } catch (error) {
       toast.error('Failed to update status');
     }
