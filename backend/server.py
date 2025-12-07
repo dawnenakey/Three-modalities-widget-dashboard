@@ -970,6 +970,9 @@ async def get_audios(section_id: str, current_user: dict = Depends(get_current_u
     # Check website access (owner or collaborator)
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
+    
+    audios = await db.audios.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
+    return audios
 
 @api_router.delete("/audios/{audio_id}")
 async def delete_audio(audio_id: str, current_user: dict = Depends(get_current_user)):
