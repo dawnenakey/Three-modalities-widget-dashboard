@@ -886,6 +886,7 @@ class PIVOTAPITester:
         print("🔍 WHITE PAGE AFTER VIDEO UPLOAD DEBUG TEST")
         print("Testing the specific issue: User uploaded video on testing.gopivot.me/pdf page and got white page")
         print("This suggests video upload succeeded but subsequent data fetching failed")
+        print("Looking for old schema sections that cause ResponseValidationError")
         print(f"Testing against: {self.base_url}")
         print("=" * 80)
 
