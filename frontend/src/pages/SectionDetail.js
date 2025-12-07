@@ -327,7 +327,23 @@ export default function SectionDetail() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center min-h-screen">
-          <p className="text-gray-600">Loading...</p>
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 text-[#00CED1] animate-spin mx-auto mb-2" />
+            <p className="text-gray-600">Loading section data...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+  
+  if (!section) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <p className="text-red-600 mb-2">Section not found</p>
+            <Button onClick={() => navigate(-1)}>Go Back</Button>
+          </div>
         </div>
       </DashboardLayout>
     );
