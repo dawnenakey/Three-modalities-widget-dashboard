@@ -170,9 +170,9 @@ backend:
 
   - task: "Video Upload API"
     implemented: true
-    working: true
+    working: false
     file: "server.py"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: false
     status_history:
@@ -191,6 +191,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "R2 VIDEO UPLOAD FLOW VERIFIED: Fixed R2 credentials issue successfully. Complete 3-step video upload flow working correctly: 1) POST /api/sections/{section_id}/video/upload-url generates presigned URL with all required fields (upload_url, fields, public_url, file_key), 2) Presigned URL structure verified (proper HTTPS URLs), 3) POST /api/sections/{section_id}/video/confirm creates video record in database with all required fields. Video appears in GET /api/sections/{section_id}/videos list immediately. R2 credentials now loading correctly after fixing import order in server.py. Success rate: 93.8% (15/16 tests passed). The white screen issue after video upload is RESOLVED."
+        - working: false
+          agent: "testing"
+          comment: "422 ERROR ROOT CAUSE IDENTIFIED: Cloudflare R2 does NOT support presigned POST requests. Backend generates presigned POST URLs using generate_presigned_post(), but R2 returns 501 'Not Implemented' error: 'Presigned post requests are not yet implemented'. This causes the 422 error user is experiencing. Backend APIs work correctly (login: 200 OK, upload-url: 200 OK, auth/me: 200 OK), but R2 upload fails with 501 which manifests as 422 in frontend. SOLUTION: Replace presigned POST with presigned PUT in r2_client.py generate_presigned_upload_url() method."
 
   - task: "Audio Upload API"
     implemented: true
