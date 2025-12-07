@@ -202,7 +202,7 @@ export default function SectionDetail() {
         file_size: videoFile.size
       });
       
-      // Step 2: Upload directly to R2
+      // Step 3: Upload directly to R2
       const r2FormData = new FormData();
       Object.keys(uploadData.fields).forEach(key => {
         r2FormData.append(key, uploadData.fields[key]);
@@ -265,7 +265,7 @@ export default function SectionDetail() {
         content_type: audioFile.type || 'audio/mpeg'
       });
       
-      // Step 2: Upload directly to R2
+      // Step 3: Upload directly to R2
       const r2FormData = new FormData();
       Object.keys(uploadData.fields).forEach(key => {
         r2FormData.append(key, uploadData.fields[key]);
