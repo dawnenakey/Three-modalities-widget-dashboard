@@ -15,7 +15,8 @@ import jwt
 import aiofiles
 from bs4 import BeautifulSoup
 import requests
-from emergentintegrations.llm.openai import OpenAITextToSpeech
+import httpx
+import asyncio
 
 # IMPORTANT: Load .env BEFORE importing r2_client so credentials are available
 ROOT_DIR = Path(__file__).parent
@@ -60,7 +61,9 @@ async def check_website_access(website_id: str, user_id: str) -> bool:
     return False
 
 # Initialize OpenAI TTS
-tts = OpenAITextToSpeech(api_key=os.getenv("EMERGENT_LLM_KEY"))
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if not OPENAI_API_KEY:
+    raise RuntimeError("Missing OPENAI_API_KEY environment variable for TTS")
 
 # Create the main app
 app = FastAPI()
@@ -408,7 +411,10 @@ async def create_page(website_id: str, page_data: PageCreate, current_user: dict
 async def scrape_page_content(url: str) -> List[str]:
     """Enhanced scraping that captures ALL text including nav, buttons, etc."""
     try:
-        response = requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+        def _fetch():
+            return requests.get(url, timeout=10, headers={'User-Agent': 'Mozilla/5.0'})
+
+        response = await asyncio.to_thread(_fetch)
         soup = BeautifulSoup(response.content, "html.parser")
         
         # Only remove script and style tags
@@ -905,6 +911,26 @@ async def upload_audio(
     
     return audio_obj
 
+async def generate_tts_audio(text: str, voice: str = "alloy") -> bytes:
+    url = "https://api.openai.com/v1/audio/speech"
+    payload = {
+        "model": "gpt-4o-mini-tts",  # adjust if needed
+        "voice": voice,
+        "input": text,
+        "format": "mp3",
+    }
+
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    async with httpx.AsyncClient(timeout=60) as client:
+        resp = await client.post(url, json=payload, headers=headers)
+        if resp.status_code != 200:
+            logging.error(f"OpenAI TTS error: {resp.status_code} - {resp.text}")
+            raise HTTPException(status_code=500, detail="Text-to-speech generation failed")
+        return resp.content
 @api_router.post("/sections/{section_id}/audio/generate", response_model=Audio)
 async def generate_audio(
     section_id: str,
@@ -927,34 +953,46 @@ async def generate_audio(
         raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     try:
-        audio_bytes = await tts.generate_speech(
-            text=section['selected_text'],
-            model="tts-1",
-            voice=voice
+        # Generate audio bytes
+        audio_bytes = await generate_tts_audio(
+            text=section["selected_text"],
+            voice=voice,
         )
-        
+
         file_id = str(uuid.uuid4())
         file_path = AUDIO_DIR / f"{file_id}.mp3"
-        
-        async with aiofiles.open(file_path, 'wb') as f:
+
+        # Save audio file
+        async with aiofiles.open(file_path, "wb") as f:
             await f.write(audio_bytes)
-        
+
+        # Build response object
         audio_obj = Audio(
             section_id=section_id,
             language=language,
             audio_url=f"/api/uploads/audio/{file_id}.mp3",
             file_path=str(file_path),
-            captions=section['selected_text']
+            captions=section["selected_text"],
         )
+
         audio_dict = audio_obj.model_dump()
-        audio_dict['created_at'] = audio_dict['created_at'].isoformat()
-        
+        audio_dict["created_at"] = audio_dict["created_at"].isoformat()
+
+        # Save DB record
         await db.audios.insert_one(audio_dict)
-        await db.sections.update_one({"id": section_id}, {"$inc": {"audios_count": 1}})
-        
+        await db.sections.update_one(
+            {"id": section_id},
+            {"$inc": {"audios_count": 1}}
+        )
+
         return audio_obj
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Audio generation failed: {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Audio generation failed: {str(e)}"
+        )
+
 
 @api_router.get("/sections/{section_id}/audio", response_model=List[Audio])
 async def get_audios(section_id: str, current_user: dict = Depends(get_current_user)):
