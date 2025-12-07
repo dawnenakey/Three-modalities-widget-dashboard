@@ -257,7 +257,8 @@ export default function SectionDetail() {
       // Step 1: Get presigned upload URL
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/audio/upload-url`, {
         filename: audioFile.name,
-        content_type: audioFile.type || 'audio/mpeg'
+        content_type: audioFile.type || 'audio/mpeg',
+        file_size: audioFile.size
       });
       
       // Step 2: Upload directly to R2 using PUT (R2 doesn't support POST)
