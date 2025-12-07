@@ -1424,6 +1424,289 @@ class PIVOTAPITester:
             
         return all_steps_passed
 
+    def test_website_scraping_to_text_editing_flow(self):
+        """Test complete website scraping to text editing flow as requested in review"""
+        print("🌐 WEBSITE SCRAPING TO TEXT EDITING FLOW TEST")
+        print("Testing complete flow: Login → Create Website → Add Page with URL → Auto-scrape → Edit Text → Widget Display")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Part 1: Create Website and Scrape Page
+        print("\n📋 Part 1: Create Website and Scrape Page")
+        print("-" * 50)
+        
+        # Step 1: Login as katherine+admin@dozanu.com / pivot2025
+        print("Step 1: Login as katherine+admin@dozanu.com / pivot2025")
+        login_data = {
+            "email": "katherine+admin@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Katherine login failed, trying fallback users")
+            # Try dawnena as fallback
+            login_data = {
+                "email": "dawnena@dozanu.com", 
+                "password": "pivot2025"
+            }
+            success, response = self.run_test("Login with dawnena@dozanu.com (fallback)", "POST", "auth/login", 200, login_data)
+            if not success:
+                # Try demo user as last resort
+                if not self.test_demo_user_login():
+                    print("❌ All login attempts failed, stopping tests")
+                    return False
+        
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Check for existing Testing GoPivot website or create new one
+        print("\nStep 2: Check for existing Testing GoPivot website or create new one")
+        success, websites = self.run_test("Get Existing Websites", "GET", "websites", 200)
+        
+        testing_website = None
+        if success and websites:
+            for website in websites:
+                website_name = website.get('name', '').lower()
+                if 'testing' in website_name and ('gopivot' in website_name or 'pivot' in website_name):
+                    testing_website = website
+                    print(f"✅ Found existing Testing GoPivot website: {website.get('name')}")
+                    break
+        
+        if not testing_website:
+            print("Creating new test website...")
+            website_data = {
+                "name": "Testing GoPivot Scraping",
+                "url": "https://testing.gopivot.me"
+            }
+            success, website_response = self.run_test("Create Test Website", "POST", "websites", 200, website_data)
+            if not success:
+                print("❌ Website creation failed")
+                return False
+            testing_website = website_response
+            self.created_resources['websites'].append(website_response['id'])
+        
+        website_id = testing_website.get('id')
+
+        # Step 3: Add a new page with public URL for scraping
+        print("\nStep 3: Add a new page with public URL for scraping")
+        
+        # Test with multiple URLs to ensure scraping works
+        test_urls = [
+            "https://example.com",
+            "https://testing.gopivot.me/pdf"
+        ]
+        
+        scraped_page = None
+        for test_url in test_urls:
+            print(f"   Testing URL: {test_url}")
+            page_data = {
+                "url": test_url
+            }
+            
+            success, page_response = self.run_test(f"Create Page with URL {test_url}", "POST", f"websites/{website_id}/pages", 200, page_data)
+            if success:
+                scraped_page = page_response
+                self.created_resources['pages'].append(page_response['id'])
+                
+                # Step 4: Verify auto-scraping created sections
+                sections_count = page_response.get('sections_count', 0)
+                if sections_count > 0:
+                    self.log_test("Auto-scraping Created Sections", True, f"Created {sections_count} sections from {test_url}")
+                    print(f"✅ Auto-scraping successful: {sections_count} sections created")
+                    break
+                else:
+                    self.log_test("Auto-scraping Created Sections", False, f"No sections created from {test_url}")
+                    print(f"❌ Auto-scraping failed: No sections created from {test_url}")
+            else:
+                print(f"❌ Page creation failed for {test_url}")
+        
+        if not scraped_page:
+            print("❌ Failed to create page with auto-scraping")
+            return False
+        
+        page_id = scraped_page.get('id')
+        page_url = scraped_page.get('url')
+
+        # Part 2: Verify Sections Created
+        print("\n📋 Part 2: Verify Sections Created")
+        print("-" * 50)
+        
+        # Step 5: GET /api/pages/{page_id}/sections
+        print("Step 5: Get sections for the scraped page")
+        success, sections = self.run_test("Get Scraped Sections", "GET", f"pages/{page_id}/sections", 200)
+        
+        if not success:
+            print("❌ Failed to get sections")
+            return False
+        
+        if not sections or len(sections) == 0:
+            self.log_test("Sections Retrieved", False, "No sections found after scraping")
+            return False
+        
+        self.log_test("Sections Retrieved", True, f"Retrieved {len(sections)} sections")
+        
+        # Step 6: Verify section content quality
+        print("Step 6: Verify section content quality")
+        valid_sections = 0
+        for i, section in enumerate(sections):
+            section_id = section.get('id')
+            selected_text = section.get('selected_text', '')
+            text_content = section.get('text_content', '')
+            position_order = section.get('position_order', 0)
+            
+            # Check if section has meaningful text
+            text_to_check = selected_text or text_content
+            is_meaningful = len(text_to_check.strip()) > 5 and not text_to_check.isspace()
+            
+            if is_meaningful:
+                valid_sections += 1
+                print(f"   Section {i+1}: ✅ Valid (Order: {position_order}, Text: '{text_to_check[:50]}...')")
+            else:
+                print(f"   Section {i+1}: ❌ Invalid (Order: {position_order}, Text: '{text_to_check}')")
+        
+        sections_quality_good = valid_sections > 0
+        self.log_test("Section Content Quality", sections_quality_good, f"{valid_sections}/{len(sections)} sections have meaningful text")
+        
+        if valid_sections == 0:
+            print("❌ No sections with meaningful text found")
+            return False
+
+        # Part 3: Test Text Editing
+        print("\n📋 Part 3: Test Text Editing")
+        print("-" * 50)
+        
+        # Step 7: Select a section for editing
+        print("Step 7: Select a section for editing")
+        target_section = sections[0]  # Use first section
+        section_id = target_section.get('id')
+        original_text = target_section.get('selected_text', target_section.get('text_content', ''))
+        
+        print(f"   Selected section ID: {section_id}")
+        print(f"   Original text: '{original_text[:100]}...'")
+        
+        # Step 8: PATCH /api/sections/{section_id} with new text_content
+        print("Step 8: Edit section text content")
+        new_text = f"EDITED TEXT: This section has been updated via API testing at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}. Original content was about accessibility and web scraping."
+        
+        # Test the PATCH endpoint - check if it expects JSON or form data
+        patch_data = {
+            "text_content": new_text
+        }
+        
+        success, updated_section = self.run_test("Edit Section Text", "PATCH", f"sections/{section_id}", 200, patch_data)
+        
+        if not success:
+            # Try alternative approach with query parameter
+            print("   Trying alternative PATCH approach with query parameter...")
+            import urllib.parse
+            encoded_text = urllib.parse.quote(new_text)
+            success, updated_section = self.run_test("Edit Section Text (Alt)", "PATCH", f"sections/{section_id}?text_content={encoded_text}", 200)
+        
+        if not success:
+            print("❌ Section text editing failed")
+            return False
+        
+        # Step 9: Verify text was updated
+        print("Step 9: Verify text was updated in database")
+        success, section_detail = self.run_test("Get Updated Section", "GET", f"sections/{section_id}", 200)
+        
+        if not success:
+            print("❌ Failed to retrieve updated section")
+            return False
+        
+        updated_text = section_detail.get('selected_text', section_detail.get('text_content', ''))
+        text_updated = new_text in updated_text or updated_text == new_text
+        
+        self.log_test("Text Successfully Updated", text_updated, f"Updated text: '{updated_text[:100]}...'")
+        
+        if not text_updated:
+            print(f"❌ Text not updated. Expected: '{new_text[:50]}...', Got: '{updated_text[:50]}...'")
+            return False
+
+        # Part 4: Verify Text Appears in Widget
+        print("\n📋 Part 4: Verify Text Appears in Widget")
+        print("-" * 50)
+        
+        # Step 10: GET /api/widget/{website_id}/content?page_url={page_url}
+        print("Step 10: Test widget API with updated content")
+        
+        import urllib.parse
+        encoded_page_url = urllib.parse.quote(page_url)
+        success, widget_content = self.run_test("Get Widget Content", "GET", f"widget/{website_id}/content?page_url={encoded_page_url}", 200)
+        
+        if not success:
+            print("❌ Widget API failed")
+            return False
+        
+        # Step 11: Verify widget contains updated text
+        print("Step 11: Verify widget contains updated text")
+        
+        widget_sections = widget_content.get('sections', [])
+        if not widget_sections:
+            self.log_test("Widget Has Sections", False, "No sections returned by widget API")
+            return False
+        
+        self.log_test("Widget Has Sections", True, f"Widget returned {len(widget_sections)} sections")
+        
+        # Check if our edited section appears in widget
+        edited_section_found = False
+        for widget_section in widget_sections:
+            widget_text = widget_section.get('text_content', widget_section.get('selected_text', ''))
+            if section_id == widget_section.get('id') and new_text in widget_text:
+                edited_section_found = True
+                print(f"   ✅ Found edited section in widget: '{widget_text[:100]}...'")
+                break
+        
+        self.log_test("Edited Text in Widget", edited_section_found, "Edited section text appears in widget API")
+        
+        # Verify widget data structure
+        widget_structure_valid = True
+        for widget_section in widget_sections:
+            required_fields = ['id', 'position_order']
+            text_field_present = 'text_content' in widget_section or 'selected_text' in widget_section
+            
+            if not all(field in widget_section for field in required_fields) or not text_field_present:
+                widget_structure_valid = False
+                break
+        
+        self.log_test("Widget Data Structure", widget_structure_valid, "All widget sections have required fields")
+
+        # Summary
+        print("\n📊 WEBSITE SCRAPING TO TEXT EDITING FLOW SUMMARY")
+        print("-" * 50)
+        
+        all_tests_passed = (
+            success and  # Widget API succeeded
+            sections_quality_good and  # Scraping created good sections
+            text_updated and  # Text editing worked
+            edited_section_found and  # Edited text appears in widget
+            widget_structure_valid  # Widget structure is correct
+        )
+        
+        if all_tests_passed:
+            print("✅ COMPLETE FLOW WORKING")
+            print("   - Website creation: ✅")
+            print("   - Page scraping: ✅")
+            print("   - Section creation: ✅")
+            print("   - Text editing: ✅")
+            print("   - Widget display: ✅")
+            print("\n🎉 The scraping → sections → editing → widget display flow works end-to-end!")
+        else:
+            print("❌ FLOW HAS ISSUES")
+            if not sections_quality_good:
+                print("   - Scraping quality issues")
+            if not text_updated:
+                print("   - Text editing issues")
+            if not edited_section_found:
+                print("   - Widget display issues")
+            if not widget_structure_valid:
+                print("   - Widget data structure issues")
+        
+        return all_tests_passed
+
     def test_widget_content_debug(self):
         """Debug widget content API to identify why it's showing 'no content'"""
         print("🔍 WIDGET CONTENT API DEBUG TEST")
