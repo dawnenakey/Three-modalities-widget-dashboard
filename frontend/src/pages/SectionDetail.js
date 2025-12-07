@@ -333,6 +333,40 @@ export default function SectionDetail() {
     }
   };
 
+  const handleAddTranslation = async (e) => {
+    e.preventDefault();
+    if (!newTranslation.language || !newTranslation.language_code || !newTranslation.text) {
+      toast.error('Please fill in all fields');
+      return;
+    }
+    
+    try {
+      const formData = new FormData();
+      formData.append('language', newTranslation.language);
+      formData.append('language_code', newTranslation.language_code);
+      formData.append('text_content', newTranslation.text);
+      
+      await axios.post(`${API}/sections/${sectionId}/translations`, formData);
+      toast.success('Translation added successfully!');
+      setNewTranslation({ language: '', language_code: '', text: '' });
+      fetchData();
+    } catch (error) {
+      console.error('Add translation error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to add translation');
+    }
+  };
+
+  const handleDeleteTranslation = async (translationId) => {
+    try {
+      await axios.delete(`${API}/translations/${translationId}`);
+      toast.success('Translation deleted successfully!');
+      fetchData();
+    } catch (error) {
+      console.error('Delete translation error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to delete translation');
+    }
+  };
+
 
   if (loading) {
     return (
