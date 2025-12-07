@@ -59,13 +59,13 @@ export default function WebsiteDetail() {
   };
 
   const handleDeletePage = async (pageId) => {
-    if (!window.confirm('Are you sure you want to delete this page?')) return;
+    if (!window.confirm('Are you sure you want to delete this page? This will also delete all sections, videos, audio, and translations associated with it. This action cannot be undone.')) return;
     try {
       await axios.delete(`${API}/pages/${pageId}`);
-      toast.success('Page deleted');
+      toast.success('Page and all associated content deleted successfully!');
       fetchData();
     } catch (error) {
-      toast.error('Failed to delete page');
+      toast.error(error.response?.data?.detail || 'Failed to delete page');
     }
   };
 
