@@ -1061,6 +1061,7 @@
           textSize = parseInt(this.value);
           this.nextElementSibling.style.fontSize = textSize + 'px';
           this.nextElementSibling.textContent = `Sample Text (${textSize}px)`;
+          savePreferences();
         };
       }
     }, 0);
