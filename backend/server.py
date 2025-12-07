@@ -1098,6 +1098,7 @@ async def get_widget_content(website_id: str, page_url: str):
     if section_ids:
         all_videos = await db.videos.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
         all_audios = await db.audios.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
+        all_translations = await db.text_translations.find({"section_id": {"$in": section_ids}}, {"_id": 0}).to_list(10000)
         
         # Create lookup dictionaries for O(1) access
         videos_by_section = {}
@@ -1112,10 +1113,17 @@ async def get_widget_content(website_id: str, page_url: str):
                 audios_by_section[audio['section_id']] = []
             audios_by_section[audio['section_id']].append(audio)
         
-        # Attach videos and audios to each section
+        translations_by_section = {}
+        for translation in all_translations:
+            if translation['section_id'] not in translations_by_section:
+                translations_by_section[translation['section_id']] = []
+            translations_by_section[translation['section_id']].append(translation)
+        
+        # Attach videos, audios, and translations to each section
         for section in sections:
             section['videos'] = videos_by_section.get(section['id'], [])
             section['audios'] = audios_by_section.get(section['id'], [])
+            section['translations'] = translations_by_section.get(section['id'], [])
     
     # Track analytics
     await db.analytics.update_one(
