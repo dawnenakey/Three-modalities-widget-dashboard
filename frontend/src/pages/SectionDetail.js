@@ -124,16 +124,52 @@ export default function SectionDetail() {
   const handleVideoUpload = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
+    const videoFile = formData.get('video');
+    const language = formData.get('language');
+    
+    // Validate file size (1GB = 1073741824 bytes)
+    const MAX_SIZE = 1073741824; // 1GB
+    if (videoFile.size > MAX_SIZE) {
+      toast.error(`Video file is too large. Maximum size is 1GB. Your file is ${(videoFile.size / 1073741824).toFixed(2)}GB`);
+      return;
+    }
+    
     setUploading(true);
     try {
-      await axios.post(`${API}/sections/${sectionId}/videos`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      // Step 1: Get presigned upload URL from backend
+      const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/video/upload-url`, {
+        filename: videoFile.name,
+        content_type: videoFile.type || 'video/mp4'
       });
-      toast.success('Video uploaded!');
+      
+      // Step 2: Upload directly to R2
+      const r2FormData = new FormData();
+      Object.keys(uploadData.fields).forEach(key => {
+        r2FormData.append(key, uploadData.fields[key]);
+      });
+      r2FormData.append('file', videoFile);
+      
+      await axios.post(uploadData.upload_url, r2FormData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
+        }
+      });
+      
+      // Step 3: Confirm upload with backend
+      await axios.post(`${API}/sections/${sectionId}/video/confirm`, {
+        file_key: uploadData.file_key,
+        public_url: uploadData.public_url,
+        language: language
+      });
+      
+      toast.success('Video uploaded successfully!', { id: 'video-upload' });
       e.target.reset();
       fetchData();
     } catch (error) {
-      toast.error('Failed to upload video');
+      console.error('Upload error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to upload video', { id: 'video-upload' });
     } finally {
       setUploading(false);
     }
