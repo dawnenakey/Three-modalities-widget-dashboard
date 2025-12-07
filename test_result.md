@@ -164,6 +164,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "ADD SECTION FIX VERIFIED: Fixed critical bug where frontend sent 'text_content' but backend expected 'selected_text'. Section creation (POST /api/pages/{page_id}/sections) now works correctly with proper payload format. Tested full flow: login -> get page_id -> create section -> verify creation. All tests passed with 200/201 response codes. Data persistence verified in database."
+        - working: true
+          agent: "testing"
+          comment: "WHITE SCREEN INVESTIGATION: Section management API fully functional. GET /api/sections/{id} returns 200 OK. GET /api/pages/{id}/sections returns 200 OK (critical endpoint called by fetchData after video upload). All 45 sections in database use correct new schema (selected_text, position_order). No old schema sections found. API not causing white screen issue."
 
   - task: "Video Upload API"
     implemented: true
