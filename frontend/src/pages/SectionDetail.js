@@ -149,6 +149,15 @@ export default function SectionDetail() {
         console.error('Failed to load audio:', audioError);
         setAudios([]);
       }
+      
+      // Fetch text translations
+      try {
+        const translationsRes = await axios.get(`${API}/sections/${sectionId}/translations`);
+        setTranslations(translationsRes.data);
+      } catch (translationError) {
+        console.error('Failed to load translations:', translationError);
+        setTranslations([]);
+      }
     } catch (error) {
       console.error('Failed to load section data:', error);
       // Only navigate away if it's a 404 (section not found)
