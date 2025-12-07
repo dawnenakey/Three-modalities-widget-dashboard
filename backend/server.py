@@ -710,6 +710,39 @@ async def get_videos(section_id: str, current_user: dict = Depends(get_current_u
     videos = await db.videos.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return videos
 
+@api_router.delete("/videos/{video_id}")
+async def delete_video(video_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete a video"""
+    # Find the video
+    video = await db.videos.find_one({"id": video_id}, {"_id": 0})
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+    
+    # Security: Verify video belongs to current user
+    section = await db.sections.find_one({"id": video['section_id']}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Delete from database
+    await db.videos.delete_one({"id": video_id})
+    
+    # Update section video count
+    videos_count = await db.videos.count_documents({"section_id": video['section_id']})
+    await db.sections.update_one(
+        {"id": video['section_id']},
+        {"$set": {"videos_count": videos_count}}
+    )
+    
+    return {"message": "Video deleted successfully"}
+
+
 # Audio routes - R2 Direct Upload (NEW - RECOMMENDED)
 @api_router.post("/sections/{section_id}/audio/upload-url")
 async def get_audio_upload_url(
