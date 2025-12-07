@@ -743,7 +743,15 @@ async def get_widget_content(website_id: str, page_url: str):
     if not page:
         return {"sections": []}
     
-    sections = await db.sections.find({"page_id": page['id'], "status": "Active"}, {"_id": 0}).sort("position_order", 1).to_list(1000)
+    sections = await db.sections.find({"page_id": page['id'], "status": "Active"}, {"_id": 0}).sort([("position_order", 1), ("order", 1)]).to_list(1000)
+    
+    # Normalize field names: use 'text_content' for consistency with widget
+    for section in sections:
+        # Handle both 'text' and 'selected_text' fields
+        if 'text' in section and 'text_content' not in section:
+            section['text_content'] = section['text']
+        elif 'selected_text' in section and 'text_content' not in section:
+            section['text_content'] = section['selected_text']
     
     # Optimize: Batch fetch all videos and audios to avoid N+1 queries
     section_ids = [section['id'] for section in sections]
