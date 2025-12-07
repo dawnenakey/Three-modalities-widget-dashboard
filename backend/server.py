@@ -558,7 +558,97 @@ async def update_section(
     return updated_section
 
 
-# Video routes
+# Video routes - R2 Direct Upload (NEW - RECOMMENDED)
+@api_router.post("/sections/{section_id}/video/upload-url")
+async def get_video_upload_url(
+    section_id: str,
+    filename: str,
+    content_type: str = "video/mp4",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Generate a presigned URL for direct upload to R2
+    Client uploads video directly to R2, then calls /video/confirm
+    """
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    # Check page ownership
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    # Check website access
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Generate unique file key
+    file_id = str(uuid.uuid4())
+    file_ext = filename.split('.')[-1] if '.' in filename else 'mp4'
+    file_key = f"videos/{file_id}.{file_ext}"
+    
+    # Generate presigned upload URL
+    try:
+        upload_data = r2_client.generate_presigned_upload_url(
+            file_key=file_key,
+            content_type=content_type,
+            expires_in=3600  # 1 hour to complete upload
+        )
+        
+        return {
+            "upload_url": upload_data['upload_url'],
+            "fields": upload_data['fields'],
+            "public_url": upload_data['public_url'],
+            "file_id": file_id,
+            "file_key": file_key
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate upload URL: {str(e)}")
+
+
+@api_router.post("/sections/{section_id}/video/confirm", response_model=Video)
+async def confirm_video_upload(
+    section_id: str,
+    file_key: str,
+    public_url: str,
+    language: str = "ASL (American Sign Language)",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Confirm video upload and save to database
+    Called after client successfully uploads to R2
+    """
+    # Security check
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Create video record
+    video_obj = Video(
+        section_id=section_id,
+        language=language,
+        video_url=public_url,
+        file_path=file_key  # Store R2 key for future reference
+    )
+    video_dict = video_obj.model_dump()
+    video_dict['created_at'] = video_dict['created_at'].isoformat()
+    
+    await db.videos.insert_one(video_dict)
+    await db.sections.update_one({"id": section_id}, {"$inc": {"videos_count": 1}})
+    
+    return video_obj
+
+
+# Video routes - Legacy Backend Upload (KEPT FOR COMPATIBILITY)
 @api_router.post("/sections/{section_id}/videos", response_model=Video)
 async def upload_video(
     section_id: str,
