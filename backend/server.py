@@ -865,9 +865,7 @@ async def get_audio_upload_url(
 @api_router.post("/sections/{section_id}/audio/confirm", response_model=Audio)
 async def confirm_audio_upload(
     section_id: str,
-    file_key: str,
-    public_url: str,
-    language: str = "English",
+    request: ConfirmUploadRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """Confirm audio upload and save to database"""
