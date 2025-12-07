@@ -287,6 +287,29 @@ export default function SectionDetail() {
     }
   };
 
+  const handleDeleteVideo = async (videoId) => {
+    try {
+      await axios.delete(`${API}/videos/${videoId}`);
+      toast.success('Video deleted successfully!');
+      fetchData();
+    } catch (error) {
+      console.error('Delete video error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to delete video');
+    }
+  };
+
+  const handleDeleteAudio = async (audioId) => {
+    try {
+      await axios.delete(`${API}/audios/${audioId}`);
+      toast.success('Audio deleted successfully!');
+      fetchData();
+    } catch (error) {
+      console.error('Delete audio error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to delete audio');
+    }
+  };
+
+
   if (loading) {
     return (
       <DashboardLayout>
