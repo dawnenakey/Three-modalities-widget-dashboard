@@ -182,6 +182,9 @@ backend:
         - working: true
           agent: "testing"
           comment: "DEPLOYMENT READY TEST: Video upload API working. POST /api/sections/{id}/videos returns 200 OK, creates database entries, generates correct URLs. Minor: File persistence issue - files not staying on disk but video URLs are accessible externally (200 OK from https://testing.gopivot.me)."
+        - working: true
+          agent: "testing"
+          comment: "WHITE SCREEN INVESTIGATION: Video upload API fully functional. Successfully uploaded test video to PDF page section. All required fields populated correctly (id, section_id, language, video_url, file_path, created_at). Video URLs accessible (200 OK). Database entries created properly. No malformed video data found. API not causing white screen issue."
 
   - task: "Audio Upload API"
     implemented: true
