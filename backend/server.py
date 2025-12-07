@@ -929,6 +929,39 @@ async def get_audios(section_id: str, current_user: dict = Depends(get_current_u
     # Check website access (owner or collaborator)
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
+
+@api_router.delete("/audios/{audio_id}")
+async def delete_audio(audio_id: str, current_user: dict = Depends(get_current_user)):
+    """Delete an audio file"""
+    # Find the audio
+    audio = await db.audios.find_one({"id": audio_id}, {"_id": 0})
+    if not audio:
+        raise HTTPException(status_code=404, detail="Audio not found")
+    
+    # Security: Verify audio belongs to current user
+    section = await db.sections.find_one({"id": audio['section_id']}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    # Delete from database
+    await db.audios.delete_one({"id": audio_id})
+    
+    # Update section audio count
+    audios_count = await db.audios.count_documents({"section_id": audio['section_id']})
+    await db.sections.update_one(
+        {"id": audio['section_id']},
+        {"$set": {"audios_count": audios_count}}
+    )
+    
+    return {"message": "Audio deleted successfully"}
+
     
     audios = await db.audios.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return audios
