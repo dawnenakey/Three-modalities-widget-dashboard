@@ -38,11 +38,44 @@
   let darkMode = true;
   let highContrast = false;
   let firstOpen = true;
+  
+  // Load preferences from localStorage
+  const savedPreferences = localStorage.getItem('pivot-widget-preferences');
   let enabledModalities = {
     video: true,
     audio: true,
     text: true
   };
+  let selectedLanguages = {
+    video: 'ASL',
+    audio: 'EN',
+    text: 'EN'
+  };
+  
+  if (savedPreferences) {
+    try {
+      const prefs = JSON.parse(savedPreferences);
+      if (prefs.enabledModalities) enabledModalities = prefs.enabledModalities;
+      if (prefs.selectedLanguages) selectedLanguages = prefs.selectedLanguages;
+      if (prefs.textSize) textSize = prefs.textSize;
+      if (prefs.darkMode !== undefined) darkMode = prefs.darkMode;
+      if (prefs.highContrast !== undefined) highContrast = prefs.highContrast;
+    } catch (e) {
+      console.error('Failed to load preferences:', e);
+    }
+  }
+  
+  // Save preferences to localStorage
+  function savePreferences() {
+    const prefs = {
+      enabledModalities,
+      selectedLanguages,
+      textSize,
+      darkMode,
+      highContrast
+    };
+    localStorage.setItem('pivot-widget-preferences', JSON.stringify(prefs));
+  }
 
   // Language data
   const SIGN_LANGUAGES = [
