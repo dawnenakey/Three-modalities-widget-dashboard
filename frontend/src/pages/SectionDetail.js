@@ -125,15 +125,28 @@ export default function SectionDetail() {
   }, [sectionId]);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
-      const [sectionRes, videosRes, audiosRes] = await Promise.all([
-        axios.get(`${API}/sections/${sectionId}`),
-        axios.get(`${API}/sections/${sectionId}/videos`),
-        axios.get(`${API}/sections/${sectionId}/audio`)
-      ]);
+      // Fetch section first to verify it exists
+      const sectionRes = await axios.get(`${API}/sections/${sectionId}`);
       setSection(sectionRes.data);
-      setVideos(videosRes.data);
-      setAudios(audiosRes.data);
+      
+      // Then fetch videos and audios (these can fail without breaking the page)
+      try {
+        const videosRes = await axios.get(`${API}/sections/${sectionId}/videos`);
+        setVideos(videosRes.data);
+      } catch (videoError) {
+        console.error('Failed to load videos:', videoError);
+        setVideos([]);
+      }
+      
+      try {
+        const audiosRes = await axios.get(`${API}/sections/${sectionId}/audio`);
+        setAudios(audiosRes.data);
+      } catch (audioError) {
+        console.error('Failed to load audio:', audioError);
+        setAudios([]);
+      }
     } catch (error) {
       console.error('Failed to load section data:', error);
       // Only navigate away if it's a 404 (section not found)
@@ -141,8 +154,8 @@ export default function SectionDetail() {
         toast.error('Section not found');
         navigate('/');
       } else {
-        // For other errors, just show the error but stay on page
-        toast.error('Failed to load some section data. Please refresh the page.');
+        // For other errors, show error and stay on page
+        toast.error(`Failed to load section: ${error.message}`);
       }
     } finally {
       setLoading(false);
