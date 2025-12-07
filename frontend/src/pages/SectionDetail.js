@@ -216,16 +216,18 @@ export default function SectionDetail() {
         language: language
       });
       
-      toast.success('Video uploaded successfully!', { id: 'video-upload' });
+      toast.success('Video uploaded successfully! Refreshing...', { id: 'video-upload' });
       e.target.reset();
       
-      // Refresh data after successful upload
-      try {
-        await fetchData();
-      } catch (refreshError) {
-        console.error('Failed to refresh after upload:', refreshError);
-        toast.info('Video uploaded! Please refresh the page to see it.');
-      }
+      // Refresh data after successful upload with a small delay
+      setTimeout(async () => {
+        try {
+          await fetchData();
+        } catch (refreshError) {
+          console.error('Failed to refresh after upload:', refreshError);
+          toast.info('Video uploaded! Please refresh the page manually to see it.');
+        }
+      }, 1000); // Give the backend a moment to finish processing
     } catch (error) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.detail || 'Failed to upload video', { id: 'video-upload' });
