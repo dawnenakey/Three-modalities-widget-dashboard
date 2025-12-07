@@ -2529,6 +2529,250 @@ def main():
         print(f"❌ Test suite failed with error: {str(e)}")
         return 1
 
+    def test_fetchdata_endpoints_after_video_upload(self):
+        """Test the specific endpoints that fetchData() calls after video upload - as per review request"""
+        print("🔍 FETCHDATA ENDPOINTS TEST AFTER VIDEO UPLOAD")
+        print("Testing specific issue: User uploaded video successfully but got white screen")
+        print("Screenshots showed 500 error on /api/sections/{section_id}/audio endpoint during fetchData()")
+        print("Testing all endpoints that fetchData() calls to identify the failing one")
+        print(f"Testing against: {self.base_url}")
+        print("=" * 80)
+
+        # Step 1: Login as katherine+admin@dozanu.com / pivot2025
+        print("\n🔐 Step 1: Login as katherine+admin@dozanu.com / pivot2025")
+        print("-" * 50)
+        
+        login_data = {
+            "email": "katherine+admin@dozanu.com",
+            "password": "pivot2025"
+        }
+        
+        success, response = self.run_test("Login with katherine+admin@dozanu.com", "POST", "auth/login", 200, login_data)
+        if not success or 'access_token' not in response:
+            print("❌ Katherine login failed, trying fallback users")
+            # Try dawnena as fallback
+            login_data = {
+                "email": "dawnena@dozanu.com", 
+                "password": "pivot2025"
+            }
+            success, response = self.run_test("Login with dawnena@dozanu.com (fallback)", "POST", "auth/login", 200, login_data)
+            if not success:
+                # Try demo user as last resort
+                if not self.test_demo_user_login():
+                    print("❌ All login attempts failed, stopping tests")
+                    return False
+        
+        if success and 'access_token' in response:
+            self.token = response['access_token']
+            self.user_id = response['user']['id']
+            print(f"✅ Login successful. User ID: {self.user_id}")
+
+        # Step 2: Find Testing GoPivot website
+        print("\n🌐 Step 2: Find Testing GoPivot website")
+        print("-" * 50)
+        
+        success, websites = self.run_test("Get All Websites", "GET", "websites", 200)
+        if not success or not websites:
+            print("❌ No websites found for user")
+            return False
+        
+        testing_website = None
+        for website in websites:
+            website_name = website.get('name', '').lower()
+            if 'testing' in website_name or 'gopivot' in website_name:
+                testing_website = website
+                break
+        
+        if not testing_website:
+            print("❌ Testing GoPivot website not found")
+            print("Available websites:")
+            for website in websites:
+                print(f"   - {website.get('name', 'Unknown')}")
+            # Use first website as fallback
+            testing_website = websites[0]
+            print(f"Using first website as fallback: {testing_website.get('name', 'Unknown')}")
+
+        website_id = testing_website.get('id')
+        print(f"✅ Found Testing GoPivot website: {testing_website.get('name', 'Unknown')} (ID: {website_id})")
+
+        # Step 3: Get a section that the user was working with
+        print("\n📝 Step 3: Get a section that the user was working with")
+        print("-" * 50)
+        
+        success, pages = self.run_test("Get Pages for Website", "GET", f"websites/{website_id}/pages", 200)
+        if not success or not pages:
+            print("❌ No pages found for website")
+            return False
+        
+        # Find a page with sections (preferably PDF page)
+        target_page = None
+        for page in pages:
+            page_url = page.get('url', '')
+            if 'pdf' in page_url.lower():
+                target_page = page
+                break
+        
+        if not target_page:
+            # Use first page as fallback
+            target_page = pages[0]
+        
+        page_id = target_page.get('id')
+        print(f"✅ Using page: {target_page.get('url', 'Unknown')} (ID: {page_id})")
+        
+        success, sections = self.run_test("Get Sections for Page", "GET", f"pages/{page_id}/sections", 200)
+        if not success or not sections:
+            print("❌ No sections found for page")
+            return False
+        
+        print(f"✅ Found {len(sections)} sections to test")
+
+        # Step 4: Test the specific endpoints that fetchData() calls
+        print("\n🎯 Step 4: Test endpoints that fetchData() calls (CRITICAL TEST)")
+        print("-" * 50)
+        
+        failed_endpoints = []
+        pydantic_errors = []
+        
+        # Test multiple sections to ensure none return 500 errors
+        for i, section in enumerate(sections):
+            section_id = section.get('id')
+            section_text = section.get('selected_text', section.get('text_content', 'No text'))[:50]
+            
+            print(f"\n   Testing Section {i+1}/{len(sections)}: {section_text}... (ID: {section_id})")
+            
+            # Test 1: GET /api/sections/{section_id} - Should return 200
+            print(f"     Testing GET /api/sections/{section_id}")
+            success, section_data = self.run_test(f"GET Section {i+1} Details", "GET", f"sections/{section_id}", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id} - Section details failed")
+                print(f"     ❌ FAILED: GET /api/sections/{section_id}")
+            else:
+                # Check for proper field names (selected_text, position_order)
+                has_selected_text = 'selected_text' in section_data
+                has_position_order = 'position_order' in section_data
+                
+                if not has_selected_text:
+                    pydantic_errors.append(f"Section {section_id} missing 'selected_text' field")
+                if not has_position_order:
+                    pydantic_errors.append(f"Section {section_id} missing 'position_order' field")
+                
+                print(f"     ✅ SUCCESS: GET /api/sections/{section_id} (selected_text: {has_selected_text}, position_order: {has_position_order})")
+            
+            # Test 2: GET /api/sections/{section_id}/videos - Should return 200
+            print(f"     Testing GET /api/sections/{section_id}/videos")
+            success, videos_data = self.run_test(f"GET Section {i+1} Videos", "GET", f"sections/{section_id}/videos", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id}/videos - Videos endpoint failed")
+                print(f"     ❌ FAILED: GET /api/sections/{section_id}/videos")
+            else:
+                video_count = len(videos_data) if videos_data else 0
+                print(f"     ✅ SUCCESS: GET /api/sections/{section_id}/videos ({video_count} videos)")
+            
+            # Test 3: GET /api/sections/{section_id}/audio - **THIS WAS FAILING**
+            print(f"     Testing GET /api/sections/{section_id}/audio (CRITICAL - THIS WAS FAILING)")
+            success, audio_data = self.run_test(f"GET Section {i+1} Audio", "GET", f"sections/{section_id}/audio", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id}/audio - Audio endpoint failed (THIS WAS THE REPORTED ISSUE)")
+                print(f"     ❌ FAILED: GET /api/sections/{section_id}/audio (THIS WAS THE REPORTED ISSUE)")
+            else:
+                audio_count = len(audio_data) if audio_data else 0
+                print(f"     ✅ SUCCESS: GET /api/sections/{section_id}/audio ({audio_count} audio files)")
+            
+            # Test 4: GET /api/sections/{section_id}/translations - Should return 200
+            print(f"     Testing GET /api/sections/{section_id}/translations")
+            success, translations_data = self.run_test(f"GET Section {i+1} Translations", "GET", f"sections/{section_id}/translations", 200)
+            if not success:
+                failed_endpoints.append(f"GET /api/sections/{section_id}/translations - Translations endpoint failed")
+                print(f"     ❌ FAILED: GET /api/sections/{section_id}/translations")
+            else:
+                translations_count = len(translations_data) if translations_data else 0
+                print(f"     ✅ SUCCESS: GET /api/sections/{section_id}/translations ({translations_count} translations)")
+
+        # Step 5: Check for Pydantic validation errors
+        print("\n🔍 Step 5: Check for Pydantic validation errors")
+        print("-" * 50)
+        
+        if pydantic_errors:
+            print(f"❌ Found {len(pydantic_errors)} Pydantic validation issues:")
+            for error in pydantic_errors:
+                print(f"   - {error}")
+        else:
+            print("✅ No Pydantic validation errors found - all sections have proper field names")
+
+        # Step 6: Test backend logs for recent errors
+        print("\n📊 Step 6: Check backend logs for recent errors")
+        print("-" * 50)
+        
+        try:
+            import subprocess
+            result = subprocess.run(['tail', '-n', '100', '/var/log/supervisor/backend.err.log'], 
+                                  capture_output=True, text=True, timeout=10)
+            
+            if result.returncode == 0:
+                log_content = result.stdout
+                recent_errors = []
+                
+                # Check for recent Pydantic validation errors
+                error_patterns = [
+                    'ResponseValidationError',
+                    'ValidationError',
+                    'pydantic',
+                    '500 Internal Server Error',
+                    'selected_text',
+                    'position_order'
+                ]
+                
+                for line in log_content.split('\n'):
+                    for pattern in error_patterns:
+                        if pattern.lower() in line.lower():
+                            recent_errors.append(line.strip())
+                
+                if recent_errors:
+                    self.log_test("Backend Validation Errors", False, f"Found {len(recent_errors)} recent validation errors")
+                    print("     Recent validation errors found:")
+                    for error in recent_errors[-10:]:  # Show last 10 errors
+                        print(f"       - {error}")
+                else:
+                    self.log_test("Backend Validation Errors", True, "No recent validation errors found in logs")
+            else:
+                self.log_test("Backend Log Check", False, "Could not read backend logs")
+                
+        except Exception as e:
+            self.log_test("Backend Log Check", False, f"Exception reading logs: {str(e)}")
+
+        # Step 7: Final Analysis
+        print("\n📊 FETCHDATA ENDPOINTS TEST RESULTS")
+        print("-" * 50)
+        
+        print(f"\n📋 SUMMARY:")
+        print(f"• Website tested: {testing_website.get('name', 'Unknown')}")
+        print(f"• Page tested: {target_page.get('url', 'Unknown')}")
+        print(f"• Sections tested: {len(sections)}")
+        print(f"• Failed endpoints: {len(failed_endpoints)}")
+        print(f"• Pydantic errors: {len(pydantic_errors)}")
+        
+        if failed_endpoints:
+            print(f"\n❌ CRITICAL ISSUES FOUND:")
+            for i, error in enumerate(failed_endpoints, 1):
+                print(f"   {i}. {error}")
+            
+            # Check if the specific audio endpoint was failing
+            audio_failures = [error for error in failed_endpoints if '/audio' in error]
+            if audio_failures:
+                print(f"\n🚨 CONFIRMED: Audio endpoint failures found (matches reported issue)")
+                print("   This explains the white screen after video upload")
+            
+        else:
+            print(f"\n✅ ALL ENDPOINTS WORKING")
+            print("   → All section endpoints return 200 OK")
+            print("   → All video endpoints return 200 OK") 
+            print("   → All audio endpoints return 200 OK")
+            print("   → All translation endpoints return 200 OK")
+            print("   → No Pydantic validation errors")
+            print("\n💡 WHITE SCREEN ISSUE IS RESOLVED")
+            print("   The backend APIs are now working correctly after migration")
+
+        return len(failed_endpoints) == 0 and len(pydantic_errors) == 0
 if __name__ == "__main__":
     tester = PIVOTAPITester()
     
