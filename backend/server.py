@@ -648,8 +648,8 @@ async def get_video_upload_url(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Generate a presigned URL for direct upload to R2
-    Client uploads video directly to R2, then calls /video/confirm
+    Generate a presigned URL for direct upload to AWS S3
+    Client uploads video directly to S3, then calls /video/confirm
     """
     # Security: Verify section belongs to current user
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
@@ -665,32 +665,28 @@ async def get_video_upload_url(
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Validate file size (500MB max)
-    MAX_FILE_SIZE = 500 * 1024 * 1024  # 500MB
-    if request.file_size > MAX_FILE_SIZE:
-        raise HTTPException(
-            status_code=413, 
-            detail=f"File too large. Maximum size is 500MB. Your file is {request.file_size / 1024 / 1024:.1f}MB"
-        )
+    # Validate file
+    is_valid, error_msg = s3_service.validate_file(request.filename, request.file_size, "video")
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
     
-    # Generate unique file key
+    # Generate unique filename
     file_id = str(uuid.uuid4())
     file_ext = request.filename.split('.')[-1] if '.' in request.filename else 'mp4'
-    file_key = f"videos/{file_id}.{file_ext}"
+    unique_filename = f"videos/{file_id}.{file_ext}"
     
-    # Generate presigned upload URL
+    # Generate presigned upload URL for S3
     try:
-        upload_data = r2_client.generate_presigned_upload_url(
-            file_key=file_key,
+        upload_data = s3_service.generate_presigned_upload_url(
+            filename=unique_filename,
             content_type=request.content_type,
-            expires_in=3600  # 1 hour to complete upload
+            file_size=request.file_size
         )
         
         return {
             "upload_url": upload_data['upload_url'],
             "public_url": upload_data['public_url'],
-            "file_id": file_id,
-            "file_key": file_key
+            "file_key": upload_data['file_key']
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate upload URL: {str(e)}")
