@@ -279,16 +279,35 @@ export default function SectionDetail() {
         file_size: audioFile.size
       });
       
-      // Step 2: Upload directly to R2 using PUT (R2 doesn't support POST)
-      await axios.put(uploadData.upload_url, audioFile, {
-        headers: { 
-          'Content-Type': audioFile.type || 'audio/mpeg'
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
-        }
-      });
+      // Step 2: Upload directly to R2
+      // Check if backend returned Presigned POST (has fields) or Presigned PUT (no fields)
+      if (uploadData.fields) {
+        // Presigned POST approach (legacy)
+        const r2FormData = new FormData();
+        Object.entries(uploadData.fields).forEach(([key, value]) => {
+          r2FormData.append(key, value);
+        });
+        r2FormData.append('file', audioFile);
+        
+        await axios.post(uploadData.upload_url, r2FormData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
+          }
+        });
+      } else {
+        // Presigned PUT approach (current/recommended for R2)
+        await axios.put(uploadData.upload_url, audioFile, {
+          headers: { 
+            'Content-Type': audioFile.type || 'audio/mpeg'
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
+          }
+        });
+      }
       
       // Step 3: Confirm upload
       await axios.post(`${API}/sections/${sectionId}/audio/confirm`, {
