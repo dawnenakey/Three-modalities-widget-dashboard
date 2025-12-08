@@ -11,7 +11,7 @@ from uuid import uuid4
 API_BASE = "https://testing.gopivot.me/api"
 
 # Login credentials
-LOGIN_EMAIL = "dawnena@dozanu.com"
+LOGIN_EMAIL = "katherine+admin@dozanu.com"
 LOGIN_PASSWORD = "pivot2025"
 
 # Media URLs in R2
