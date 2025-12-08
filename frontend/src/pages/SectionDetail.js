@@ -317,14 +317,32 @@ export default function SectionDetail() {
         });
       } else {
         // Presigned PUT approach (current/recommended for S3)
-        // CRITICAL: Do NOT set Content-Type header - causes signature mismatch
-        // Browser will handle it automatically
-        await axios.put(uploadData.upload_url, audioFile, {
-          headers: {},  // No headers - let browser handle everything
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
-          }
+        // CRITICAL: Use XMLHttpRequest instead of axios to avoid extra headers
+        // Axios adds Content-Type: application/x-www-form-urlencoded which breaks signature
+        
+        await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          xhr.upload.addEventListener('progress', (e) => {
+            if (e.lengthComputable) {
+              const percentCompleted = Math.round((e.loaded * 100) / e.total);
+              toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
+            }
+          });
+          
+          xhr.addEventListener('load', () => {
+            if (xhr.status === 200) {
+              resolve();
+            } else {
+              reject(new Error(`Upload failed: ${xhr.status}`));
+            }
+          });
+          
+          xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+          
+          xhr.open('PUT', uploadData.upload_url);
+          // Don't set any headers - let browser handle everything
+          xhr.send(audioFile);
         });
       }
       
