@@ -15,6 +15,7 @@ import AddOnServices from "@/pages/AddOnServices";
 import TestPage from "@/pages/TestPage";
 import DDSPage from "@/pages/DDSPage";
 import PDFPage from "@/pages/PDFPage";
+import PDFTestPage from "@/pages/PDFTestPage";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 
 const PrivateRoute = ({ children }) => {
