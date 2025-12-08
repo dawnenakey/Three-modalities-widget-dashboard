@@ -711,11 +711,11 @@ export default function SectionDetail() {
         </div>
 
 
-        {/* Caption Settings (Text Translations) */}
+        {/* Text Settings (Text Translations) */}
         <div className="bg-white rounded-xl border border-gray-200 p-6 mt-8">
           <div className="flex items-center gap-2 mb-6">
             <FileText className="h-5 w-5 text-[#00CED1]" />
-            <h2 className="text-lg font-semibold text-gray-900">Caption Settings</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Text Settings</h2>
           </div>
 
           {/* Add New Translation Form */}
