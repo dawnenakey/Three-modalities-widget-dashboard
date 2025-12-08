@@ -75,19 +75,23 @@ def generate_presigned_upload_url(filename: str, content_type: str, file_size: i
     """
     Generate a presigned PUT URL for direct browser-to-S3 upload
     Returns dict with upload_url, file_key, and public_url
+    
+    IMPORTANT: Do NOT include ContentLength in Params - browser sets it automatically
+    and including it causes signature mismatch (400 Bad Request)
     """
     try:
         # Generate S3 object key with media/ prefix
         file_key = f"media/{filename}"
         
         # Generate presigned URL for PUT operation
+        # Only include: Bucket, Key, ContentType (optional)
+        # DO NOT include ContentLength - causes signature mismatch!
         presigned_url = s3_client.generate_presigned_url(
             ClientMethod="put_object",
             Params={
                 "Bucket": S3_BUCKET_NAME,
                 "Key": file_key,
-                "ContentType": content_type,
-                "ContentLength": file_size
+                "ContentType": content_type
             },
             ExpiresIn=PRESIGNED_URL_EXPIRATION
         )
