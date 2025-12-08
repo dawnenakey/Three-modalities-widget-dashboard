@@ -832,7 +832,7 @@ async def get_audio_upload_url(
     request: UploadUrlRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Generate presigned URL for direct audio upload to R2"""
+    """Generate presigned URL for direct audio upload to AWS S3"""
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -844,22 +844,27 @@ async def get_audio_upload_url(
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied")
     
+    # Validate file
+    is_valid, error_msg = s3_service.validate_file(request.filename, request.file_size, "audio")
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
+    
+    # Generate unique filename
     file_id = str(uuid.uuid4())
     file_ext = request.filename.split('.')[-1] if '.' in request.filename else 'mp3'
-    file_key = f"audios/{file_id}.{file_ext}"
+    unique_filename = f"audio/{file_id}.{file_ext}"
     
     try:
-        upload_data = r2_client.generate_presigned_upload_url(
-            file_key=file_key,
+        upload_data = s3_service.generate_presigned_upload_url(
+            filename=unique_filename,
             content_type=request.content_type,
-            expires_in=3600
+            file_size=request.file_size
         )
         
         return {
             "upload_url": upload_data['upload_url'],
             "public_url": upload_data['public_url'],
-            "file_id": file_id,
-            "file_key": file_key
+            "file_key": upload_data['file_key']
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to generate upload URL: {str(e)}")
