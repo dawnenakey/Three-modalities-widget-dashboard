@@ -12,7 +12,7 @@ def main():
     print("Testing: login -> get page_id -> create section -> verify section")
     print("=" * 60)
     
-    base_url = "https://signbuddy-18.preview.emergentagent.com/api"
+    base_url = "https://textmotion-30.preview.emergentagent.com/api"
     
     # Step 1: Login
     print("\n🔐 Step 1: Login")

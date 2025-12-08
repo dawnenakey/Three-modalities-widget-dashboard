@@ -10,7 +10,7 @@ def test_direct_section_access():
     """Test accessing the newly created section directly"""
     
     # Login first
-    base_url = "https://signbuddy-18.preview.emergentagent.com/api"
+    base_url = "https://textmotion-30.preview.emergentagent.com/api"
     
     login_data = {
         "email": "dawnena@dozanu.com",
@@ -65,7 +65,7 @@ def test_direct_section_access():
 def test_create_another_section():
     """Test creating another section to verify the fix works consistently"""
     
-    base_url = "https://signbuddy-18.preview.emergentagent.com/api"
+    base_url = "https://textmotion-30.preview.emergentagent.com/api"
     
     login_data = {
         "email": "dawnena@dozanu.com",

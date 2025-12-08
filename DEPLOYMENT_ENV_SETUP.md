@@ -32,7 +32,7 @@ OPENAI_API_KEY=sk-proj-xK0yUCxbYTfjRe9//J/hutad1M=
 
 ### Frontend Environment Variables:
 ```
-REACT_APP_BACKEND_URL=https://signbuddy-18.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://textmotion-30.preview.emergentagent.com
 PORT=443
 REACT_APP_ENABLE_VISUAL_EDITS=false
 ENABLE_HEALTH_CHECK=false
