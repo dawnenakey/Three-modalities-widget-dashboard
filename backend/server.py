@@ -688,7 +688,7 @@ async def get_video_upload_url(
         
         return {
             "upload_url": upload_data['upload_url'],
-            "fields": upload_data['fields'],
+            # "fields": upload_data['fields'],  # Removed - not needed for new R2 client
             "public_url": upload_data['public_url'],
             "file_id": file_id,
             "file_key": file_key
@@ -862,7 +862,7 @@ async def get_audio_upload_url(
         
         return {
             "upload_url": upload_data['upload_url'],
-            "fields": upload_data['fields'],
+            # "fields": upload_data['fields'],  # Removed - not needed for new R2 client
             "public_url": upload_data['public_url'],
             "file_id": file_id,
             "file_key": file_key
