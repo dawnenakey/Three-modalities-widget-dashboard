@@ -297,11 +297,11 @@ export default function SectionDetail() {
           }
         });
       } else {
-        // Presigned PUT approach (current/recommended for R2)
+        // Presigned PUT approach (current/recommended for S3)
+        // CRITICAL: Do NOT set Content-Type header - causes signature mismatch
+        // Browser will handle it automatically
         await axios.put(uploadData.upload_url, audioFile, {
-          headers: { 
-            'Content-Type': audioFile.type || 'audio/mpeg'
-          },
+          headers: {},  // No headers - let browser handle everything
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
             toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
