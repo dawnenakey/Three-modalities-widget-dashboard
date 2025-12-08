@@ -97,12 +97,13 @@ def generate_presigned_upload_url(filename: str, content_type: str, file_size: i
         )
         
         # Generate public URL for accessing the file after upload
+        # Since bucket has public read access, use direct public URL (no signature needed)
         public_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
         
         return {
-            "upload_url": presigned_url,
+            "upload_url": presigned_url,  # Presigned PUT URL for upload only
             "file_key": file_key,
-            "public_url": public_url,
+            "public_url": public_url,  # Direct public URL for viewing (no signature)
             "expiration": PRESIGNED_URL_EXPIRATION
         }
     except ClientError as e:
