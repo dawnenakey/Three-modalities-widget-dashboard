@@ -975,40 +975,66 @@
         };
       }
       
-      // Text highlighting during video playback
-      if (video && textParagraph) {
-        video.onplay = () => {
-          textParagraph.style.background = 'rgba(224, 247, 250, 0.8)';
-          textParagraph.style.borderLeft = '4px solid #00CED1';
-          textParagraph.style.paddingLeft = '12px';
-          textParagraph.style.transition = 'all 0.3s ease';
-          textParagraph.style.color = '#1a1a1a';
-        };
+      // Webpage text highlighting - find and highlight matching text on the actual page
+      const currentSectionText = section.text_content || section.selected_text || '';
+      
+      function highlightTextOnPage() {
+        // Remove any existing highlights
+        document.querySelectorAll('.pivot-highlighted-section').forEach(el => {
+          el.classList.remove('pivot-highlighted-section');
+          el.style.background = '';
+          el.style.outline = '';
+          el.style.transition = '';
+        });
         
-        video.onpause = () => {
-          textParagraph.style.background = 'transparent';
-          textParagraph.style.borderLeft = 'none';
-          textParagraph.style.paddingLeft = '0';
-          textParagraph.style.color = '#1a1a1a';
-        };
+        if (!currentSectionText) return;
+        
+        // Search for matching text in the page DOM
+        const allElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, div, span, section, article');
+        
+        for (let element of allElements) {
+          // Skip widget elements
+          if (element.closest('.pivot-widget-button') || element.closest('.pivot-widget-panel')) {
+            continue;
+          }
+          
+          const elementText = element.textContent.trim();
+          
+          // Check if this element contains the section text (partial or full match)
+          if (elementText && currentSectionText.includes(elementText.substring(0, 50)) || 
+              elementText.includes(currentSectionText.substring(0, 50))) {
+            element.classList.add('pivot-highlighted-section');
+            element.style.background = 'rgba(0, 206, 209, 0.15)';
+            element.style.outline = '3px solid #00CED1';
+            element.style.transition = 'all 0.3s ease';
+            
+            // Scroll element into view
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            break;
+          }
+        }
       }
       
-      // Text highlighting during audio playback
-      if (audio && textParagraph) {
-        audio.onplay = () => {
-          textParagraph.style.background = 'rgba(224, 247, 250, 0.8)';
-          textParagraph.style.borderLeft = '4px solid #00CED1';
-          textParagraph.style.paddingLeft = '12px';
-          textParagraph.style.transition = 'all 0.3s ease';
-          textParagraph.style.color = '#1a1a1a';
-        };
-        
-        audio.onpause = () => {
-          textParagraph.style.background = 'transparent';
-          textParagraph.style.borderLeft = 'none';
-          textParagraph.style.paddingLeft = '0';
-          textParagraph.style.color = '#1a1a1a';
-        };
+      function removeHighlightFromPage() {
+        document.querySelectorAll('.pivot-highlighted-section').forEach(el => {
+          el.classList.remove('pivot-highlighted-section');
+          el.style.background = '';
+          el.style.outline = '';
+        });
+      }
+      
+      // Highlight when video plays
+      if (video) {
+        video.onplay = highlightTextOnPage;
+        video.onpause = removeHighlightFromPage;
+        video.onended = removeHighlightFromPage;
+      }
+      
+      // Highlight when audio plays
+      if (audio) {
+        audio.onplay = highlightTextOnPage;
+        audio.onpause = removeHighlightFromPage;
+        audio.onended = removeHighlightFromPage;
       }
     }, 0);
   }
