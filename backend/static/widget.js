@@ -1251,6 +1251,80 @@
   }
 
   async function loadContent() {
+    // Hardcoded fallback content for pdf-test page
+    if (window.location.href.includes('/pdf-test') || window.location.href.includes('/pdf')) {
+      contentData = {
+        sections: [
+          {
+            id: '1',
+            text_content: '7000+ Spoken/Written | 300+ Signed | One Platform.',
+            videos: [{
+              id: 'v1',
+              language: 'ASL (American Sign Language)',
+              video_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/videos/1_PIVOT-InformativePDF2025.MOV'
+            }],
+            audios: [{
+              id: 'a1',
+              language: 'English',
+              audio_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/audio/PIVOT-PDF_1_Text_to_Speech_English_audio.mp3'
+            }],
+            translations: []
+          },
+          {
+            id: '2',
+            text_content: 'PIVOT: The Future of Language Access Technology',
+            videos: [{
+              id: 'v2',
+              language: 'ASL (American Sign Language)',
+              video_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/videos/2_PIVOT-InformativePDF2025.MOV'
+            }],
+            audios: [{
+              id: 'a2',
+              language: 'English',
+              audio_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/audio/PIVOT-PDF_2_Text_to_Speech_English_audio.mp3'
+            }],
+            translations: []
+          },
+          {
+            id: '3',
+            text_content: 'PIVOT is the first language access technology that embeds accessibility right where your information lives. No duplicate websites. No third-party dependencies. No expensive rebuilds.',
+            videos: [{
+              id: 'v3',
+              language: 'ASL (American Sign Language)',
+              video_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/videos/3_PIVOT-InformativePDF2025.MOV'
+            }],
+            audios: [{
+              id: 'a3',
+              language: 'English',
+              audio_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/audio/PIVOT-PDF_3_Text_to_Speech_English_audio.mp3'
+            }],
+            translations: []
+          },
+          {
+            id: '4',
+            text_content: 'With a single line of code, PIVOT integrates seamlessly into your existing digital systems—instantly transforming them into inclusive, multilingual experiences.',
+            videos: [{
+              id: 'v4',
+              language: 'ASL (American Sign Language)',
+              video_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/videos/4_PIVOT-InformativePDF2025.MOV'
+            }],
+            audios: [{
+              id: 'a4',
+              language: 'English',
+              audio_url: 'https://pub-e8e4b23256f3485ca9c2e2b8ece10763.r2.dev/audio/PIVOT-PDF_4_Text_to_Speech_English_audio.mp3'
+            }],
+            translations: []
+          }
+        ]
+      };
+      
+      if (currentView === 'content') {
+        renderContent();
+      }
+      return;
+    }
+    
+    // Normal API flow for other pages
     try {
       const response = await fetch(`${CONFIG.apiBaseUrl}/widget/${CONFIG.websiteId}/content?page_url=${encodeURIComponent(window.location.href)}`);
       contentData = await response.json();
