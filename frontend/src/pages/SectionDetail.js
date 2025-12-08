@@ -305,18 +305,9 @@ export default function SectionDetail() {
         });
       } else {
         // Presigned PUT approach for S3
-        // CRITICAL: Use native fetch with no headers to avoid signature mismatch
-        toast.loading('Uploading audio...', { id: 'audio-upload' });
-        
-        const response = await fetch(uploadData.upload_url, {
-          method: 'PUT',
-          body: audioFile
-          // NO headers object at all - fetch will not add Content-Type for File objects
-        });
-        
-        if (!response.ok) {
-          throw new Error(`S3 upload failed: ${response.status} ${response.statusText}`);
-        }
+        // Use dedicated fetch helper (NOT axios)
+        toast.loading('Uploading audio to S3...', { id: 'audio-upload' });
+        await uploadToS3WithFetch(uploadData.upload_url, audioFile);
       }
       
       // Step 3: Confirm upload
