@@ -57,12 +57,15 @@ def main():
     # Step 2: Check if website exists, create if not
     print("\n📱 Checking for website...")
     websites_resp = session.get(f"{API_BASE}/websites")
-    websites = websites_resp.json()
+    websites_data = websites_resp.json()
+    
+    # Handle both list and dict responses
+    websites = websites_data if isinstance(websites_data, list) else []
     
     # Find or create GoPivot website
     website = None
     for w in websites:
-        if 'gopivot' in w.get('url', '').lower() or 'gopivot' in w.get('name', '').lower():
+        if isinstance(w, dict) and ('gopivot' in w.get('url', '').lower() or 'gopivot' in w.get('name', '').lower()):
             website = w
             print(f"✅ Found existing website: {w.get('name')} (ID: {w['id']})")
             break
