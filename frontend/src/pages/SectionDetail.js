@@ -218,35 +218,20 @@ export default function SectionDetail() {
           }
         });
       } else {
-        // Presigned PUT approach (current/recommended for S3)
-        // CRITICAL: Use fetch instead of axios to avoid extra headers
-        // Axios adds Content-Type: application/x-www-form-urlencoded which breaks signature
+        // Presigned PUT approach for S3
+        // CRITICAL: Use native fetch with no headers to avoid signature mismatch
+        // Create a simple progress indicator
+        toast.loading('Uploading video...', { id: 'video-upload' });
         
-        // Use XMLHttpRequest for progress tracking
-        await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          
-          xhr.upload.addEventListener('progress', (e) => {
-            if (e.lengthComputable) {
-              const percentCompleted = Math.round((e.loaded * 100) / e.total);
-              toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
-            }
-          });
-          
-          xhr.addEventListener('load', () => {
-            if (xhr.status === 200) {
-              resolve();
-            } else {
-              reject(new Error(`Upload failed: ${xhr.status}`));
-            }
-          });
-          
-          xhr.addEventListener('error', () => reject(new Error('Upload failed')));
-          
-          xhr.open('PUT', uploadData.upload_url);
-          // Don't set any headers - let browser handle everything
-          xhr.send(videoFile);
+        const response = await fetch(uploadData.upload_url, {
+          method: 'PUT',
+          body: videoFile
+          // NO headers object at all - fetch will not add Content-Type for File objects
         });
+        
+        if (!response.ok) {
+          throw new Error(`S3 upload failed: ${response.status} ${response.statusText}`);
+        }
       }
       
       // Step 3: Confirm upload with backend
