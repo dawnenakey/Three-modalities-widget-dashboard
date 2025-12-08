@@ -10,6 +10,19 @@ import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2 } from '
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+// Dedicated S3 upload helper - uses raw fetch, NOT axios
+async function uploadToS3WithFetch(uploadUrl, file) {
+  const res = await window.fetch(uploadUrl, {
+    method: "PUT",
+    body: file,
+    // NO headers, NO Authorization, NO Content-Type
+  });
+
+  if (!res.ok) {
+    throw new Error(`S3 upload failed with status ${res.status}`);
+  }
+}
+
 // VideoPlayer Component with Loading State and Delete Button
 function VideoPlayer({ video, onDelete }) {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
