@@ -301,34 +301,19 @@ export default function SectionDetail() {
           }
         });
       } else {
-        // Presigned PUT approach (current/recommended for S3)
-        // CRITICAL: Use XMLHttpRequest instead of axios to avoid extra headers
-        // Axios adds Content-Type: application/x-www-form-urlencoded which breaks signature
+        // Presigned PUT approach for S3
+        // CRITICAL: Use native fetch with no headers to avoid signature mismatch
+        toast.loading('Uploading audio...', { id: 'audio-upload' });
         
-        await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          
-          xhr.upload.addEventListener('progress', (e) => {
-            if (e.lengthComputable) {
-              const percentCompleted = Math.round((e.loaded * 100) / e.total);
-              toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
-            }
-          });
-          
-          xhr.addEventListener('load', () => {
-            if (xhr.status === 200) {
-              resolve();
-            } else {
-              reject(new Error(`Upload failed: ${xhr.status}`));
-            }
-          });
-          
-          xhr.addEventListener('error', () => reject(new Error('Upload failed')));
-          
-          xhr.open('PUT', uploadData.upload_url);
-          // Don't set any headers - let browser handle everything
-          xhr.send(audioFile);
+        const response = await fetch(uploadData.upload_url, {
+          method: 'PUT',
+          body: audioFile
+          // NO headers object at all - fetch will not add Content-Type for File objects
         });
+        
+        if (!response.ok) {
+          throw new Error(`S3 upload failed: ${response.status} ${response.statusText}`);
+        }
       }
       
       // Step 3: Confirm upload
