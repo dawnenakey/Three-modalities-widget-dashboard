@@ -267,29 +267,9 @@ export default function SectionDetail() {
         file_size: audioFile.size
       });
       
-      // Step 2: Upload directly to R2
-      // Check if backend returned Presigned POST (has fields) or Presigned PUT (no fields)
-      if (uploadData.fields) {
-        // Presigned POST approach (legacy)
-        const r2FormData = new FormData();
-        Object.entries(uploadData.fields).forEach(([key, value]) => {
-          r2FormData.append(key, value);
-        });
-        r2FormData.append('file', audioFile);
-        
-        await axios.post(uploadData.upload_url, r2FormData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            toast.loading(`Uploading audio: ${percentCompleted}%`, { id: 'audio-upload' });
-          }
-        });
-      } else {
-        // Presigned PUT approach for S3
-        // Use dedicated fetch helper (NOT axios)
-        toast.loading('Uploading audio to S3...', { id: 'audio-upload' });
-        await uploadToS3WithFetch(uploadData.upload_url, audioFile);
-      }
+      // Step 2: Upload directly to S3 using presigned PUT URL
+      toast.loading('Uploading audio to S3...', { id: 'audio-upload' });
+      await uploadToS3WithFetch(uploadData.upload_url, audioFile);
       
       // Step 3: Confirm upload
       await axios.post(`${API}/sections/${sectionId}/audio/confirm`, {
