@@ -214,29 +214,9 @@ export default function SectionDetail() {
         file_size: videoFile.size
       });
       
-      // Step 2: Upload directly to R2
-      // Check if backend returned Presigned POST (has fields) or Presigned PUT (no fields)
-      if (uploadData.fields) {
-        // Presigned POST approach (legacy)
-        const r2FormData = new FormData();
-        Object.entries(uploadData.fields).forEach(([key, value]) => {
-          r2FormData.append(key, value);
-        });
-        r2FormData.append('file', videoFile);
-        
-        await axios.post(uploadData.upload_url, r2FormData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-          onUploadProgress: (progressEvent) => {
-            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-            toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
-          }
-        });
-      } else {
-        // Presigned PUT approach for S3
-        // Use dedicated fetch helper (NOT axios)
-        toast.loading('Uploading video to S3...', { id: 'video-upload' });
-        await uploadToS3WithFetch(uploadData.upload_url, videoFile);
-      }
+      // Step 2: Upload directly to S3 using presigned PUT URL
+      toast.loading('Uploading video to S3...', { id: 'video-upload' });
+      await uploadToS3WithFetch(uploadData.upload_url, videoFile);
       
       // Step 3: Confirm upload with backend
       await axios.post(`${API}/sections/${sectionId}/video/confirm`, {
