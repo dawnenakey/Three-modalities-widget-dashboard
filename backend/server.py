@@ -17,12 +17,12 @@ from bs4 import BeautifulSoup
 import requests
 from emergentintegrations.llm.openai import OpenAITextToSpeech
 
-# IMPORTANT: Load .env BEFORE importing r2_client so credentials are available
+# IMPORTANT: Load .env BEFORE importing services so credentials are available
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# Now import r2_client after .env is loaded
-from r2_client import r2_client
+# Now import services after .env is loaded
+import s3_service
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
