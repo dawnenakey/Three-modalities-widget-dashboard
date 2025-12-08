@@ -193,7 +193,6 @@ export default function SectionDetail() {
     
     setUploading(true);
     try {
-      
       // Step 1: Get presigned upload URL from backend
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/video/upload-url`, {
         filename: videoFile.name,
@@ -201,16 +200,35 @@ export default function SectionDetail() {
         file_size: videoFile.size
       });
       
-      // Step 2: Upload directly to R2 using PUT (R2 doesn't support POST)
-      await axios.put(uploadData.upload_url, videoFile, {
-        headers: { 
-          'Content-Type': videoFile.type || 'video/mp4'
-        },
-        onUploadProgress: (progressEvent) => {
-          const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-          toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
-        }
-      });
+      // Step 2: Upload directly to R2
+      // Check if backend returned Presigned POST (has fields) or Presigned PUT (no fields)
+      if (uploadData.fields) {
+        // Presigned POST approach (legacy)
+        const r2FormData = new FormData();
+        Object.entries(uploadData.fields).forEach(([key, value]) => {
+          r2FormData.append(key, value);
+        });
+        r2FormData.append('file', videoFile);
+        
+        await axios.post(uploadData.upload_url, r2FormData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
+          }
+        });
+      } else {
+        // Presigned PUT approach (current/recommended for R2)
+        await axios.put(uploadData.upload_url, videoFile, {
+          headers: { 
+            'Content-Type': videoFile.type || 'video/mp4'
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            toast.loading(`Uploading video: ${percentCompleted}%`, { id: 'video-upload' });
+          }
+        });
+      }
       
       // Step 3: Confirm upload with backend
       await axios.post(`${API}/sections/${sectionId}/video/confirm`, {
