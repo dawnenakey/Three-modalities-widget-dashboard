@@ -232,19 +232,9 @@ export default function SectionDetail() {
         });
       } else {
         // Presigned PUT approach for S3
-        // CRITICAL: Use native fetch with no headers to avoid signature mismatch
-        // Create a simple progress indicator
-        toast.loading('Uploading video...', { id: 'video-upload' });
-        
-        const response = await fetch(uploadData.upload_url, {
-          method: 'PUT',
-          body: videoFile
-          // NO headers object at all - fetch will not add Content-Type for File objects
-        });
-        
-        if (!response.ok) {
-          throw new Error(`S3 upload failed: ${response.status} ${response.statusText}`);
-        }
+        // Use dedicated fetch helper (NOT axios)
+        toast.loading('Uploading video to S3...', { id: 'video-upload' });
+        await uploadToS3WithFetch(uploadData.upload_url, videoFile);
       }
       
       // Step 3: Confirm upload with backend
