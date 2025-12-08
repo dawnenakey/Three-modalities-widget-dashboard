@@ -11,6 +11,7 @@ import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2 } from '
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // Dedicated S3 upload helper - uses raw fetch, NOT axios
+// Version: 2024-12-08 - Fixed for AWS S3 presigned URLs
 async function uploadToS3WithFetch(uploadUrl, file) {
   const res = await window.fetch(uploadUrl, {
     method: "PUT",
