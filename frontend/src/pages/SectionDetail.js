@@ -1,4 +1,4 @@
-// BUILD VERSION: 2025-12-08-v3 - S3 PLAYBACK FIX
+// BUILD VERSION: 2025-12-08-v4 - S3 DEBUG & FIX
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,12 +7,11 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2 } from 'lucide-react';
+import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2, ExternalLink } from 'lucide-react';
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
 // Dedicated S3 upload helper - uses raw fetch, NOT axios
-// Version: 2024-12-08 - Fixed for AWS S3 presigned URLs
 async function uploadToS3WithFetch(uploadUrl, file) {
   const res = await window.fetch(uploadUrl, {
     method: "PUT",
@@ -25,7 +24,7 @@ async function uploadToS3WithFetch(uploadUrl, file) {
   }
 }
 
-// Helper to get correct media URL (handles S3 absolute URLs vs local relative URLs)
+// Helper to get correct media URL
 function getMediaUrl(url) {
   if (!url) return '';
   if (url.startsWith('http') || url.startsWith('//')) {
@@ -38,11 +37,15 @@ function getMediaUrl(url) {
 function VideoPlayer({ video, onDelete }) {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
   const [retryCount, setRetryCount] = useState(0);
-  const [cacheBuster] = useState(() => Date.now()); // Cache buster set once on mount
+  const [cacheBuster, setCacheBuster] = useState(Date.now()); 
   const [deleting, setDeleting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const videoUrl = getMediaUrl(video.video_url);
 
   const handleLoadStart = () => {
     setLoadingState('loading');
+    setErrorMsg('');
   };
 
   const handleCanPlay = () => {
@@ -51,15 +54,31 @@ function VideoPlayer({ video, onDelete }) {
 
   const handleError = (e) => {
     console.error("Video load error:", e);
+    const error = e.target.error;
+    let msg = "Unknown error";
+    if (error) {
+        if (error.code === 1) msg = "Aborted";
+        if (error.code === 2) msg = "Network Error";
+        if (error.code === 3) msg = "Decode Error";
+        if (error.code === 4) msg = "Source Not Supported";
+    }
+    setErrorMsg(msg);
+
     // Retry up to 2 times before showing error
     if (retryCount < 2) {
       setTimeout(() => {
-        setRetryCount(retryCount + 1);
-        e.target.load(); // Reload the video
-      }, 1000);
+        setRetryCount(prev => prev + 1);
+        setCacheBuster(Date.now()); // Force reload with new query param
+      }, 1500);
     } else {
       setLoadingState('error');
     }
+  };
+
+  const handleRetry = () => {
+      setRetryCount(0);
+      setLoadingState('loading');
+      setCacheBuster(Date.now());
   };
 
   const handleDelete = async () => {
@@ -89,30 +108,39 @@ function VideoPlayer({ video, onDelete }) {
         <div className="bg-blue-50 border border-blue-200 rounded p-6 text-center">
           <Loader2 className="h-8 w-8 text-blue-600 animate-spin mx-auto mb-2" />
           <p className="text-sm text-blue-600 font-medium">Loading video...</p>
-          <p className="text-xs text-blue-500 mt-1">Please wait while the video loads</p>
+          <p className="text-xs text-blue-500 mt-1">Attempt {retryCount + 1}...</p>
         </div>
       )}
       
       {loadingState === 'error' && (
         <div className="bg-red-50 border border-red-200 rounded p-4 text-center">
-          <p className="text-sm text-red-600">⚠️ Unable to load video</p>
-          <p className="text-xs text-red-500 mt-1">The video file may be corrupted or moved</p>
-          <Button
-            onClick={() => {
-              setRetryCount(0);
-              setLoadingState('loading');
-            }}
-            size="sm"
-            className="mt-3"
-            variant="outline"
-          >
-            Retry
-          </Button>
+          <p className="text-sm text-red-600 font-medium">⚠️ Unable to load video</p>
+          <p className="text-xs text-red-500 mt-1 mb-2">{errorMsg}</p>
+          <div className="flex gap-2 justify-center">
+            <Button
+                onClick={handleRetry}
+                size="sm"
+                variant="outline"
+                className="bg-white"
+            >
+                Retry
+            </Button>
+            <a 
+                href={videoUrl} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-white shadow-sm hover:bg-accent hover:text-accent-foreground h-8 px-3"
+            >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                Open URL
+            </a>
+          </div>
         </div>
       )}
       
       <video
-        src={`${getMediaUrl(video.video_url)}?t=${cacheBuster}`}
+        key={`${video.id}-${cacheBuster}`} // Force re-render on retry
+        src={`${videoUrl}${videoUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`}
         controls
         preload="metadata"
         className={`w-full rounded ${loadingState !== 'loaded' ? 'hidden' : ''}`}
