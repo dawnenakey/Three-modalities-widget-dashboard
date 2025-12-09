@@ -85,6 +85,11 @@ async def restore_content():
         if existing:
             print(f"   ⚠️  {name} ({email}) - Already exists")
             user_id = existing['id']
+            # Force update password just in case
+            await db.users.update_one(
+                {"id": user_id},
+                {"$set": {"password": hashed_password}}
+            )
         else:
             user_id = str(uuid.uuid4())
             user = {
@@ -151,9 +156,24 @@ async def restore_content():
         await db.pages.insert_one(new_page)
         print(f"   ✅ Created PDF Page")
 
-    # PDF Sections & Media
-    current_sections = await db.sections.count_documents({"page_id": page_id})
-    if current_sections == 0:
+    # Wipe existing sections for clean restore (requested: "videos we had... are gone")
+    # This ensures we don't end up with partial/broken sections
+    # Only wipe if count mismatch or explicitly trying to fix
+    
+    current_sections_count = await db.sections.count_documents({"page_id": page_id})
+    print(f"   ℹ️  Current PDF Sections: {current_sections_count}")
+    
+    # If sections exist but likely incomplete or broken, delete them
+    if current_sections_count > 0 and current_sections_count < 4:
+        print("   ⚠️  Incomplete sections found. Wiping to restore full content...")
+        section_ids = [s['id'] for s in await db.sections.find({"page_id": page_id}).to_list(100)]
+        await db.videos.delete_many({"section_id": {"$in": section_ids}})
+        await db.audios.delete_many({"section_id": {"$in": section_ids}})
+        await db.sections.delete_many({"page_id": page_id})
+        current_sections_count = 0
+    
+    # If sections don't exist (or were wiped), create them
+    if current_sections_count == 0:
         print("   📝 Creating PDF Sections & Linking Media...")
         for i, text in enumerate(PDF_SECTIONS):
             section_id = str(uuid.uuid4())
@@ -195,7 +215,24 @@ async def restore_content():
             
         await db.pages.update_one({"id": page_id}, {"$set": {"sections_count": len(PDF_SECTIONS)}})
     else:
-        print(f"   ⚠️  PDF Sections already exist ({current_sections})")
+        # Verify media exists for existing sections
+        print("   🔍 Verifying media for existing sections...")
+        sections = await db.sections.find({"page_id": page_id}).sort("position_order", 1).to_list(100)
+        for i, section in enumerate(sections):
+             # Check Video
+             video_exists = await db.videos.find_one({"section_id": section['id']})
+             if not video_exists and i < len(PDF_MEDIA):
+                video = {
+                    "id": str(uuid.uuid4()),
+                    "section_id": section['id'],
+                    "language": "ASL (American Sign Language)",
+                    "video_url": PDF_MEDIA[i]["video"],
+                    "file_path": f"videos/restored_{i+1}.mp4",
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+                await db.videos.insert_one(video)
+                print(f"     ✅ Restored missing video for Section {i+1}")
+                await db.sections.update_one({"id": section['id']}, {"$set": {"videos_count": 1}})
 
     # 4. Setup DDS Page & Structure
     print("\n📄 Restoring /dds Page & Structure...")
