@@ -27,7 +27,7 @@ filelock==3.13.1
 flake8==7.1.1
 frozenlist==1.5.0
 fsspec==2024.12.0
-google-ai-generativelanguage==0.6.11
+# google-ai-generativelanguage==0.6.11
 google-api-core==2.24.0
 google-api-python-client==2.159.0
 google-auth==2.37.0
