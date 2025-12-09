@@ -15,7 +15,7 @@ AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
 AWS_REGION = os.getenv("AWS_REGION", "us-east-1")
 S3_BUCKET_NAME = os.getenv("S3_BUCKET_NAME")
-PRESIGNED_URL_EXPIRATION = int(os.getenv("PRESIGNED_URL_EXPIRATION", "600"))
+PRESIGNED_URL_EXPIRATION = int(os.getenv("PRESIGNED_URL_EXPIRATION", "3600"))  # Default 1 hour
 
 # S3 Client Configuration (CRITICAL: signature_version must be s3v4 for presigned PUT URLs)
 s3_config = Config(
@@ -82,8 +82,11 @@ def generate_presigned_upload_url(filename: str, content_type: str, file_size: i
     - Browser will handle all headers automatically
     """
     try:
-        # Generate S3 object key with media/ prefix
-        file_key = f"media/{filename}"
+        # Generate S3 object key with media/ prefix if not already present
+        if not filename.startswith("media/"):
+            file_key = f"media/{filename}"
+        else:
+            file_key = filename
         
         # Generate presigned URL for PUT operation
         # ONLY include Bucket and Key - let browser handle everything else
@@ -96,18 +99,38 @@ def generate_presigned_upload_url(filename: str, content_type: str, file_size: i
             ExpiresIn=PRESIGNED_URL_EXPIRATION
         )
         
-        # Generate public URL for accessing the file after upload
-        # Since bucket has public read access, use direct public URL (no signature needed)
+        # NOTE: We return a "public" URL structure here for database consistency,
+        # but the actual viewing will require a signed GET URL if the bucket is private.
         public_url = f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
         
         return {
             "upload_url": presigned_url,  # Presigned PUT URL for upload only
             "file_key": file_key,
-            "public_url": public_url,  # Direct public URL for viewing (no signature)
+            "public_url": public_url,  # Stored in DB, but replaced with signed URL on read
             "expiration": PRESIGNED_URL_EXPIRATION
         }
     except ClientError as e:
         raise Exception(f"Error generating presigned URL: {str(e)}")
+
+def generate_presigned_url(file_key: str) -> str:
+    """
+    Generate a presigned GET URL for viewing private S3 objects.
+    Valid for 1 hour by default.
+    """
+    try:
+        url = s3_client.generate_presigned_url(
+            ClientMethod='get_object',
+            Params={
+                'Bucket': S3_BUCKET_NAME,
+                'Key': file_key
+            },
+            ExpiresIn=3600  # 1 hour
+        )
+        return url
+    except ClientError as e:
+        print(f"Error generating presigned GET URL: {e}")
+        # Fallback to public URL if signing fails
+        return f"https://{S3_BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{file_key}"
 
 def get_public_url(file_key: str) -> str:
     """Generate public URL for accessing an uploaded file"""
