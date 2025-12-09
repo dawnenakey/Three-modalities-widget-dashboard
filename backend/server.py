@@ -424,24 +424,89 @@ async def create_page(website_id: str, page_data: PageCreate, current_user: dict
     await db.pages.insert_one(page_dict)
     
     # Auto-scrape page content
+    ‹async def scrape_page_content(url: str) -> List[str]:
+    """
+    Scrape page content with preference for main/article content.
+    Produces ordered chunks (400–800 chars) suitable for sections.
+    """
     try:
-        sections = await scrape_page_content(page_data.url)
-        for idx, text in enumerate(sections, 1):
-            section = Section(
-                page_id=page.id,
-                selected_text=text,
-                position_order=idx
-            )
-            section_dict = section.model_dump()
-            section_dict['created_at'] = section_dict['created_at'].isoformat()
-            await db.sections.insert_one(section_dict)
-        
-        page_dict['sections_count'] = len(sections)
-        await db.pages.update_one({"id": page.id}, {"$set": {"sections_count": len(sections)}})
+        response = requests.get(
+            url,
+            timeout=10,
+            headers={'User-Agent': 'Mozilla/5.0 (PIVOT Scraper)'}
+        )
+        response.raise_for_status()
+
+        soup = BeautifulSoup(response.content, "html.parser")
+
+        # Remove non-content tags early
+        for element in soup(['script', 'style', 'noscript', 'iframe']):
+            element.decompose()
+
+        # Prefer main content if present
+        main = (
+            soup.find('main') or
+            soup.find(attrs={'role': 'main'}) or
+            soup.find('article') or
+            soup.find('div', class_=['entry-content', 'post-content', 'page-content'])
+        )
+        root = main or soup.body or soup
+
+        # We will walk block-level content in order
+        BLOCK_TAGS = [
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'p', 'li',
+            'section', 'article', 'div'
+        ]
+
+        chunks: List[str] = []
+        current = []
+
+        def flush_current():
+            nonlocal current
+            if not current:
+                return
+            text = ' '.join(current)
+            text = ' '.join(text.split())
+            if len(text) >= 40:      # discard tiny scraps
+                chunks.append(text[:1000])  # hard cap per section
+            current = []
+
+        for el in root.descendants:
+            if not hasattr(el, "name"):
+                continue
+            if el.name not in BLOCK_TAGS:
+                continue
+
+            # Skip nav/header/footer/aside sections even if nested
+            if el.find_parent(['nav', 'header', 'footer', 'aside']):
+                continue
+
+            text = el.get_text(separator=' ', strip=True)
+            text = ' '.join(text.split())
+            if len(text) < 20:
+                continue
+
+            # Accumulate until we hit ~600 chars then flush as one "section"
+            if sum(len(t) for t in current) + len(text) > 600:
+                flush_current()
+            current.append(text)
+
+        flush_current()
+
+        # Simple dedupe: exact text only
+        seen = set()
+        unique_chunks: List[str] = []
+        for t in chunks:
+            if t not in seen:
+                seen.add(t)
+                unique_chunks.append(t)
+
+        return unique_chunks[:100]  # safety cap
     except Exception as e:
-        logging.error(f"Error scraping page: {e}")
-    
-    return page
+        logging.error(f"Scraping error for {url}: {e}")
+        return []
+
 
 async def scrape_page_content(url: str) -> List[str]:
     """Enhanced scraping that captures ALL text including nav, buttons, etc."""
