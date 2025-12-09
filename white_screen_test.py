@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 
 class WhiteScreenDebugTester:
-    def __init__(self, base_url="https://textmotion-30.preview.emergentagent.com/api"):
+    def __init__(self, base_url="https://a11y-bridge-1.preview.emergentagent.com/api"):
         self.base_url = base_url
         self.token = None
         self.user_id = None
@@ -274,7 +274,7 @@ class WhiteScreenDebugTester:
                     if video_url:
                         # Convert to external URL if needed
                         if not video_url.startswith('http'):
-                            external_url = f"https://textmotion-30.preview.emergentagent.com{video_url}"
+                            external_url = f"https://a11y-bridge-1.preview.emergentagent.com{video_url}"
                         else:
                             external_url = video_url
                         

@@ -12,7 +12,7 @@ from datetime import datetime
 class SectionTestRunner:
     def __init__(self):
         # Use the external URL as specified in frontend/.env
-        self.base_url = "https://textmotion-30.preview.emergentagent.com/api"
+        self.base_url = "https://a11y-bridge-1.preview.emergentagent.com/api"
         self.token = None
         self.test_results = []
         
