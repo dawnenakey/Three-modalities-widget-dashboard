@@ -1,4 +1,4 @@
-// BUILD VERSION: 2025-12-08-v2 - S3 FETCH UPLOAD FIX
+// BUILD VERSION: 2025-12-08-v3 - S3 PLAYBACK FIX
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -25,6 +25,15 @@ async function uploadToS3WithFetch(uploadUrl, file) {
   }
 }
 
+// Helper to get correct media URL (handles S3 absolute URLs vs local relative URLs)
+function getMediaUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http') || url.startsWith('//')) {
+    return url;
+  }
+  return `${process.env.REACT_APP_BACKEND_URL}${url}`;
+}
+
 // VideoPlayer Component with Loading State and Delete Button
 function VideoPlayer({ video, onDelete }) {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
@@ -41,6 +50,7 @@ function VideoPlayer({ video, onDelete }) {
   };
 
   const handleError = (e) => {
+    console.error("Video load error:", e);
     // Retry up to 2 times before showing error
     if (retryCount < 2) {
       setTimeout(() => {
@@ -102,7 +112,7 @@ function VideoPlayer({ video, onDelete }) {
       )}
       
       <video
-        src={`${process.env.REACT_APP_BACKEND_URL}${video.video_url}?t=${cacheBuster}`}
+        src={`${getMediaUrl(video.video_url)}?t=${cacheBuster}`}
         controls
         preload="metadata"
         className={`w-full rounded ${loadingState !== 'loaded' ? 'hidden' : ''}`}
@@ -421,6 +431,7 @@ export default function SectionDetail() {
               }
             }}
             size="sm"
+            className="bg-red-100 text-red-600 hover:bg-red-200"
           >
             Delete Section
           </Button>
@@ -654,7 +665,7 @@ export default function SectionDetail() {
                         </Button>
                       </div>
                       <audio
-                        src={`${process.env.REACT_APP_BACKEND_URL}${audio.audio_url}`}
+                        src={getMediaUrl(audio.audio_url)}
                         controls
                         className="w-full"
                         onError={(e) => {

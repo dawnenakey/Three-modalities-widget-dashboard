@@ -298,7 +298,7 @@ async def create_website(website_data: WebsiteCreate, current_user: dict = Depen
             owner_id=current_user['id'],
             name=website_data.name,
             url=website_data.url,
-            embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
+            embed_code=f'<script src="https://testing.gopivot.me/api/widget.js" data-website-id="{{website_id}}"></script>',
             image_url=image_url
         )
         website_dict = website.model_dump()
