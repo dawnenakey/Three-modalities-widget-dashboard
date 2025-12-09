@@ -91,7 +91,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 python-jose==3.3.0
 python-multipart==0.0.20
-pytokens==0.0.5
+pytokens==0.3.0
 pytz==2024.2
 PyYAML==6.0.2
 referencing==0.35.1
