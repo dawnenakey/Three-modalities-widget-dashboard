@@ -1,4 +1,4 @@
-// BUILD VERSION: 2025-12-08-v4 - S3 DEBUG & FIX
+// BUILD VERSION: 2025-12-08-v5 - S3 PRESIGNED FIX
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -25,19 +25,16 @@ async function uploadToS3WithFetch(uploadUrl, file) {
 }
 
 // Helper to get correct media URL
+// The backend now returns full signed URLs, so we just return it as-is
 function getMediaUrl(url) {
-  if (!url) return '';
-  if (url.startsWith('http') || url.startsWith('//')) {
-    return url;
-  }
-  return `${process.env.REACT_APP_BACKEND_URL}${url}`;
+  return url || '';
 }
 
 // VideoPlayer Component with Loading State and Delete Button
 function VideoPlayer({ video, onDelete }) {
   const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
   const [retryCount, setRetryCount] = useState(0);
-  const [cacheBuster, setCacheBuster] = useState(Date.now()); 
+  // Backend now returns signed URL which might change, so we rely on that instead of cache busting
   const [deleting, setDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -68,7 +65,7 @@ function VideoPlayer({ video, onDelete }) {
     if (retryCount < 2) {
       setTimeout(() => {
         setRetryCount(prev => prev + 1);
-        setCacheBuster(Date.now()); // Force reload with new query param
+        e.target.load();
       }, 1500);
     } else {
       setLoadingState('error');
@@ -78,7 +75,9 @@ function VideoPlayer({ video, onDelete }) {
   const handleRetry = () => {
       setRetryCount(0);
       setLoadingState('loading');
-      setCacheBuster(Date.now());
+      // Force reload by updating the src slightly (if signed url hasn't expired)
+      // or rely on re-fetch from parent which isn't happening here yet.
+      // For now, just reset state.
   };
 
   const handleDelete = async () => {
@@ -139,8 +138,8 @@ function VideoPlayer({ video, onDelete }) {
       )}
       
       <video
-        key={`${video.id}-${cacheBuster}`} // Force re-render on retry
-        src={`${videoUrl}${videoUrl.includes('?') ? '&' : '?'}t=${cacheBuster}`}
+        key={`${video.id}-${retryCount}`}
+        src={videoUrl}
         controls
         preload="metadata"
         className={`w-full rounded ${loadingState !== 'loaded' ? 'hidden' : ''}`}
