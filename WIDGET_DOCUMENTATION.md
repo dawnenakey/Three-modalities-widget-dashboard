@@ -1,13 +1,13 @@
-# 🎯 PIVOT Widget Documentation
+#  PIVOT Widget Documentation
 
 ## Overview
 
 The PIVOT widget is a fully-functional, production-ready embeddable accessibility solution that provides:
-- ♿ ASL (American Sign Language) video support
-- 🔊 Multi-language audio narration
-- 📝 Text content with translation capabilities
+-  ASL (American Sign Language) video support
+- Multi-language audio narration
+-  Text content with translation capabilities
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### 1. Get Your Website ID
 
@@ -28,9 +28,9 @@ Add this code before the closing `</body>` tag on your website:
 
 ---
 
-## 📋 Widget Features
+## Widget Features
 
-### ✅ What's Working Now
+### What's Working Now
 
 1. **Floating Accessibility Button**
    - Positioned in bottom-right corner (customizable)
@@ -66,7 +66,7 @@ Add this code before the closing `</body>` tag on your website:
 
 ---
 
-## ⚙️ Configuration Options
+## Configuration Options
 
 ### Basic Configuration
 
