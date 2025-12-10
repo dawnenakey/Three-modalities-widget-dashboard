@@ -29,16 +29,23 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
+      console.log('🔍 Fetching dashboard data from:', `${API}/websites`);
+      console.log('🔑 Auth header:', axios.defaults.headers.common['Authorization'] ? 'Present' : 'Missing');
       // Fetch websites and stats in parallel
       const [websitesRes, statsRes] = await Promise.all([
         axios.get(`${API}/websites`),
         axios.get(`${API}/stats`)
       ]);
       
+      console.log('✅ Websites response:', websitesRes.data);
+      console.log('✅ Stats response:', statsRes.data);
       setWebsites(websitesRes.data);
       setTotalPages(statsRes.data.total_pages);
     } catch (error) {
-      toast.error('Failed to load data');
+      console.error('❌ Error fetching dashboard data:', error);
+      console.error('Response:', error.response?.data);
+      console.error('Status:', error.response?.status);
+      toast.error(`Failed to load data: ${error.response?.data?.detail || error.message}`);
     }
   };
 

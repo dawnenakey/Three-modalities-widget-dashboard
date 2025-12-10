@@ -85,14 +85,39 @@ cd ..
 if [ ! -f backend/.env ]; then
     echo -e "${RED}⚠️  WARNING: backend/.env file not found!${NC}"
     echo -e "${YELLOW}Please create backend/.env with the following variables:${NC}"
+    echo ""
+    echo "  # MongoDB Configuration"
     echo "  MONGO_URL=your_mongodb_connection_string"
     echo "  DB_NAME=your_database_name"
+    echo ""
+    echo "  # JWT Configuration"
     echo "  JWT_SECRET_KEY=your_secret_key"
     echo "  JWT_ALGORITHM=HS256"
     echo "  JWT_EXPIRATION_HOURS=24"
+    echo ""
+    echo "  # AWS S3 Configuration (REQUIRED FOR UPLOADS)"
+    echo "  AWS_ACCESS_KEY_ID=your_aws_access_key_id"
+    echo "  AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key"
+    echo "  AWS_REGION=us-east-1"
+    echo "  S3_BUCKET_NAME=pivot-s3-bucket"
+    echo "  PRESIGNED_URL_EXPIRATION=600"
+    echo ""
+    echo "  # OpenAI Configuration"
     echo "  OPENAI_API_KEY=your_openai_key"
+    echo "  EMERGENT_LLM_KEY=your_emergent_key_if_using"
+    echo ""
+    echo "  # CORS Configuration"
     echo "  CORS_ORIGINS=http://localhost:3000,https://yourdomain.com"
+    echo ""
+    echo -e "${YELLOW}See DEPLOYMENT.md for complete setup instructions.${NC}"
     exit 1
+fi
+
+# Check for AWS S3 credentials in .env
+if ! grep -q "AWS_ACCESS_KEY_ID" backend/.env || ! grep -q "AWS_SECRET_ACCESS_KEY" backend/.env; then
+    echo -e "${YELLOW}⚠️  WARNING: AWS S3 credentials not found in backend/.env${NC}"
+    echo -e "${YELLOW}Video/audio uploads will not work without AWS S3 configuration.${NC}"
+    echo -e "${YELLOW}See DEPLOYMENT.md for S3 setup instructions.${NC}"
 fi
 
 echo -e "${GREEN}✅ Deployment setup complete!${NC}"

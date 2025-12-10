@@ -19,10 +19,16 @@ export default function Websites() {
 
   const fetchWebsites = async () => {
     try {
+      console.log('🔍 Fetching websites from:', `${API}/websites`);
+      console.log('🔑 Auth header:', axios.defaults.headers.common['Authorization'] ? 'Present' : 'Missing');
       const response = await axios.get(`${API}/websites`);
+      console.log('✅ Websites response:', response.data);
       setWebsites(response.data);
     } catch (error) {
-      toast.error('Failed to load websites');
+      console.error('❌ Error fetching websites:', error);
+      console.error('Response:', error.response?.data);
+      console.error('Status:', error.response?.status);
+      toast.error(`Failed to load websites: ${error.response?.data?.detail || error.message}`);
     } finally {
       setLoading(false);
     }

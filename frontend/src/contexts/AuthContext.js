@@ -39,13 +39,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   const login = async (email, password) => {
-    const response = await axios.post(`${API}/auth/login`, { email, password });
-    const { access_token, user: userData } = response.data;
-    localStorage.setItem('token', access_token);
-    setToken(access_token);
-    setUser(userData);
-    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-    return userData;
+    try {
+      console.log('🔐 Attempting login...');
+      console.log('📧 Email:', email);
+      console.log('🌐 API URL:', `${API}/auth/login`);
+      console.log('🔑 Backend URL:', process.env.REACT_APP_BACKEND_URL);
+      
+      const response = await axios.post(`${API}/auth/login`, { email, password });
+      console.log('✅ Login successful!', response.data);
+      
+      const { access_token, user: userData } = response.data;
+      localStorage.setItem('token', access_token);
+      setToken(access_token);
+      setUser(userData);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
+      return userData;
+    } catch (error) {
+      console.error('❌ Login error:', error);
+      console.error('Response:', error.response?.data);
+      console.error('Status:', error.response?.status);
+      console.error('Message:', error.message);
+      throw error; // Re-throw so the Login component can handle it
+    }
   };
 
   const register = async (name, email, password) => {

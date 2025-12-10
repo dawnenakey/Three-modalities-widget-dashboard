@@ -24,6 +24,8 @@ load_dotenv(ROOT_DIR / '.env')
 
 # Now import services after .env is loaded
 import s3_service
+import polly_service
+import translate_service
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
@@ -939,14 +941,17 @@ async def delete_video(video_id: str, current_user: dict = Depends(get_current_u
     return {"message": "Video deleted successfully"}
 
 
-# Audio routes - R2 Direct Upload (NEW - RECOMMENDED)
+# Audio routes - Manual Upload via S3 Presigned URL (RECOMMENDED)
 @api_router.post("/sections/{section_id}/audio/upload-url")
 async def get_audio_upload_url(
     section_id: str,
     request: UploadUrlRequest,
     current_user: dict = Depends(get_current_user)
 ):
-    """Generate presigned URL for direct audio upload to AWS S3"""
+    """
+    Manual audio upload: Generate presigned URL for direct audio upload to AWS S3.
+    Use this for manual file uploads. After uploading to the presigned URL, call /audio/confirm.
+    """
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
@@ -1022,7 +1027,7 @@ async def confirm_audio_upload(
     return audio_obj
 
 
-# Audio routes - Legacy Backend Upload (KEPT FOR COMPATIBILITY)
+# Audio routes - Manual Upload (Backend receives file)
 @api_router.post("/sections/{section_id}/audio", response_model=Audio)
 async def upload_audio(
     section_id: str,
@@ -1030,6 +1035,10 @@ async def upload_audio(
     audio: UploadFile = File(...),
     current_user: dict = Depends(get_current_user)
 ):
+    """
+    Manual audio upload: Upload audio file directly to backend, which then stores it in S3.
+    Alternative to using /audio/upload-url for direct S3 upload.
+    """
     # Security: Verify section belongs to current user
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
     if not section:
@@ -1044,19 +1053,46 @@ async def upload_audio(
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
-    file_id = str(uuid.uuid4())
-    file_ext = audio.filename.split('.')[-1]
-    file_path = AUDIO_DIR / f"{file_id}.{file_ext}"
+    # Validate file
+    file_ext = audio.filename.split('.')[-1] if '.' in audio.filename else 'mp3'
+    content = await audio.read()
+    file_size = len(content)
     
-    async with aiofiles.open(file_path, 'wb') as f:
-        content = await audio.read()
-        await f.write(content)
+    is_valid, error_msg = s3_service.validate_file(audio.filename, file_size, "audio")
+    if not is_valid:
+        raise HTTPException(status_code=400, detail=error_msg)
+    
+    file_id = str(uuid.uuid4())
+    unique_filename = f"audio/{file_id}.{file_ext}"
+    
+    try:
+        # Upload to S3
+        content_type = s3_service.get_content_type(audio.filename)
+        s3_service.s3_client.put_object(
+            Bucket=s3_service.S3_BUCKET_NAME,
+            Key=unique_filename,
+            Body=content,
+            ContentType=content_type
+        )
+        
+        # Get presigned URL for access
+        audio_url = s3_service.generate_presigned_url(unique_filename)
+        file_path = unique_filename  # Store S3 key
+        
+    except Exception as s3_error:
+        # Fallback to local storage if S3 fails
+        logging.warning(f"S3 upload failed, using local storage: {s3_error}")
+        file_path = AUDIO_DIR / f"{file_id}.{file_ext}"
+        async with aiofiles.open(file_path, 'wb') as f:
+            await f.write(content)
+        audio_url = f"/api/uploads/audio/{file_id}.{file_ext}"
+        file_path = str(file_path)
     
     audio_obj = Audio(
         section_id=section_id,
         language=language,
-        audio_url=f"/api/uploads/audio/{file_id}.{file_ext}",
-        file_path=str(file_path)
+        audio_url=audio_url,
+        file_path=file_path
     )
     audio_dict = audio_obj.model_dump()
     audio_dict['created_at'] = audio_dict['created_at'].isoformat()
@@ -1091,8 +1127,14 @@ async def generate_audio(
     section_id: str,
     language: str = Form(...),
     voice: str = Form("alloy"),
+    provider: str = Form("openai"),  # "openai" or "polly"
     current_user: dict = Depends(get_current_user)
 ):
+    """
+    Generate audio using AWS Polly or OpenAI TTS (default).
+    This generates audio from section text automatically.
+    For manual audio upload, use /audio/upload-url or /audio endpoints.
+    """
     # Security: Verify section belongs to current user
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
     if not section:
@@ -1108,26 +1150,59 @@ async def generate_audio(
         raise HTTPException(status_code=403, detail="Access denied: You don't have access to this section")
     
     try:
-        # Generate audio bytes
-        audio_bytes = await generate_tts_audio(
-            text=section["selected_text"],
-            voice=voice,
-        )
+        source_text = section.get("text_content") or section.get("selected_text", "")
+        if not source_text:
+            raise HTTPException(status_code=400, detail="Section has no text to generate audio from")
+        
+        # Generate audio bytes based on provider
+        if provider.lower() == "polly":
+            # Use AWS Polly (run in thread since it's synchronous)
+            audio_bytes = await asyncio.to_thread(
+                polly_service.generate_speech,
+                source_text,
+                language,
+                voice if voice != "alloy" else None,
+                'neural'  # Use neural for better quality
+            )
+        else:
+            # Use OpenAI (default)
+            audio_bytes = await generate_tts_audio(
+                text=source_text,
+                voice=voice,
+            )
 
         file_id = str(uuid.uuid4())
-        file_path = AUDIO_DIR / f"{file_id}.mp3"
-
-        # Save audio file
-        async with aiofiles.open(file_path, "wb") as f:
-            await f.write(audio_bytes)
+        file_ext = "mp3"
+        unique_filename = f"audio/{file_id}.{file_ext}"
+        
+        # Upload to S3 instead of local storage
+        try:
+            # Upload to S3
+            s3_service.s3_client.put_object(
+                Bucket=s3_service.S3_BUCKET_NAME,
+                Key=unique_filename,
+                Body=audio_bytes,
+                ContentType='audio/mpeg'
+            )
+            
+            # Get presigned URL for access
+            audio_url = s3_service.generate_presigned_url(unique_filename)
+            file_path = unique_filename  # Store S3 key
+        except Exception as s3_error:
+            # Fallback to local storage if S3 fails
+            logging.warning(f"S3 upload failed, using local storage: {s3_error}")
+            file_path = AUDIO_DIR / f"{file_id}.{file_ext}"
+            async with aiofiles.open(file_path, "wb") as f:
+                await f.write(audio_bytes)
+            audio_url = f"/api/uploads/audio/{file_id}.{file_ext}"
 
         # Build response object
         audio_obj = Audio(
             section_id=section_id,
             language=language,
-            audio_url=f"/api/uploads/audio/{file_id}.mp3",
+            audio_url=audio_url,
             file_path=str(file_path),
-            captions=section["selected_text"],
+            captions=source_text,
         )
 
         audio_dict = audio_obj.model_dump()
@@ -1146,6 +1221,115 @@ async def generate_audio(
         raise HTTPException(
             status_code=500,
             detail=f"Audio generation failed: {str(e)}"
+        )
+
+@api_router.post("/sections/{section_id}/audio/generate-translated", response_model=dict)
+async def generate_translated_audio(
+    section_id: str,
+    target_language: str = Form(...),
+    language_code: str = Form(...),
+    provider: str = Form("polly"),  # Use Polly for translated audio
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Combined endpoint: Translate text to target language AND generate audio in that language
+    Returns both the translation and audio
+    """
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    try:
+        source_text = section.get("text_content") or section.get("selected_text", "")
+        if not source_text:
+            raise HTTPException(status_code=400, detail="Section has no text")
+        
+        # Step 1: Translate text
+        translated_text = translate_service.translate_text(
+            text=source_text,
+            source_language='auto',
+            target_language=target_language
+        )
+        
+        # Step 2: Generate audio from translated text using Polly (run in thread)
+        audio_bytes = await asyncio.to_thread(
+            polly_service.generate_speech,
+            translated_text,
+            target_language,
+            None,  # Auto-select voice
+            'neural'
+        )
+        
+        # Step 3: Save translation
+        translation = TextTranslation(
+            section_id=section_id,
+            language=target_language,
+            language_code=language_code,
+            text_content=translated_text
+        )
+        translation_dict = translation.model_dump()
+        translation_dict['created_at'] = translation_dict['created_at'].isoformat()
+        await db.text_translations.insert_one(translation_dict)
+        
+        # Step 4: Upload audio to S3
+        file_id = str(uuid.uuid4())
+        file_ext = "mp3"
+        unique_filename = f"audio/{file_id}.{file_ext}"
+        
+        try:
+            # Upload to S3
+            s3_service.s3_client.put_object(
+                Bucket=s3_service.S3_BUCKET_NAME,
+                Key=unique_filename,
+                Body=audio_bytes,
+                ContentType='audio/mpeg'
+            )
+            
+            # Get presigned URL for access
+            audio_url = s3_service.generate_presigned_url(unique_filename)
+            file_path = unique_filename  # Store S3 key
+        except Exception as s3_error:
+            # Fallback to local storage if S3 fails
+            logging.warning(f"S3 upload failed, using local storage: {s3_error}")
+            file_path = AUDIO_DIR / f"{file_id}.{file_ext}"
+            async with aiofiles.open(file_path, "wb") as f:
+                await f.write(audio_bytes)
+            audio_url = f"/api/uploads/audio/{file_id}.{file_ext}"
+        
+        audio_obj = Audio(
+            section_id=section_id,
+            language=target_language,
+            audio_url=audio_url,
+            file_path=str(file_path),
+            captions=translated_text,
+        )
+        
+        audio_dict = audio_obj.model_dump()
+        audio_dict["created_at"] = audio_dict["created_at"].isoformat()
+        await db.audios.insert_one(audio_dict)
+        await db.sections.update_one(
+            {"id": section_id},
+            {"$inc": {"audios_count": 1}}
+        )
+        
+        return {
+            "translation": translation,
+            "audio": audio_obj,
+            "message": "Translation and audio generated successfully"
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Translation and audio generation failed: {str(e)}"
         )
 
 
@@ -1244,6 +1428,115 @@ async def get_text_translations(section_id: str):
     """Get all text translations for a section"""
     translations = await db.text_translations.find({"section_id": section_id}, {"_id": 0}).to_list(1000)
     return translations
+
+@api_router.post("/sections/{section_id}/translations/generate", response_model=TextTranslation)
+async def generate_text_translation(
+    section_id: str,
+    target_language: str = Form(...),
+    language_code: str = Form(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Automatically translate section text to target language using AWS Translate
+    """
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    try:
+        # Translate text using AWS Translate
+        source_text = section.get("text_content") or section.get("selected_text", "")
+        if not source_text:
+            raise HTTPException(status_code=400, detail="Section has no text to translate")
+        
+        translated_text = translate_service.translate_text(
+            text=source_text,
+            source_language='auto',  # Auto-detect source language
+            target_language=target_language
+        )
+        
+        # Create translation record
+        translation = TextTranslation(
+            section_id=section_id,
+            language=target_language,
+            language_code=language_code,
+            text_content=translated_text
+        )
+        
+        translation_dict = translation.model_dump()
+        translation_dict['created_at'] = translation_dict['created_at'].isoformat()
+        await db.text_translations.insert_one(translation_dict)
+        
+        return translation
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Translation failed: {str(e)}"
+        )
+
+@api_router.post("/sections/{section_id}/translations/translate-manual", response_model=TextTranslation)
+async def translate_manual_text(
+    section_id: str,
+    source_text: str = Form(...),
+    target_language: str = Form(...),
+    language_code: str = Form(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Translate manually typed text to target language using AWS Translate.
+    This allows you to translate custom text (not just section text) and save it to a section.
+    """
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    if not source_text or not source_text.strip():
+        raise HTTPException(status_code=400, detail="Source text cannot be empty")
+    
+    try:
+        # Translate manually provided text using AWS Translate
+        translated_text = translate_service.translate_text(
+            text=source_text.strip(),
+            source_language='auto',  # Auto-detect source language
+            target_language=target_language
+        )
+        
+        # Create translation record
+        translation = TextTranslation(
+            section_id=section_id,
+            language=target_language,
+            language_code=language_code,
+            text_content=translated_text
+        )
+        
+        translation_dict = translation.model_dump()
+        translation_dict['created_at'] = translation_dict['created_at'].isoformat()
+        await db.text_translations.insert_one(translation_dict)
+        
+        return translation
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Translation failed: {str(e)}"
+        )
 
 @api_router.delete("/translations/{translation_id}")
 async def delete_text_translation(translation_id: str, current_user: dict = Depends(get_current_user)):

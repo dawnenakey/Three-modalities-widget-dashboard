@@ -111,15 +111,37 @@ nano .env
 Add the following (replace with your actual values):
 
 ```env
+# MongoDB Configuration
 MONGO_URL=mongodb+srv://username:password@cluster.mongodb.net/
 DB_NAME=pivot_db
+
+# JWT Configuration
 JWT_SECRET_KEY=your-super-secret-jwt-key-change-this
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION_HOURS=24
+
+# AWS S3 Configuration (REQUIRED FOR VIDEO/AUDIO UPLOADS)
+AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key_here
+AWS_REGION=us-east-1
+S3_BUCKET_NAME=pivot-s3-bucket
+PRESIGNED_URL_EXPIRATION=600
+
+# OpenAI Configuration
 OPENAI_API_KEY=sk-your-openai-api-key
+EMERGENT_LLM_KEY=your-emergent-key-if-using
+
+# CORS Configuration
 CORS_ORIGINS=http://localhost:3000,https://yourdomain.com
+
+# Backend URL (for frontend)
 REACT_APP_BACKEND_URL=http://your-ec2-ip:8001
 ```
+
+**⚠️ IMPORTANT:** 
+- The application uses **AWS S3** for media uploads (not R2)
+- You must create an S3 bucket and configure CORS (see `AWS_S3_MIGRATION_SUMMARY.md` for details)
+- Without AWS credentials, video/audio uploads will fail
 
 **Important:** Update `REACT_APP_BACKEND_URL` in `frontend/.env` or `frontend/.env.production` as well:
 
