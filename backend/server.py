@@ -279,21 +279,59 @@ async def serve_widget_api():
 # Website routes
 @api_router.get("/websites", response_model=List[Website])
 async def get_websites(current_user: dict = Depends(get_current_user)):
-    # Get websites where user is owner OR collaborator
-    websites = await db.websites.find({
-        "$or": [
-            {"owner_id": current_user['id']},
-            {"collaborators": current_user['id']}
-        ]
-    }, {"_id": 0}).to_list(1000)
-    
-    # FORCE FIX: Ensure embed code is always correct, even for old records
-    for site in websites:
-        correct_code = f'<script src="https://testing.gopivot.me/api/widget.js" data-website-id="{site["id"]}"></script>'
-        if site.get('embed_code') != correct_code:
-            site['embed_code'] = correct_code
+    try:
+        # Get websites where user is owner OR collaborator
+        websites = await db.websites.find({
+            "$or": [
+                {"owner_id": current_user['id']},
+                {"collaborators": current_user['id']}
+            ]
+        }, {"_id": 0}).to_list(1000)
+        
+        # FORCE FIX: Ensure embed code is always correct, even for old records
+        # Also fix created_at format if it's a string
+        # And ensure required fields are present
+        for site in websites:
+            # Use EC2 URL for widget (can be changed to domain later)
+            widget_url = os.getenv("WIDGET_BASE_URL", "http://13.222.11.150:8001")
+            correct_code = f'<script src="{widget_url}/api/widget.js" data-website-id="{site["id"]}"></script>'
+            if site.get('embed_code') != correct_code:
+                site['embed_code'] = correct_code
             
-    return websites
+            # Fix url field - use domain if url is missing
+            if 'url' not in site or not site.get('url'):
+                if 'domain' in site and site.get('domain'):
+                    # Use domain as url, add https:// if not present
+                    domain = site['domain']
+                    if not domain.startswith('http'):
+                        site['url'] = f'https://{domain}'
+                    else:
+                        site['url'] = domain
+                else:
+                    # Fallback to a default URL
+                    site['url'] = 'https://example.com'
+            
+            # Fix created_at if it's a string
+            if 'created_at' in site:
+                created_at = site['created_at']
+                if isinstance(created_at, str):
+                    try:
+                        # Try to parse ISO format string
+                        site['created_at'] = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                    except (ValueError, AttributeError):
+                        # If parsing fails, use current time as fallback
+                        site['created_at'] = datetime.now(timezone.utc)
+                elif not isinstance(created_at, datetime):
+                    # If it's not a datetime object, convert it
+                    site['created_at'] = datetime.now(timezone.utc)
+            else:
+                # If created_at is missing, add it
+                site['created_at'] = datetime.now(timezone.utc)
+            
+        return websites
+    except Exception as e:
+        logging.error(f"Error in get_websites: {str(e)}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Failed to fetch websites: {str(e)}")
 
 @api_router.get("/stats")
 async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
@@ -316,8 +354,8 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
 @api_router.post("/websites", response_model=Website)
 async def create_website(website_data: WebsiteCreate, current_user: dict = Depends(get_current_user)):
     try:
-        # Hardcode domain for consistency
-        backend_url = "https://testing.gopivot.me"
+        # Use EC2 URL for widget (can be changed to domain later)
+        widget_url = os.getenv("WIDGET_BASE_URL", "http://13.222.11.150:8001")
         
         # Extract OpenGraph/featured image from website (non-blocking)
         try:
@@ -331,7 +369,7 @@ async def create_website(website_data: WebsiteCreate, current_user: dict = Depen
             owner_id=current_user['id'],
             name=website_data.name,
             url=website_data.url,
-            embed_code=f'<script src="{backend_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
+            embed_code=f'<script src="{widget_url}/api/widget.js" data-website-id="{{website_id}}"></script>',
             image_url=image_url
         )
         website_dict = website.model_dump()
@@ -355,17 +393,54 @@ async def get_website(website_id: str, current_user: dict = Depends(get_current_
     
     # FORCE FIX: Ensure embed code is always correct
     if website:
-        correct_code = f'<script src="https://testing.gopivot.me/api/widget.js" data-website-id="{website["id"]}"></script>'
+        widget_url = os.getenv("WIDGET_BASE_URL", "http://13.222.11.150:8001")
+        correct_code = f'<script src="{widget_url}/api/widget.js" data-website-id="{website["id"]}"></script>'
         website['embed_code'] = correct_code
         
     return website
 
 @api_router.delete("/websites/{website_id}")
 async def delete_website(website_id: str, current_user: dict = Depends(get_current_user)):
-    result = await db.websites.delete_one({"id": website_id, "owner_id": current_user['id']})
+    # Check if user has access (owner or collaborator)
+    has_access = await check_website_access(website_id, current_user['id'])
+    if not has_access:
+        raise HTTPException(status_code=404, detail="Website not found")
+    
+    # Get website
+    website = await db.websites.find_one({"id": website_id}, {"_id": 0})
+    if not website:
+        raise HTTPException(status_code=404, detail="Website not found")
+    
+    # Allow deletion if user is owner OR if user is a collaborator (for flexibility)
+    is_owner = website.get('owner_id') == current_user['id']
+    is_collaborator = current_user['id'] in website.get('collaborators', [])
+    
+    if not is_owner and not is_collaborator:
+        raise HTTPException(status_code=403, detail="You don't have permission to delete this website")
+    
+    # Delete the website and all associated data
+    # First delete pages, sections, videos, audios, translations
+    pages = await db.pages.find({"website_id": website_id}).to_list(1000)
+    page_ids = [page['id'] for page in pages]
+    
+    if page_ids:
+        # Delete sections
+        await db.sections.delete_many({"page_id": {"$in": page_ids}})
+        # Delete videos
+        await db.videos.delete_many({"section_id": {"$in": [s['id'] for s in await db.sections.find({"page_id": {"$in": page_ids}}).to_list(10000)]}})
+        # Delete audios
+        await db.audios.delete_many({"section_id": {"$in": [s['id'] for s in await db.sections.find({"page_id": {"$in": page_ids}}).to_list(10000)]}})
+        # Delete translations
+        await db.translations.delete_many({"section_id": {"$in": [s['id'] for s in await db.sections.find({"page_id": {"$in": page_ids}}).to_list(10000)]}})
+        # Delete pages
+        await db.pages.delete_many({"website_id": website_id})
+    
+    # Delete the website
+    result = await db.websites.delete_one({"id": website_id})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Website not found")
-    return {"message": "Website deleted"}
+    
+    return {"message": "Website deleted successfully"}
 
 # Page routes
 @api_router.get("/websites/{website_id}/pages", response_model=List[Page])
@@ -459,8 +534,8 @@ async def create_page(website_id: str, page_data: PageCreate, current_user: dict
 
 async def scrape_page_content(url: str) -> List[str]:
     """
-    Scrape page content with preference for main/article content.
-    Produces ordered chunks (400–800 chars) suitable for sections.
+    Scrape page content line-by-line, including headers and footers.
+    Each line/paragraph becomes a separate section for better translation granularity.
     """
     try:
         def _fetch():
@@ -470,71 +545,79 @@ async def scrape_page_content(url: str) -> List[str]:
         response.raise_for_status()
         soup = BeautifulSoup(response.content, "html.parser")
 
-        # Remove non-content tags early
+        # Remove non-content tags early (but keep headers/footers)
         for element in soup(['script', 'style', 'noscript', 'iframe']):
             element.decompose()
 
-        # Prefer main content if present
-        main = (
-            soup.find('main') or
-            soup.find(attrs={'role': 'main'}) or
-            soup.find('article') or
-            soup.find('div', class_=['entry-content', 'post-content', 'page-content'])
-        )
-        root = main or soup.body or soup
+        # Include ALL content including headers and footers
+        # Walk through the entire body in order
+        root = soup.body or soup
 
-        # We will walk block-level content in order
+        # Block-level tags to extract (line-by-line)
         BLOCK_TAGS = [
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'p', 'li',
-            'section', 'article', 'div',
-            'button', 'a'
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',  # Headers
+            'p', 'li',                            # Paragraphs and list items
+            'header', 'footer',                    # Header and footer elements
+            'section', 'article', 'div',          # Containers
+            'button', 'a',                        # Interactive elements
+            'span', 'strong', 'em', 'b', 'i'      # Inline text elements
         ]
 
-        chunks: List[str] = []
-        current = []
+        lines: List[str] = []
+        seen = set()  # For deduplication
 
-        def flush_current():
-            nonlocal current
-            if not current:
-                return
-            text = ' '.join(current)
-            text = ' '.join(text.split())
-            if len(text) >= 40:      # discard tiny scraps
-                chunks.append(text[:1000])  # hard cap per section
-            current = []
+        def extract_text_from_element(el):
+            """Extract clean text from an element"""
+            if not hasattr(el, "name"):
+                return None
+            
+            # Get direct text content (not nested)
+            text = el.get_text(separator=' ', strip=True)
+            text = ' '.join(text.split())  # Normalize whitespace
+            
+            # Filter out very short or empty text
+            if len(text) < 10:
+                return None
+            
+            return text
 
+        # Walk through all elements in order
         for el in root.descendants:
             if not hasattr(el, "name"):
                 continue
+            
+            # Only process block-level tags
             if el.name not in BLOCK_TAGS:
                 continue
 
-            # Skip nav/header/footer/aside sections even if nested
-            if el.find_parent(['nav', 'header', 'footer', 'aside']):
+            # INCLUDE headers and footers (removed the skip logic)
+            # Process all content including nav, header, footer, aside
+            
+            text = extract_text_from_element(el)
+            if not text:
                 continue
 
-            text = el.get_text(separator=' ', strip=True)
-            text = ' '.join(text.split())
-            if len(text) < 20:
+            # Skip if we've seen this exact text before (deduplication)
+            if text in seen:
                 continue
+            
+            seen.add(text)
+            
+            # Each line becomes its own section (line-by-line approach)
+            # Cap at 2000 chars per line to prevent extremely long sections
+            if len(text) > 2000:
+                # Split very long text into sentences
+                sentences = text.split('. ')
+                for sentence in sentences:
+                    clean_sentence = sentence.strip()
+                    if len(clean_sentence) >= 10 and clean_sentence not in seen:
+                        seen.add(clean_sentence)
+                        lines.append(clean_sentence)
+            else:
+                lines.append(text)
 
-            # Accumulate until we hit ~600 chars then flush as one "section"
-            if sum(len(t) for t in current) + len(text) > 600:
-                flush_current()
-            current.append(text)
-
-        flush_current()
-
-        # Simple dedupe: exact text only
-        seen = set()
-        unique_chunks: List[str] = []
-        for t in chunks:
-            if t not in seen:
-                seen.add(t)
-                unique_chunks.append(t)
-
-        return unique_chunks[:100]  # safety cap
+        # Return unique lines (already deduplicated)
+        return lines[:200]  # Increased cap for line-by-line approach
     except Exception as e:
         logging.error(f"Scraping error for {url}: {e}")
         return []
@@ -1105,7 +1188,7 @@ async def upload_audio(
 async def generate_tts_audio(text: str, voice: str = "alloy") -> bytes:
     url = "https://api.openai.com/v1/audio/speech"
     payload = {
-        "model": "gpt-4o-mini-tts",  # adjust if needed
+        "model": "tts-1",  # OpenAI TTS model: tts-1 (standard) or tts-1-hd (high quality)
         "voice": voice,
         "input": text,
         "format": "mp3",
@@ -1127,7 +1210,7 @@ async def generate_audio(
     section_id: str,
     language: str = Form(...),
     voice: str = Form("alloy"),
-    provider: str = Form("openai"),  # "openai" or "polly"
+    provider: str = Form("polly"),  # "openai" or "polly" - default to polly
     current_user: dict = Depends(get_current_user)
 ):
     """
@@ -1155,6 +1238,7 @@ async def generate_audio(
             raise HTTPException(status_code=400, detail="Section has no text to generate audio from")
         
         # Generate audio bytes based on provider
+        audio_bytes = None
         if provider.lower() == "polly":
             # Use AWS Polly (run in thread since it's synchronous)
             audio_bytes = await asyncio.to_thread(
@@ -1165,11 +1249,22 @@ async def generate_audio(
                 'neural'  # Use neural for better quality
             )
         else:
-            # Use OpenAI (default)
-            audio_bytes = await generate_tts_audio(
-                text=source_text,
-                voice=voice,
-            )
+            # Use OpenAI, but fallback to Polly if it fails
+            try:
+                audio_bytes = await generate_tts_audio(
+                    text=source_text,
+                    voice=voice,
+                )
+            except Exception as openai_error:
+                # Fallback to Polly if OpenAI fails (quota, rate limit, etc.)
+                logging.warning(f"OpenAI TTS failed, falling back to Polly: {openai_error}")
+                audio_bytes = await asyncio.to_thread(
+                    polly_service.generate_speech,
+                    source_text,
+                    language,
+                    voice if voice != "alloy" else None,
+                    'neural'
+                )
 
         file_id = str(uuid.uuid4())
         file_ext = "mp3"
@@ -1217,7 +1312,10 @@ async def generate_audio(
 
         return audio_obj
 
+    except HTTPException:
+        raise
     except Exception as e:
+        logging.error(f"Audio generation error: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500,
             detail=f"Audio generation failed: {str(e)}"
@@ -1396,7 +1494,10 @@ async def create_text_translation(
     text_content: str = Form(...),
     current_user: dict = Depends(get_current_user)
 ):
-    """Create a text translation for a section"""
+    """
+    Create a text translation for a section (manual entry).
+    Uses upsert to prevent data loss - updates existing translation if it exists.
+    """
     # Verify section exists and user has access
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
     if not section:
@@ -1409,19 +1510,38 @@ async def create_text_translation(
     if not await check_website_access(page['website_id'], current_user['id']):
         raise HTTPException(status_code=403, detail="Access denied")
     
-    # Create translation
-    translation = TextTranslation(
-        section_id=section_id,
-        language=language,
-        language_code=language_code,
-        text_content=text_content
-    )
+    # Use upsert to prevent data loss - update if exists, insert if not
+    translation_dict = {
+        "section_id": section_id,
+        "language": language,
+        "language_code": language_code,
+        "text_content": text_content,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
     
-    translation_dict = translation.model_dump()
-    translation_dict['created_at'] = translation_dict['created_at'].isoformat()
-    await db.text_translations.insert_one(translation_dict)
+    # Check if translation already exists
+    existing = await db.text_translations.find_one({
+        "section_id": section_id,
+        "language_code": language_code
+    })
     
-    return translation
+    if existing:
+        # Update existing translation (preserve ID and created_at)
+        translation_dict["id"] = existing["id"]
+        translation_dict["created_at"] = existing.get("created_at", translation_dict["created_at"])
+        await db.text_translations.update_one(
+            {"id": existing["id"]},
+            {"$set": translation_dict}
+        )
+        translation_dict["_id"] = existing.get("_id")
+    else:
+        # Insert new translation
+        translation_dict["id"] = str(uuid.uuid4())
+        await db.text_translations.insert_one(translation_dict)
+    
+    # Remove MongoDB _id for response
+    translation_dict.pop("_id", None)
+    return translation_dict
 
 @api_router.get("/sections/{section_id}/translations", response_model=List[TextTranslation])
 async def get_text_translations(section_id: str):
@@ -1437,7 +1557,8 @@ async def generate_text_translation(
     current_user: dict = Depends(get_current_user)
 ):
     """
-    Automatically translate section text to target language using AWS Translate
+    Automatically translate section text to target language using AWS Translate.
+    Uses upsert to prevent data loss - updates existing translation if it exists.
     """
     # Security: Verify section belongs to current user
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
@@ -1463,19 +1584,38 @@ async def generate_text_translation(
             target_language=target_language
         )
         
-        # Create translation record
-        translation = TextTranslation(
-            section_id=section_id,
-            language=target_language,
-            language_code=language_code,
-            text_content=translated_text
-        )
+        # Use upsert to prevent data loss - update if exists, insert if not
+        translation_dict = {
+            "section_id": section_id,
+            "language": target_language,
+            "language_code": language_code,
+            "text_content": translated_text,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
         
-        translation_dict = translation.model_dump()
-        translation_dict['created_at'] = translation_dict['created_at'].isoformat()
-        await db.text_translations.insert_one(translation_dict)
+        # Check if translation already exists
+        existing = await db.text_translations.find_one({
+            "section_id": section_id,
+            "language_code": language_code
+        })
         
-        return translation
+        if existing:
+            # Update existing translation (preserve ID and created_at if needed)
+            translation_dict["id"] = existing["id"]
+            translation_dict["created_at"] = existing.get("created_at", translation_dict["created_at"])
+            await db.text_translations.update_one(
+                {"id": existing["id"]},
+                {"$set": translation_dict}
+            )
+            translation_dict["_id"] = existing.get("_id")
+        else:
+            # Insert new translation
+            translation_dict["id"] = str(uuid.uuid4())
+            await db.text_translations.insert_one(translation_dict)
+        
+        # Remove MongoDB _id for response
+        translation_dict.pop("_id", None)
+        return translation_dict
         
     except Exception as e:
         raise HTTPException(
@@ -1494,6 +1634,7 @@ async def translate_manual_text(
     """
     Translate manually typed text to target language using AWS Translate.
     This allows you to translate custom text (not just section text) and save it to a section.
+    Uses upsert to prevent data loss - updates existing translation if it exists.
     """
     # Security: Verify section belongs to current user
     section = await db.sections.find_one({"id": section_id}, {"_id": 0})
@@ -1518,24 +1659,133 @@ async def translate_manual_text(
             target_language=target_language
         )
         
-        # Create translation record
-        translation = TextTranslation(
-            section_id=section_id,
-            language=target_language,
-            language_code=language_code,
-            text_content=translated_text
-        )
+        # Use upsert to prevent data loss - update if exists, insert if not
+        translation_dict = {
+            "section_id": section_id,
+            "language": target_language,
+            "language_code": language_code,
+            "text_content": translated_text,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
         
-        translation_dict = translation.model_dump()
-        translation_dict['created_at'] = translation_dict['created_at'].isoformat()
-        await db.text_translations.insert_one(translation_dict)
+        # Check if translation already exists
+        existing = await db.text_translations.find_one({
+            "section_id": section_id,
+            "language_code": language_code
+        })
         
-        return translation
+        if existing:
+            # Update existing translation (preserve ID and created_at)
+            translation_dict["id"] = existing["id"]
+            translation_dict["created_at"] = existing.get("created_at", translation_dict["created_at"])
+            await db.text_translations.update_one(
+                {"id": existing["id"]},
+                {"$set": translation_dict}
+            )
+            translation_dict["_id"] = existing.get("_id")
+        else:
+            # Insert new translation
+            translation_dict["id"] = str(uuid.uuid4())
+            await db.text_translations.insert_one(translation_dict)
+        
+        # Remove MongoDB _id for response
+        translation_dict.pop("_id", None)
+        return translation_dict
         
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Translation failed: {str(e)}"
+        )
+
+@api_router.post("/sections/{section_id}/translations/generate-all", response_model=List[TextTranslation])
+async def generate_all_translations(
+    section_id: str,
+    source_language: str = Form("auto"),  # Auto-detect by default
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Translate section text to ALL available languages at once.
+    Uses upsert to prevent data loss - updates existing translations if they exist.
+    """
+    # Security: Verify section belongs to current user
+    section = await db.sections.find_one({"id": section_id}, {"_id": 0})
+    if not section:
+        raise HTTPException(status_code=404, detail="Section not found")
+    
+    page = await db.pages.find_one({"id": section['page_id']}, {"_id": 0})
+    if not page:
+        raise HTTPException(status_code=404, detail="Page not found")
+    
+    if not await check_website_access(page['website_id'], current_user['id']):
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    try:
+        source_text = section.get("text_content") or section.get("selected_text", "")
+        if not source_text:
+            raise HTTPException(status_code=400, detail="Section has no text to translate")
+        
+        # Get all supported languages
+        supported_languages = translate_service.get_supported_languages()
+        
+        translations_created = []
+        
+        # Translate to each language
+        for lang_code, lang_name in supported_languages.items():
+            try:
+                # Skip if source language matches target (no translation needed)
+                if source_language != "auto" and lang_code == translate_service.normalize_language_code(source_language):
+                    continue
+                
+                translated_text = translate_service.translate_text(
+                    text=source_text,
+                    source_language=source_language,
+                    target_language=lang_code
+                )
+                
+                # Use upsert to prevent data loss
+                translation_dict = {
+                    "section_id": section_id,
+                    "language": lang_name,
+                    "language_code": lang_code,
+                    "text_content": translated_text,
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                }
+                
+                # Check if translation already exists
+                existing = await db.text_translations.find_one({
+                    "section_id": section_id,
+                    "language_code": lang_code
+                })
+                
+                if existing:
+                    # Update existing translation (preserve ID and created_at)
+                    translation_dict["id"] = existing["id"]
+                    translation_dict["created_at"] = existing.get("created_at", translation_dict["created_at"])
+                    await db.text_translations.update_one(
+                        {"id": existing["id"]},
+                        {"$set": translation_dict}
+                    )
+                else:
+                    # Insert new translation
+                    translation_dict["id"] = str(uuid.uuid4())
+                    await db.text_translations.insert_one(translation_dict)
+                
+                # Remove MongoDB _id for response
+                translation_dict.pop("_id", None)
+                translations_created.append(translation_dict)
+                
+            except Exception as lang_error:
+                # Log error but continue with other languages
+                logging.warning(f"Failed to translate to {lang_name} ({lang_code}): {lang_error}")
+                continue
+        
+        return translations_created
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Bulk translation failed: {str(e)}"
         )
 
 @api_router.delete("/translations/{translation_id}")
@@ -1981,16 +2231,22 @@ async def serve_test_pdf_page():
     return HTMLResponse(content=html_content)
 
 
-app.include_router(api_router)
-
-# CORS Configuration
-origins = [
-    "http://localhost:3000",
-    "https://testing.gopivot.me",
-    "https://demo.gopivot.me",
-    "https://app.gopivot.me",
-    "https://a11y-pivot.emergent.host"
-]
+# CORS Configuration - MUST be before router for preflight requests
+# Get CORS origins from environment variable or use defaults
+cors_origins_env = os.getenv("CORS_ORIGINS", "")
+if cors_origins_env:
+    # Split comma-separated list from environment variable
+    origins = [origin.strip() for origin in cors_origins_env.split(",")]
+else:
+    # Default origins
+    origins = [
+        "http://localhost:3000",
+        "http://13.222.11.150:3000",  # EC2 frontend
+        "https://testing.gopivot.me",
+        "https://demo.gopivot.me",
+        "https://app.gopivot.me",
+        "https://a11y-pivot.emergent.host"
+    ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -1998,7 +2254,10 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
+
+app.include_router(api_router)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

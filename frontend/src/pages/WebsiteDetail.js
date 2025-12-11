@@ -69,11 +69,43 @@ export default function WebsiteDetail() {
     }
   };
 
-  const copyEmbedCode = () => {
-    navigator.clipboard.writeText(website.embed_code);
-    setCopied(true);
-    toast.success('Embed code copied!');
-    setTimeout(() => setCopied(false), 2000);
+  const copyEmbedCode = async () => {
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(website.embed_code);
+        setCopied(true);
+        toast.success('Embed code copied!');
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = website.embed_code;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          toast.success('Embed code copied!');
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          toast.error('Failed to copy. Please select and copy manually.');
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      // Final fallback - show the code in an alert so user can copy manually
+      toast.error('Clipboard not available. Code is selected - press Ctrl+C to copy.');
+      const textArea = document.createElement('textarea');
+      textArea.value = website.embed_code;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.body.removeChild(textArea);
+    }
   };
 
   const handleDeleteWebsite = async () => {

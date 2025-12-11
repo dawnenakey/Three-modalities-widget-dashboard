@@ -170,9 +170,11 @@ export default function SectionDetail() {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatingAll, setGeneratingAll] = useState(false);
   const [editingText, setEditingText] = useState(false);
   const [editedText, setEditedText] = useState('');
   const [newTranslation, setNewTranslation] = useState({ language: '', language_code: '', text: '' });
+  const [selectedTranslateLanguage, setSelectedTranslateLanguage] = useState({ language: '', language_code: '' });
 
   useEffect(() => {
     fetchData();
@@ -405,6 +407,51 @@ export default function SectionDetail() {
     } catch (error) {
       console.error('Delete translation error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete translation');
+    }
+  };
+
+  const handleGenerateTranslation = async () => {
+    if (!selectedTranslateLanguage.language || !selectedTranslateLanguage.language_code) {
+      toast.error('Please select a language to translate to');
+      return;
+    }
+    
+    setGenerating(true);
+    try {
+      const formData = new FormData();
+      formData.append('target_language', selectedTranslateLanguage.language);
+      formData.append('language_code', selectedTranslateLanguage.language_code);
+      
+      await axios.post(`${API}/sections/${sectionId}/translations/generate`, formData);
+      toast.success(`Translation to ${selectedTranslateLanguage.language} generated successfully!`);
+      setSelectedTranslateLanguage({ language: '', language_code: '' });
+      fetchData();
+    } catch (error) {
+      console.error('Generate translation error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to generate translation');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleGenerateAllTranslations = async () => {
+    if (!window.confirm('This will translate this section to ALL available languages. This may take a few minutes. Continue?')) {
+      return;
+    }
+    
+    setGeneratingAll(true);
+    try {
+      const formData = new FormData();
+      formData.append('source_language', 'auto');
+      
+      const response = await axios.post(`${API}/sections/${sectionId}/translations/generate-all`, formData);
+      toast.success(`Generated ${response.data.length} translations successfully!`);
+      fetchData();
+    } catch (error) {
+      console.error('Generate all translations error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to generate translations');
+    } finally {
+      setGeneratingAll(false);
     }
   };
 
@@ -719,9 +766,103 @@ export default function SectionDetail() {
             <h2 className="text-lg font-semibold text-gray-900">Text Settings</h2>
           </div>
 
-          {/* Add New Translation Form */}
+          {/* Auto-Translate Section */}
+          <div className="space-y-4 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-sm font-medium text-gray-900">Auto-Translate (AWS Translate)</p>
+            <p className="text-xs text-gray-600 mb-4">Automatically translate this section's text to other languages</p>
+            
+            {/* Single Language Translation */}
+            <div className="grid grid-cols-3 gap-3 mb-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Language</label>
+                <select
+                  value={selectedTranslateLanguage.language}
+                  onChange={(e) => {
+                    const lang = e.target.value;
+                    const code = lang === 'Spanish' ? 'es' : 
+                                lang === 'French' ? 'fr' : 
+                                lang === 'German' ? 'de' : 
+                                lang === 'Chinese' ? 'zh' : 
+                                lang === 'Japanese' ? 'ja' : 
+                                lang === 'Portuguese' ? 'pt' : 
+                                lang === 'Arabic' ? 'ar' : 
+                                lang === 'Hindi' ? 'hi' : 
+                                lang === 'Russian' ? 'ru' : 
+                                lang === 'Italian' ? 'it' : 
+                                lang === 'Korean' ? 'ko' : 'en';
+                    setSelectedTranslateLanguage({ language: lang, language_code: code });
+                  }}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+                >
+                  <option value="">Select language...</option>
+                  <option value="Spanish">Spanish</option>
+                  <option value="French">French</option>
+                  <option value="German">German</option>
+                  <option value="Chinese">Chinese</option>
+                  <option value="Japanese">Japanese</option>
+                  <option value="Portuguese">Portuguese</option>
+                  <option value="Arabic">Arabic</option>
+                  <option value="Hindi">Hindi</option>
+                  <option value="Russian">Russian</option>
+                  <option value="Italian">Italian</option>
+                  <option value="Korean">Korean</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-1">Language Code</label>
+                <input
+                  type="text"
+                  value={selectedTranslateLanguage.language_code}
+                  onChange={(e) => setSelectedTranslateLanguage({...selectedTranslateLanguage, language_code: e.target.value.toUpperCase()})}
+                  placeholder="e.g., ES, FR"
+                  maxLength={2}
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#00CED1] focus:border-transparent"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button
+                  onClick={handleGenerateTranslation}
+                  disabled={generating || !selectedTranslateLanguage.language}
+                  className="w-full bg-[#00CED1] hover:bg-[#21D4B4] text-black font-semibold"
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Translating...
+                    </>
+                  ) : (
+                    'Translate'
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            {/* Translate to All Languages */}
+            <div className="pt-3 border-t border-blue-300">
+              <Button
+                onClick={handleGenerateAllTranslations}
+                disabled={generatingAll}
+                className="w-full bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold"
+              >
+                {generatingAll ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Translating to all languages...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Translate to ALL Languages
+                  </>
+                )}
+              </Button>
+              <p className="text-xs text-gray-600 mt-2 text-center">This will generate translations for all supported languages</p>
+            </div>
+          </div>
+
+          {/* Add New Translation Form (Manual Entry) */}
           <form onSubmit={handleAddTranslation} className="space-y-4 mb-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-sm font-medium text-gray-700">Add Text Translation</p>
+            <p className="text-sm font-medium text-gray-700">Add Text Translation (Manual Entry)</p>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">

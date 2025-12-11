@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -66,12 +65,44 @@ export default function Dashboard() {
     }
   };
 
-  const copyWidgetCode = () => {
+  const copyWidgetCode = async () => {
     const code = `<script src="${process.env.REACT_APP_BACKEND_URL}/api/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    toast.success('Widget code copied!');
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(code);
+        setCopied(true);
+        toast.success('Widget code copied!');
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = code;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          toast.success('Widget code copied!');
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          toast.error('Failed to copy. Please select and copy manually.');
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      // Final fallback - select the code so user can copy manually
+      toast.error('Clipboard not available. Code is selected - press Ctrl+C to copy.');
+      const textArea = document.createElement('textarea');
+      textArea.value = code;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.body.removeChild(textArea);
+    }
   };
 
   return (
@@ -159,26 +190,6 @@ export default function Dashboard() {
           </Button>
           
           <UserManagementDialog />
-        </div>
-
-        {/* Add-On Services */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Add-On Services (Coming Soon)</h2>
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>• Widget Customization</p>
-            <p>• Translation</p>
-            <p>• Website Accessibility</p>
-          </div>
-        </div>
-
-        {/* My Account */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">My Account</h2>
-          <div className="space-y-2">
-            <Link to="/settings" className="block text-sm text-gray-600 hover:text-[#00CED1]">Account Settings</Link>
-            <Link to="/billing" className="block text-sm text-gray-600 hover:text-[#00CED1]">Billing + Payments</Link>
-            <Link to="/users" className="block text-sm text-gray-600 hover:text-[#00CED1]">Manage Users</Link>
-          </div>
         </div>
 
         {/* Install PIVOT Widget */}

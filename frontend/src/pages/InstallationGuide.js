@@ -14,11 +14,43 @@ export default function InstallationGuide() {
   async
 ></script>`;
 
-  const copyCode = () => {
-    navigator.clipboard.writeText(widgetCode);
-    setCopied(true);
-    toast.success('Code copied!');
-    setTimeout(() => setCopied(false), 2000);
+  const copyCode = async () => {
+    try {
+      // Try modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(widgetCode);
+        setCopied(true);
+        toast.success('Code copied!');
+        setTimeout(() => setCopied(false), 2000);
+      } else {
+        // Fallback for older browsers or non-HTTPS
+        const textArea = document.createElement('textarea');
+        textArea.value = widgetCode;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          setCopied(true);
+          toast.success('Code copied!');
+          setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+          toast.error('Failed to copy. Please select and copy manually.');
+        }
+        document.body.removeChild(textArea);
+      }
+    } catch (err) {
+      // Final fallback - select the code so user can copy manually
+      toast.error('Clipboard not available. Code is selected - press Ctrl+C to copy.');
+      const textArea = document.createElement('textarea');
+      textArea.value = widgetCode;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.body.removeChild(textArea);
+    }
   };
 
   return (
