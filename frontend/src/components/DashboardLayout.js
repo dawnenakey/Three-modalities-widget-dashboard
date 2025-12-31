@@ -2,16 +2,34 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Home, Globe, BarChart3, Settings, LogOut, Briefcase } from 'lucide-react';
 
+/**
+ * @typedef {Object} NavItem
+ * @property {string} path - Route path
+ * @property {React.ComponentType<{ className?: string }>} icon - Lucide icon component
+ * @property {string} label - Navigation label
+ * @property {boolean} exact - Whether to match path exactly
+ */
+
+/**
+ * Dashboard layout component with sidebar navigation
+ * @param {{ children: React.ReactNode }} props - Component props
+ * @returns {JSX.Element} DashboardLayout component
+ */
 export default function DashboardLayout({ children }) {
   const location = useLocation();
   const { logout, user } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handles user logout
+   * @returns {void}
+   */
   const handleLogout = () => {
     logout();
     navigate('/login');
   };
 
+  /** @type {NavItem[]} */
   const navItems = [
     { path: '/', icon: Home, label: 'Home', exact: true },
     { path: '/websites', icon: Globe, label: 'Websites', exact: false },

@@ -7,10 +7,20 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { User, Mail, Lock, CreditCard } from 'lucide-react';
 
+/**
+ * Settings page component for account management
+ * @returns {JSX.Element} Settings component
+ */
 export default function Settings() {
   const { user } = useAuth();
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Handles profile update form submission
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setLoading(true);

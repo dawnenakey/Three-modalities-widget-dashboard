@@ -8,17 +8,35 @@ import { toast } from 'sonner';
 import { UserPlus } from 'lucide-react';
 import axios from 'axios';
 
+/**
+ * @typedef {'admin' | 'editor' | 'member'} UserRole
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+/**
+ * User management dialog component for inviting new team members
+ * @returns {JSX.Element} UserManagementDialog component
+ */
 export default function UserManagementDialog() {
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [open, setOpen] = useState(false);
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState('member');
+  /** @type {[UserRole, React.Dispatch<React.SetStateAction<UserRole>>]} */
+  const [role, setRole] = useState(/** @type {UserRole} */ ('member'));
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(false);
 
+  /**
+   * Handles user invitation form submission
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleInvite = async (e) => {
     e.preventDefault();
-    
+
     if (!email || !email.includes('@')) {
       toast.error('Please enter a valid email address');
       return;
@@ -31,7 +49,7 @@ export default function UserManagementDialog() {
       setEmail('');
       setRole('member');
       setOpen(false);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to send invitation');
     } finally {
       setLoading(false);

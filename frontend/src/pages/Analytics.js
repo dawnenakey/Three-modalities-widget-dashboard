@@ -4,11 +4,53 @@ import axios from 'axios';
 import { BarChart3, TrendingUp, Globe, Eye, Languages } from 'lucide-react';
 import { toast } from 'sonner';
 
+/**
+ * @typedef {Object} ModalityUsage
+ * @property {number} asl - ASL video views count
+ * @property {number} audio - Audio plays count
+ * @property {number} text - Text views count
+ */
+
+/**
+ * @typedef {Object} TopPage
+ * @property {string} url - Page URL
+ * @property {number} views - View count
+ */
+
+/**
+ * @typedef {Object} TopContent
+ * @property {string} text - Content text
+ * @property {number} interactions - Interaction count
+ */
+
+/**
+ * @typedef {Object} TopLanguage
+ * @property {string} code - Language code
+ * @property {string} name - Language name
+ * @property {number} count - Usage count
+ */
+
+/**
+ * @typedef {Object} AnalyticsStats
+ * @property {number} totalActivations - Total widget activations
+ * @property {TopPage[]} topPages - Most viewed pages
+ * @property {TopContent[]} topContent - Most interacted content
+ * @property {ModalityUsage} modalityUsage - Usage by modality type
+ * @property {TopLanguage[]} topLanguages - Most used languages
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+/**
+ * Analytics page component displaying usage statistics
+ * @returns {JSX.Element} Analytics component
+ */
 export default function Analytics() {
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
+  /** @type {[AnalyticsStats, React.Dispatch<React.SetStateAction<AnalyticsStats>>]} */
+  const [stats, setStats] = useState(/** @type {AnalyticsStats} */ ({
     totalActivations: 0,
     topPages: [],
     topContent: [],
@@ -18,17 +60,22 @@ export default function Analytics() {
       text: 0
     },
     topLanguages: []
-  });
+  }));
 
   useEffect(() => {
     fetchAnalytics();
   }, []);
 
+  /**
+   * Fetches analytics data from the API
+   * @returns {Promise<void>}
+   */
   const fetchAnalytics = async () => {
     try {
+      /** @type {{ data: AnalyticsStats }} */
       const response = await axios.get(`${API}/analytics/overview`);
       setStats(response.data);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Failed to load analytics:', error);
       // Show placeholder data for now
     } finally {

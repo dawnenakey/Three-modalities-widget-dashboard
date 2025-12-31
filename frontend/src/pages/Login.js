@@ -6,13 +6,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
+/**
+ * Login page component
+ * @returns {JSX.Element} Login component
+ */
 export default function Login() {
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [email, setEmail] = useState('');
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [password, setPassword] = useState('');
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handles form submission for login
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -20,7 +32,7 @@ export default function Login() {
       await login(email, password);
       toast.success('Welcome back!');
       navigate('/');
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error(error.response?.data?.detail || 'Login failed');
     } finally {
       setLoading(false);

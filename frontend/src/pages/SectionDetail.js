@@ -9,9 +9,71 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { ArrowLeft, Upload, Sparkles, Video, Volume2, FileText, Loader2, ExternalLink } from 'lucide-react';
 
+/**
+ * @typedef {'loading' | 'loaded' | 'error'} VideoLoadingState
+ */
+
+/**
+ * @typedef {Object} VideoData
+ * @property {number} id - Video unique identifier
+ * @property {string} language - Video language
+ * @property {string} video_url - Video URL (signed S3 URL)
+ */
+
+/**
+ * @typedef {Object} AudioData
+ * @property {number} id - Audio unique identifier
+ * @property {string} language - Audio language
+ * @property {string} audio_url - Audio URL (signed S3 URL)
+ */
+
+/**
+ * @typedef {Object} Translation
+ * @property {number} id - Translation unique identifier
+ * @property {string} language - Language name
+ * @property {string} language_code - Language code (e.g., 'es', 'fr')
+ * @property {string} text_content - Translated text content
+ */
+
+/**
+ * @typedef {Object} SectionData
+ * @property {number} id - Section unique identifier
+ * @property {string} selected_text - Original text content
+ * @property {string} [text_content] - Alternative text content field
+ * @property {number} position_order - Order position
+ * @property {string} status - Section status
+ */
+
+/**
+ * @typedef {Object} NewTranslation
+ * @property {string} language - Language name
+ * @property {string} language_code - Language code
+ * @property {string} text - Translated text
+ */
+
+/**
+ * @typedef {Object} TranslateLanguage
+ * @property {string} language - Language name
+ * @property {string} language_code - Language code
+ */
+
+/**
+ * @typedef {Object} UploadUrlResponse
+ * @property {string} upload_url - Presigned S3 upload URL
+ * @property {string} file_key - S3 file key
+ * @property {string} public_url - Public URL for the uploaded file
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
-// Dedicated S3 upload helper - uses raw fetch, NOT axios
+/**
+ * Uploads a file directly to S3 using a presigned URL
+ * @param {string} uploadUrl - Presigned S3 upload URL
+ * @param {File} file - File to upload
+ * @returns {Promise<void>}
+ * @throws {Error} If upload fails
+ */
 async function uploadToS3WithFetch(uploadUrl, file) {
   const res = await window.fetch(uploadUrl, {
     method: "PUT",
@@ -24,34 +86,59 @@ async function uploadToS3WithFetch(uploadUrl, file) {
   }
 }
 
-// Helper to get correct media URL
-// The backend now returns full signed URLs, so we just return it as-is
+/**
+ * Returns the media URL or empty string if not provided
+ * @param {string | undefined | null} url - The media URL
+ * @returns {string} The URL or empty string
+ */
 function getMediaUrl(url) {
   return url || '';
 }
 
-// VideoPlayer Component with Loading State and Delete Button
+/**
+ * VideoPlayer Component with Loading State and Delete Button
+ * @param {{ video: VideoData; onDelete: (videoId: number) => Promise<void> }} props - Component props
+ * @returns {JSX.Element} VideoPlayer component
+ */
 function VideoPlayer({ video, onDelete }) {
-  const [loadingState, setLoadingState] = useState('loading'); // 'loading', 'loaded', 'error'
+  /** @type {[VideoLoadingState, React.Dispatch<React.SetStateAction<VideoLoadingState>>]} */
+  const [loadingState, setLoadingState] = useState(/** @type {VideoLoadingState} */ ('loading'));
+  /** @type {[number, React.Dispatch<React.SetStateAction<number>>]} */
   const [retryCount, setRetryCount] = useState(0);
   // Backend now returns signed URL which might change, so we rely on that instead of cache busting
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [deleting, setDeleting] = useState(false);
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [errorMsg, setErrorMsg] = useState('');
 
   const videoUrl = getMediaUrl(video.video_url);
 
+  /**
+   * Handles video load start event
+   * @returns {void}
+   */
   const handleLoadStart = () => {
     setLoadingState('loading');
     setErrorMsg('');
   };
 
+  /**
+   * Handles video can play event
+   * @returns {void}
+   */
   const handleCanPlay = () => {
     setLoadingState('loaded');
   };
 
+  /**
+   * Handles video error event
+   * @param {React.SyntheticEvent<HTMLVideoElement, Event>} e - Error event
+   * @returns {void}
+   */
   const handleError = (e) => {
     console.error("Video load error:", e);
-    const error = e.target.error;
+    /** @type {MediaError | null} */
+    const error = /** @type {HTMLVideoElement} */ (e.target).error;
     let msg = "Unknown error";
     if (error) {
         if (error.code === 1) msg = "Aborted";
@@ -65,13 +152,17 @@ function VideoPlayer({ video, onDelete }) {
     if (retryCount < 2) {
       setTimeout(() => {
         setRetryCount(prev => prev + 1);
-        e.target.load();
+        /** @type {HTMLVideoElement} */ (e.target).load();
       }, 1500);
     } else {
       setLoadingState('error');
     }
   };
 
+  /**
+   * Handles retry button click
+   * @returns {void}
+   */
   const handleRetry = () => {
       setRetryCount(0);
       setLoadingState('loading');
@@ -80,6 +171,10 @@ function VideoPlayer({ video, onDelete }) {
       // For now, just reset state.
   };
 
+  /**
+   * Handles delete button click
+   * @returns {Promise<void>}
+   */
   const handleDelete = async () => {
     if (!window.confirm(`Are you sure you want to delete this video (${video.language})?`)) {
       return;
@@ -151,8 +246,18 @@ function VideoPlayer({ video, onDelete }) {
   );
 }
 
+/** @type {readonly string[]} */
 const ASL_LANGUAGES = ['ASL (American Sign Language)', 'LSM (Mexican)', 'BSL (British)', 'LSF (French)', 'Auslan (Australian)', 'JSL (Japanese)', 'KSL (Korean)', 'LIBRAS (Brazilian)'];
+/** @type {readonly string[]} */
 const AUDIO_LANGUAGES = ['English', 'Spanish', 'French', 'Chinese', 'Arabic', 'Hindi', 'Portuguese', 'Russian', 'Japanese', 'Korean'];
+
+/**
+ * @typedef {Object} TTSVoice
+ * @property {string} value - Voice ID
+ * @property {string} label - Voice display label
+ */
+
+/** @type {readonly TTSVoice[]} */
 const TTS_VOICES = [
   { value: 'alloy', label: 'Alloy (Neutral)' },
   { value: 'echo', label: 'Echo (Smooth)' },
@@ -160,59 +265,83 @@ const TTS_VOICES = [
   { value: 'onyx', label: 'Onyx (Deep)' },
 ];
 
+/**
+ * Section detail page component for managing videos, audio, and translations
+ * @returns {JSX.Element} SectionDetail component
+ */
 export default function SectionDetail() {
   const { sectionId } = useParams();
   const navigate = useNavigate();
-  const [section, setSection] = useState(null);
-  const [videos, setVideos] = useState([]);
-  const [audios, setAudios] = useState([]);
-  const [translations, setTranslations] = useState([]);
+  /** @type {[SectionData | null, React.Dispatch<React.SetStateAction<SectionData | null>>]} */
+  const [section, setSection] = useState(/** @type {SectionData | null} */ (null));
+  /** @type {[VideoData[], React.Dispatch<React.SetStateAction<VideoData[]>>]} */
+  const [videos, setVideos] = useState(/** @type {VideoData[]} */ ([]));
+  /** @type {[AudioData[], React.Dispatch<React.SetStateAction<AudioData[]>>]} */
+  const [audios, setAudios] = useState(/** @type {AudioData[]} */ ([]));
+  /** @type {[Translation[], React.Dispatch<React.SetStateAction<Translation[]>>]} */
+  const [translations, setTranslations] = useState(/** @type {Translation[]} */ ([]));
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(true);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [uploading, setUploading] = useState(false);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [generating, setGenerating] = useState(false);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [generatingAll, setGeneratingAll] = useState(false);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [editingText, setEditingText] = useState(false);
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [editedText, setEditedText] = useState('');
-  const [newTranslation, setNewTranslation] = useState({ language: '', language_code: '', text: '' });
-  const [selectedTranslateLanguage, setSelectedTranslateLanguage] = useState({ language: '', language_code: '' });
+  /** @type {[NewTranslation, React.Dispatch<React.SetStateAction<NewTranslation>>]} */
+  const [newTranslation, setNewTranslation] = useState(/** @type {NewTranslation} */ ({ language: '', language_code: '', text: '' }));
+  /** @type {[TranslateLanguage, React.Dispatch<React.SetStateAction<TranslateLanguage>>]} */
+  const [selectedTranslateLanguage, setSelectedTranslateLanguage] = useState(/** @type {TranslateLanguage} */ ({ language: '', language_code: '' }));
 
   useEffect(() => {
     fetchData();
   }, [sectionId]);
 
+  /**
+   * Fetches section data including videos, audios, and translations
+   * @returns {Promise<void>}
+   */
   const fetchData = async () => {
     setLoading(true);
     try {
       // Fetch section first to verify it exists
+      /** @type {{ data: SectionData }} */
       const sectionRes = await axios.get(`${API}/sections/${sectionId}`);
       setSection(sectionRes.data);
-      
+
       // Then fetch videos and audios (these can fail without breaking the page)
       try {
+        /** @type {{ data: VideoData[] }} */
         const videosRes = await axios.get(`${API}/sections/${sectionId}/videos`);
         setVideos(videosRes.data);
-      } catch (videoError) {
+      } catch (/** @type {any} */ videoError) {
         console.error('Failed to load videos:', videoError);
         setVideos([]);
       }
-      
+
       try {
+        /** @type {{ data: AudioData[] }} */
         const audiosRes = await axios.get(`${API}/sections/${sectionId}/audio`);
         setAudios(audiosRes.data);
-      } catch (audioError) {
+      } catch (/** @type {any} */ audioError) {
         console.error('Failed to load audio:', audioError);
         setAudios([]);
       }
-      
+
       // Fetch text translations
       try {
+        /** @type {{ data: Translation[] }} */
         const translationsRes = await axios.get(`${API}/sections/${sectionId}/translations`);
         setTranslations(translationsRes.data);
-      } catch (translationError) {
+      } catch (/** @type {any} */ translationError) {
         console.error('Failed to load translations:', translationError);
         setTranslations([]);
       }
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Failed to load section data:', error);
       // Only navigate away if it's a 404 (section not found)
       if (error.response?.status === 404) {
@@ -227,57 +356,63 @@ export default function SectionDetail() {
     }
   };
 
+  /**
+   * Handles video file upload
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleVideoUpload = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const videoFile = formData.get('video');
-    const language = formData.get('language');
-    
+    const formData = new FormData(/** @type {HTMLFormElement} */ (e.target));
+    const videoFile = /** @type {File | null} */ (formData.get('video'));
+    const language = /** @type {string | null} */ (formData.get('language'));
+
     if (!videoFile || !videoFile.name) {
       toast.error('Please select a video file');
       return;
     }
-    
+
     // Validate file size (500MB max)
     const MAX_SIZE = 500 * 1024 * 1024; // 500MB
     if (videoFile.size > MAX_SIZE) {
       toast.error(`File too large! Maximum size is 500MB. Your file is ${(videoFile.size / 1024 / 1024).toFixed(1)}MB`);
       return;
     }
-    
+
     setUploading(true);
     try {
       // Step 1: Get presigned upload URL from backend
+      /** @type {{ data: UploadUrlResponse }} */
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/video/upload-url`, {
         filename: videoFile.name,
         content_type: videoFile.type || 'video/mp4',
         file_size: videoFile.size
       });
-      
+
       // Step 2: Upload directly to S3 using presigned PUT URL
       toast.loading('Uploading video to S3...', { id: 'video-upload' });
       await uploadToS3WithFetch(uploadData.upload_url, videoFile);
-      
+
       // Step 3: Confirm upload with backend
       await axios.post(`${API}/sections/${sectionId}/video/confirm`, {
         file_key: uploadData.file_key,
         public_url: uploadData.public_url,
         language: language
       });
-      
+
       toast.success('Video uploaded successfully! Refreshing...', { id: 'video-upload' });
-      e.target.reset();
-      
+      /** @type {HTMLFormElement} */ (e.target).reset();
+
       // Refresh data after successful upload with a small delay
       setTimeout(async () => {
         try {
           await fetchData();
-        } catch (refreshError) {
+        } catch (/** @type {any} */ refreshError) {
           console.error('Failed to refresh after upload:', refreshError);
           toast.info('Video uploaded! Please refresh the page manually to see it.');
         }
       }, 1000); // Give the backend a moment to finish processing
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.detail || 'Failed to upload video', { id: 'video-upload' });
     } finally {
@@ -285,52 +420,63 @@ export default function SectionDetail() {
     }
   };
 
+  /**
+   * Handles audio file upload
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleAudioUpload = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-    const audioFile = formData.get('audio');
-    const language = formData.get('language');
-    
+    const formData = new FormData(/** @type {HTMLFormElement} */ (e.target));
+    const audioFile = /** @type {File | null} */ (formData.get('audio'));
+    const language = /** @type {string | null} */ (formData.get('language'));
+
+    if (!audioFile) {
+      toast.error('Please select an audio file');
+      return;
+    }
+
     // Validate file size (500MB for audio)
     const MAX_SIZE = 524288000; // 500MB
     if (audioFile.size > MAX_SIZE) {
       toast.error(`Audio file is too large. Maximum size is 500MB. Your file is ${(audioFile.size / 1048576).toFixed(2)}MB`);
       return;
     }
-    
+
     setUploading(true);
     try {
       // Step 1: Get presigned upload URL
+      /** @type {{ data: UploadUrlResponse }} */
       const { data: uploadData } = await axios.post(`${API}/sections/${sectionId}/audio/upload-url`, {
         filename: audioFile.name,
         content_type: audioFile.type || 'audio/mpeg',
         file_size: audioFile.size
       });
-      
+
       // Step 2: Upload directly to S3 using presigned PUT URL
       toast.loading('Uploading audio to S3...', { id: 'audio-upload' });
       await uploadToS3WithFetch(uploadData.upload_url, audioFile);
-      
+
       // Step 3: Confirm upload
       await axios.post(`${API}/sections/${sectionId}/audio/confirm`, {
         file_key: uploadData.file_key,
         public_url: uploadData.public_url,
         language: language
       });
-      
+
       toast.success('Audio uploaded successfully! Refreshing...', { id: 'audio-upload' });
-      e.target.reset();
-      
+      /** @type {HTMLFormElement} */ (e.target).reset();
+
       // Refresh data after successful upload with a small delay
       setTimeout(async () => {
         try {
           await fetchData();
-        } catch (refreshError) {
+        } catch (/** @type {any} */ refreshError) {
           console.error('Failed to refresh after upload:', refreshError);
           toast.info('Audio uploaded! Please refresh the page manually to see it.');
         }
       }, 1000); // Give the backend a moment to finish processing
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Upload error:', error);
       toast.error(error.response?.data?.detail || 'Failed to upload audio', { id: 'audio-upload' });
     } finally {
@@ -338,95 +484,124 @@ export default function SectionDetail() {
     }
   };
 
+  /**
+   * Handles TTS audio generation
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleGenerateTTS = async (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
+    const formData = new FormData(/** @type {HTMLFormElement} */ (e.target));
     setGenerating(true);
     try {
       await axios.post(`${API}/sections/${sectionId}/audio/generate`, formData);
       toast.success('Audio generated!');
-      e.target.reset();
+      /** @type {HTMLFormElement} */ (e.target).reset();
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error(error.response?.data?.detail || 'Failed to generate audio');
     } finally {
       setGenerating(false);
     }
   };
 
+  /**
+   * Handles video deletion
+   * @param {number} videoId - ID of the video to delete
+   * @returns {Promise<void>}
+   */
   const handleDeleteVideo = async (videoId) => {
     try {
       await axios.delete(`${API}/videos/${videoId}`);
       toast.success('Video deleted successfully!');
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Delete video error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete video');
     }
   };
 
+  /**
+   * Handles audio deletion
+   * @param {number} audioId - ID of the audio to delete
+   * @returns {Promise<void>}
+   */
   const handleDeleteAudio = async (audioId) => {
     try {
       await axios.delete(`${API}/audios/${audioId}`);
       toast.success('Audio deleted successfully!');
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Delete audio error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete audio');
     }
   };
 
+  /**
+   * Handles adding a new translation manually
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleAddTranslation = async (e) => {
     e.preventDefault();
     if (!newTranslation.language || !newTranslation.language_code || !newTranslation.text) {
       toast.error('Please fill in all fields');
       return;
     }
-    
+
     try {
       const formData = new FormData();
       formData.append('language', newTranslation.language);
       formData.append('language_code', newTranslation.language_code);
       formData.append('text_content', newTranslation.text);
-      
+
       await axios.post(`${API}/sections/${sectionId}/translations`, formData);
       toast.success('Translation added successfully!');
       setNewTranslation({ language: '', language_code: '', text: '' });
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Add translation error:', error);
       toast.error(error.response?.data?.detail || 'Failed to add translation');
     }
   };
 
+  /**
+   * Handles translation deletion
+   * @param {number} translationId - ID of the translation to delete
+   * @returns {Promise<void>}
+   */
   const handleDeleteTranslation = async (translationId) => {
     try {
       await axios.delete(`${API}/translations/${translationId}`);
       toast.success('Translation deleted successfully!');
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Delete translation error:', error);
       toast.error(error.response?.data?.detail || 'Failed to delete translation');
     }
   };
 
+  /**
+   * Handles generating a translation for a single language
+   * @returns {Promise<void>}
+   */
   const handleGenerateTranslation = async () => {
     if (!selectedTranslateLanguage.language || !selectedTranslateLanguage.language_code) {
       toast.error('Please select a language to translate to');
       return;
     }
-    
+
     setGenerating(true);
     try {
       const formData = new FormData();
       formData.append('target_language', selectedTranslateLanguage.language);
       formData.append('language_code', selectedTranslateLanguage.language_code);
-      
+
       await axios.post(`${API}/sections/${sectionId}/translations/generate`, formData);
       toast.success(`Translation to ${selectedTranslateLanguage.language} generated successfully!`);
       setSelectedTranslateLanguage({ language: '', language_code: '' });
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Generate translation error:', error);
       toast.error(error.response?.data?.detail || 'Failed to generate translation');
     } finally {
@@ -434,20 +609,25 @@ export default function SectionDetail() {
     }
   };
 
+  /**
+   * Handles generating translations for all available languages
+   * @returns {Promise<void>}
+   */
   const handleGenerateAllTranslations = async () => {
     if (!window.confirm('This will translate this section to ALL available languages. This may take a few minutes. Continue?')) {
       return;
     }
-    
+
     setGeneratingAll(true);
     try {
       const formData = new FormData();
       formData.append('source_language', 'auto');
-      
+
+      /** @type {{ data: Translation[] }} */
       const response = await axios.post(`${API}/sections/${sectionId}/translations/generate-all`, formData);
       toast.success(`Generated ${response.data.length} translations successfully!`);
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('Generate all translations error:', error);
       toast.error(error.response?.data?.detail || 'Failed to generate translations');
     } finally {

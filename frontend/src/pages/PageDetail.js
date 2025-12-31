@@ -9,8 +9,41 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { ArrowLeft, FileText, Video, Volume2, GripVertical } from 'lucide-react';
 
+/**
+ * @typedef {'Active' | 'Needs Review' | 'Draft'} SectionStatus
+ */
+
+/**
+ * @typedef {Object} Section
+ * @property {number} id - Section unique identifier
+ * @property {string} selected_text - The selected text content
+ * @property {number} position_order - The order position
+ * @property {SectionStatus} status - Section status
+ * @property {number} videos_count - Number of videos
+ * @property {number} audios_count - Number of audio files
+ */
+
+/**
+ * @typedef {Object} Page
+ * @property {number} id - Page unique identifier
+ * @property {string} url - Page URL
+ * @property {number} website_id - Parent website ID
+ */
+
+/**
+ * @typedef {Object} SectionReorderItem
+ * @property {number} id - Section ID
+ * @property {number} position_order - New position order
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+/**
+ * Sortable section item component for drag-and-drop reordering
+ * @param {{ section: Section; navigate: (path: string) => void }} props - Component props
+ * @returns {JSX.Element} Sortable section item
+ */
 function SortableSectionItem({ section, navigate }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: section.id });
 
@@ -66,13 +99,22 @@ function SortableSectionItem({ section, navigate }) {
   );
 }
 
+/**
+ * Page detail component displaying sections with drag-and-drop reordering
+ * @returns {JSX.Element} PageDetail component
+ */
 export default function PageDetail() {
   const { pageId } = useParams();
   const navigate = useNavigate();
-  const [page, setPage] = useState(null);
-  const [sections, setSections] = useState([]);
+  /** @type {[Page | null, React.Dispatch<React.SetStateAction<Page | null>>]} */
+  const [page, setPage] = useState(/** @type {Page | null} */ (null));
+  /** @type {[Section[], React.Dispatch<React.SetStateAction<Section[]>>]} */
+  const [sections, setSections] = useState(/** @type {Section[]} */ ([]));
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(true);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [showAddSection, setShowAddSection] = useState(false);
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [newSectionText, setNewSectionText] = useState('');
 
   const sensors = useSensors(
@@ -86,17 +128,25 @@ export default function PageDetail() {
     fetchData();
   }, [pageId]);
 
+  /**
+   * Fetches page and sections data
+   * @returns {Promise<void>}
+   */
   const fetchData = async () => {
     try {
+      /** @type {[{ data: Page }, { data: Section[] }]} */
       const [pageRes, sectionsRes] = await Promise.all([
         axios.get(`${API}/pages/${pageId}`),
         axios.get(`${API}/pages/${pageId}/sections`)
       ]);
       setPage(pageRes.data);
       // Sort sections by position_order
-      const sortedSections = sectionsRes.data.sort((a, b) => a.position_order - b.position_order);
+      const sortedSections = sectionsRes.data.sort(
+        /** @param {Section} a @param {Section} b */
+        (a, b) => a.position_order - b.position_order
+      );
       setSections(sortedSections);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to load page data');
       navigate('/');
     } finally {
@@ -104,26 +154,37 @@ export default function PageDetail() {
     }
   };
 
+  /**
+   * Handles drag end event for section reordering
+   * @param {{ active: { id: number }; over: { id: number } | null }} event - Drag event
+   * @returns {Promise<void>}
+   */
   const handleDragEnd = async (event) => {
     const { active, over } = event;
 
-    if (active.id !== over.id) {
+    if (over && active.id !== over.id) {
       setSections((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
         const newItems = arrayMove(items, oldIndex, newIndex);
-        
+
         // Update order in backend
         updateSectionsOrder(newItems);
-        
+
         return newItems;
       });
     }
   };
 
+  /**
+   * Updates sections order in the backend
+   * @param {Section[]} newSections - Reordered sections array
+   * @returns {Promise<void>}
+   */
   const updateSectionsOrder = async (newSections) => {
     try {
       // Prepare bulk update payload
+      /** @type {SectionReorderItem[]} */
       const updates = newSections.map((section, index) => ({
         id: section.id,
         position_order: index + 1
@@ -131,13 +192,17 @@ export default function PageDetail() {
 
       await axios.put(`${API}/pages/${pageId}/sections/reorder`, { sections: updates });
       toast.success('Section order updated');
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to update section order');
       // Revert changes on error (optional, but good UX)
       fetchData();
     }
   };
 
+  /**
+   * Handles adding a new section
+   * @returns {Promise<void>}
+   */
   const handleAddSection = async () => {
     if (!newSectionText.trim()) {
       toast.error('Please enter section text');
@@ -153,7 +218,7 @@ export default function PageDetail() {
       setNewSectionText('');
       setShowAddSection(false);
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to add section');
     }
   };

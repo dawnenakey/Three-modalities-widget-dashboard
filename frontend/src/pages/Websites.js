@@ -6,25 +6,45 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Plus } from 'lucide-react';
 
+/**
+ * @typedef {Object} Website
+ * @property {number} id - Website unique identifier
+ * @property {string} name - Website name
+ * @property {string} url - Website URL
+ * @property {string} [image_url] - Preview image URL
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+/**
+ * Websites list page component
+ * @returns {JSX.Element} Websites component
+ */
 export default function Websites() {
   const navigate = useNavigate();
-  const [websites, setWebsites] = useState([]);
+  /** @type {[Website[], React.Dispatch<React.SetStateAction<Website[]>>]} */
+  const [websites, setWebsites] = useState(/** @type {Website[]} */ ([]));
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchWebsites();
   }, []);
 
+  /**
+   * Fetches websites from the API
+   * @returns {Promise<void>}
+   */
   const fetchWebsites = async () => {
     try {
       console.log('🔍 Fetching websites from:', `${API}/websites`);
       console.log('🔑 Auth header:', axios.defaults.headers.common['Authorization'] ? 'Present' : 'Missing');
+      /** @type {{ data: Website[] }} */
       const response = await axios.get(`${API}/websites`);
       console.log('✅ Websites response:', response.data);
       setWebsites(response.data);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('❌ Error fetching websites:', error);
       console.error('Response:', error.response?.data);
       console.error('Status:', error.response?.status);

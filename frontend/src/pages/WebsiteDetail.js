@@ -9,32 +9,69 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { toast } from 'sonner';
 import { ArrowLeft, Plus, Code, Copy, CheckCircle, Trash2, Edit } from 'lucide-react';
 
+/**
+ * @typedef {Object} Website
+ * @property {number} id - Website unique identifier
+ * @property {string} name - Website name
+ * @property {string} url - Website URL
+ * @property {string} embed_code - Widget embed code
+ */
+
+/**
+ * @typedef {'Active' | 'Inactive' | 'Not Setup'} PageStatus
+ */
+
+/**
+ * @typedef {Object} Page
+ * @property {number} id - Page unique identifier
+ * @property {string} url - Page URL
+ * @property {PageStatus} [status] - Page status
+ * @property {number} [sections_count] - Number of sections
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+/**
+ * Website detail page component
+ * @returns {JSX.Element} WebsiteDetail component
+ */
 export default function WebsiteDetail() {
   const { websiteId } = useParams();
   const navigate = useNavigate();
-  const [website, setWebsite] = useState(null);
-  const [pages, setPages] = useState([]);
+  /** @type {[Website | null, React.Dispatch<React.SetStateAction<Website | null>>]} */
+  const [website, setWebsite] = useState(/** @type {Website | null} */ (null));
+  /** @type {[Page[], React.Dispatch<React.SetStateAction<Page[]>>]} */
+  const [pages, setPages] = useState(/** @type {Page[]} */ ([]));
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(true);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [showDialog, setShowDialog] = useState(false);
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [url, setUrl] = useState('');
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [creating, setCreating] = useState(false);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, [websiteId]);
 
+  /**
+   * Fetches website and pages data
+   * @returns {Promise<void>}
+   */
   const fetchData = async () => {
     try {
+      /** @type {[{ data: Website }, { data: Page[] }]} */
       const [websiteRes, pagesRes] = await Promise.all([
         axios.get(`${API}/websites/${websiteId}`),
         axios.get(`${API}/websites/${websiteId}/pages`)
       ]);
       setWebsite(websiteRes.data);
       setPages(pagesRes.data);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to load website data');
       navigate('/');
     } finally {
@@ -42,6 +79,11 @@ export default function WebsiteDetail() {
     }
   };
 
+  /**
+   * Handles page creation form submission
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleCreatePage = async (e) => {
     e.preventDefault();
     setCreating(true);
@@ -51,33 +93,42 @@ export default function WebsiteDetail() {
       setShowDialog(false);
       setUrl('');
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to create page');
     } finally {
       setCreating(false);
     }
   };
 
+  /**
+   * Handles page deletion
+   * @param {number} pageId - ID of the page to delete
+   * @returns {Promise<void>}
+   */
   const handleDeletePage = async (pageId) => {
     if (!window.confirm('Are you sure you want to delete this page? This will also delete all sections, videos, audio, and translations associated with it. This action cannot be undone.')) return;
     try {
       await axios.delete(`${API}/pages/${pageId}`);
       toast.success('Page and all associated content deleted successfully!');
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error(error.response?.data?.detail || 'Failed to delete page');
     }
   };
 
+  /**
+   * Copies the website embed code to clipboard
+   * @returns {Promise<void>}
+   */
   const copyEmbedCode = async () => {
     try {
       // Try modern clipboard API first
-      if (navigator.clipboard && navigator.clipboard.writeText) {
+      if (navigator.clipboard && navigator.clipboard.writeText && website) {
         await navigator.clipboard.writeText(website.embed_code);
         setCopied(true);
         toast.success('Embed code copied!');
         setTimeout(() => setCopied(false), 2000);
-      } else {
+      } else if (website) {
         // Fallback for older browsers or non-HTTPS
         const textArea = document.createElement('textarea');
         textArea.value = website.embed_code;
@@ -92,29 +143,35 @@ export default function WebsiteDetail() {
           setCopied(true);
           toast.success('Embed code copied!');
           setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
+        } catch (/** @type {any} */ err) {
           toast.error('Failed to copy. Please select and copy manually.');
         }
         document.body.removeChild(textArea);
       }
-    } catch (err) {
+    } catch (/** @type {any} */ err) {
       // Final fallback - show the code in an alert so user can copy manually
       toast.error('Clipboard not available. Code is selected - press Ctrl+C to copy.');
-      const textArea = document.createElement('textarea');
-      textArea.value = website.embed_code;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.body.removeChild(textArea);
+      if (website) {
+        const textArea = document.createElement('textarea');
+        textArea.value = website.embed_code;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.body.removeChild(textArea);
+      }
     }
   };
 
+  /**
+   * Handles website deletion
+   * @returns {Promise<void>}
+   */
   const handleDeleteWebsite = async () => {
     if (!window.confirm('Are you sure you want to delete this website? This will also delete all associated pages.')) return;
     try {
       await axios.delete(`${API}/websites/${websiteId}`);
       toast.success('Website deleted');
       navigate('/');
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to delete website');
     }
   };
@@ -129,7 +186,13 @@ export default function WebsiteDetail() {
     );
   }
 
+  /**
+   * Gets the CSS class for a page status badge
+   * @param {PageStatus} status - The page status
+   * @returns {string} CSS class string
+   */
   const getStatusBadge = (status) => {
+    /** @type {Record<PageStatus, string>} */
     const statusConfig = {
       'Active': 'bg-[#045D04] text-white',
       'Inactive': 'bg-[#A7A9AD] text-black',
@@ -138,13 +201,19 @@ export default function WebsiteDetail() {
     return statusConfig[status] || statusConfig['Not Setup'];
   };
 
+  /**
+   * Handles page status change
+   * @param {number} pageId - ID of the page
+   * @param {PageStatus} newStatus - The new status to set
+   * @returns {Promise<void>}
+   */
   const handleStatusChange = async (pageId, newStatus) => {
     try {
       await axios.patch(`${API}/pages/${pageId}/status`, { status: newStatus });
       toast.success(`Status updated to ${newStatus}`);
       // Refresh pages to show updated status
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to update status');
     }
   };

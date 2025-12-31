@@ -7,37 +7,53 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 
+/**
+ * Register page component for creating new accounts
+ * @returns {JSX.Element} Register component
+ */
 export default function Register() {
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [firstName, setFirstName] = useState('');
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [lastName, setLastName] = useState('');
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [email, setEmail] = useState('');
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [password, setPassword] = useState('');
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [confirmPassword, setConfirmPassword] = useState('');
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [agreed, setAgreed] = useState(false);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  /**
+   * Handles form submission for registration
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
-    
+
     if (!agreed) {
       toast.error('Please agree to the Terms of Service');
       return;
     }
-    
+
     setLoading(true);
     try {
       const fullName = `${firstName} ${lastName}`;
       await register(fullName, email, password);
       toast.success('Account created successfully!');
       navigate('/');
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error(error.response?.data?.detail || 'Registration failed');
     } finally {
       setLoading(false);

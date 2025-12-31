@@ -10,37 +10,68 @@ import { toast } from 'sonner';
 import { Plus, Globe, FileText, Users, Code, Copy, CheckCircle } from 'lucide-react';
 import UserManagementDialog from '@/components/UserManagementDialog';
 
+/**
+ * @typedef {Object} Website
+ * @property {number} id - Website unique identifier
+ * @property {string} name - Website name
+ * @property {string} url - Website URL
+ * @property {string} [embed_code] - Embed code for the widget
+ * @property {number} [pages_count] - Number of pages
+ */
+
+/**
+ * @typedef {Object} Stats
+ * @property {number} total_pages - Total number of pages across all websites
+ */
+
+/** @type {string} */
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
+/**
+ * Dashboard page component
+ * @returns {JSX.Element} Dashboard component
+ */
 export default function Dashboard() {
   const { user } = useAuth();
-  const [websites, setWebsites] = useState([]);
+  /** @type {[Website[], React.Dispatch<React.SetStateAction<Website[]>>]} */
+  const [websites, setWebsites] = useState(/** @type {Website[]} */ ([]));
+  /** @type {[number, React.Dispatch<React.SetStateAction<number>>]} */
   const [totalPages, setTotalPages] = useState(0);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [showDialog, setShowDialog] = useState(false);
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [name, setName] = useState('');
+  /** @type {[string, React.Dispatch<React.SetStateAction<string>>]} */
   const [url, setUrl] = useState('');
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [creating, setCreating] = useState(false);
+  /** @type {[boolean, React.Dispatch<React.SetStateAction<boolean>>]} */
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  /**
+   * Fetches dashboard data including websites and stats
+   * @returns {Promise<void>}
+   */
   const fetchData = async () => {
     try {
       console.log('🔍 Fetching dashboard data from:', `${API}/websites`);
       console.log('🔑 Auth header:', axios.defaults.headers.common['Authorization'] ? 'Present' : 'Missing');
       // Fetch websites and stats in parallel
+      /** @type {[{ data: Website[] }, { data: Stats }]} */
       const [websitesRes, statsRes] = await Promise.all([
         axios.get(`${API}/websites`),
         axios.get(`${API}/stats`)
       ]);
-      
+
       console.log('✅ Websites response:', websitesRes.data);
       console.log('✅ Stats response:', statsRes.data);
       setWebsites(websitesRes.data);
       setTotalPages(statsRes.data.total_pages);
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       console.error('❌ Error fetching dashboard data:', error);
       console.error('Response:', error.response?.data);
       console.error('Status:', error.response?.status);
@@ -48,6 +79,11 @@ export default function Dashboard() {
     }
   };
 
+  /**
+   * Handles website creation form submission
+   * @param {React.FormEvent<HTMLFormElement>} e - Form event
+   * @returns {Promise<void>}
+   */
   const handleCreate = async (e) => {
     e.preventDefault();
     setCreating(true);
@@ -58,13 +94,17 @@ export default function Dashboard() {
       setName('');
       setUrl('');
       fetchData();
-    } catch (error) {
+    } catch (/** @type {any} */ error) {
       toast.error('Failed to create website');
     } finally {
       setCreating(false);
     }
   };
 
+  /**
+   * Copies the widget installation code to clipboard
+   * @returns {Promise<void>}
+   */
   const copyWidgetCode = async () => {
     const code = `<script src="${process.env.REACT_APP_BACKEND_URL}/api/widget.js" data-website-id="YOUR_WEBSITE_ID"></script>`;
     try {
